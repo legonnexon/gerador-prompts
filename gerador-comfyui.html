@@ -166,6 +166,14 @@ input[type=range]{width:100%;accent-color:var(--or);margin:2px 0 10px}
 .ulo:hover:not(:disabled){border-color:var(--or)}
 .ulo:disabled{opacity:.55;cursor:default}
 .lrx:focus-visible,.tgc button:focus-visible,.sgb:focus-visible,.ulb:focus-visible,.ulo:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.lrm{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border:0;border-radius:8px;background:none;color:var(--mut);cursor:pointer}
+.lrm:hover{background:var(--line)}
+.lrm:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.lrm svg{transition:transform .15s}
+.lr.min .lrm svg{transform:rotate(-90deg)}
+.lr.min>:not(.lrh){display:none}
+.lr.min{padding:6px 10px}
+.lrc{flex:none;margin-left:6px;padding:1px 7px;border-radius:999px;background:var(--line);color:var(--mut);font-size:11px;font-weight:600}
 </style>
 <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
 </head>
@@ -643,7 +651,12 @@ function ulRender(){
   const out=document.createElement("output");out.textContent=(+u.s).toFixed(2);
   const rm=document.createElement("button");rm.type="button";rm.className="lrx";rm.textContent="\u00d7";rm.setAttribute("aria-label","Remover "+ulName(u.f));rm.title="Remover da lista";
   rm.onclick=()=>{UL.splice(i,1);ulSave();ulRender();if(typeof ulChar==="function")ulChar();};
-  h.append(lab,out,rm);
+  const mn=document.createElement("button");mn.type="button";mn.className="lrm";mn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+  mn.setAttribute("aria-expanded",String(!u.min));mn.setAttribute("aria-label",(u.min?"Expandir ":"Minimizar ")+ulName(u.f));mn.title=u.min?"Expandir":"Minimizar";
+  mn.onclick=()=>{u.min=!u.min;ulSave();ulRender();const b=$("ul").querySelectorAll(".lrm")[i];if(b)b.focus();};
+  if(u.min){const c=document.createElement("span");c.className="lrc";c.textContent=u.tags.length?u.tags.length+(u.tags.length>1?" tags":" tag"):"sem tags";lab.appendChild(c);}
+  d.classList.toggle("min",!!u.min);
+  h.append(lab,out,mn,rm);
   const rg=document.createElement("input");rg.type="range";rg.min="0";rg.max="2";rg.step="0.05";rg.value=u.s;rg.setAttribute("aria-label","Força de "+ulName(u.f));
   rg.oninput=()=>{u.s=+rg.value;out.textContent=(+u.s).toFixed(2);ulSave();};
   const tg=document.createElement("div");tg.className="lrt";
