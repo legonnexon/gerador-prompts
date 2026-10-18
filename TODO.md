@@ -19,11 +19,17 @@
 ## A fazer
 
 ### Aviso de LoRA não encontrado (prevenção de erros)
-- Antes de enviar: comparar os LoRAs ligados com a última lista lida do ComfyUI. Se algum não existir mais, avisar antes de gastar a geração.
-- Depois de enviar: quando o ComfyUI recusar o prompt (erro 400 com node_errors, "value not in list"), ler o erro e mostrar qual arquivo falhou, em vez da mensagem genérica.
-- O aviso oferece: Remover da lista / Desligar / Trocar por um parecido (busca por nome semelhante, para LoRAs renomeados).
-- Na lista, LoRA ausente ganha uma etiqueta de alerta até ser resolvido.
-- Valer também para Variar, Upscale e Mesma seed de imagens antigas (avisar se o LoRA daquela imagem sumiu).
+- Quando detectar: antes de enviar (comparando com a lista do ComfyUI) e quando o ComfyUI recusar o prompt (erro 400, "value not in list").
+- Como aparece: janela de aviso no centro da tela, com fundo escurecido (mesmo visual do visualizador de imagem), listando os arquivos que não existem mais.
+  - Botões: "Remover da lista" (em cada LoRA ou todos) e "Fechar".
+  - Nada é enviado enquanto o aviso estiver aberto. Depois de fechar, GENERATE gera sem os LoRAs com problema.
+- LoRA com problema na lista:
+  - Fica desabilitado: sem checkbox, sem controle de força e sem sugestões de tags.
+  - Mostra um símbolo de atenção amarelo e "Não encontrado no ComfyUI".
+  - Mantém o botão × para remover e um link "Verificar de novo" (caso o arquivo volte para a pasta).
+  - As tags e a força ficam guardadas: se o arquivo voltar, o LoRA volta ao normal sozinho na próxima verificação.
+  - Não é enviado ao ComfyUI enquanto estiver com problema.
+- Imagens antigas: Variar, Upscale e Mesma seed também passam pela verificação.
 - Mesmo tratamento para o checkpoint (item abaixo).
 
 ### Escolher o checkpoint (modelo base)
