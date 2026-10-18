@@ -16,7 +16,29 @@
   - Modo "Só o fundo": tags de Personagem e Roupa não entram.
 - jogo.html: LoRA do personagem no editor; entra sempre com aquele personagem, somando às tags dele.
 
+## A fazer
+
+### Aviso de LoRA não encontrado (prevenção de erros)
+- Antes de enviar: comparar os LoRAs ligados com a última lista lida do ComfyUI. Se algum não existir mais, avisar antes de gastar a geração.
+- Depois de enviar: quando o ComfyUI recusar o prompt (erro 400 com node_errors, "value not in list"), ler o erro e mostrar qual arquivo falhou, em vez da mensagem genérica.
+- O aviso oferece: Remover da lista / Desligar / Trocar por um parecido (busca por nome semelhante, para LoRAs renomeados).
+- Na lista, LoRA ausente ganha uma etiqueta de alerta até ser resolvido.
+- Valer também para Variar, Upscale e Mesma seed de imagens antigas (avisar se o LoRA daquela imagem sumiu).
+- Mesmo tratamento para o checkpoint (item abaixo).
+
+### Escolher o checkpoint (modelo base)
+Pensado para ser simples de usar:
+- Linha fixa no topo da seção LoRAs: "Modelo: <nome curto>" com um botão Trocar. Sem lista aberta o tempo todo.
+- Trocar abre o mesmo seletor com busca dos LoRAs (lista lida do ComfyUI só ao clicar).
+- No topo do seletor: os modelos usados recentemente (últimos 3 a 5), para trocar rápido.
+- Nome curto na tela (sem pasta e extensão); nome completo ao passar o mouse.
+- Padrão: o checkpoint que já está no workflow; botão "Voltar ao padrão".
+- Salvo no navegador e compartilhado entre gerador e jogo.
+- Cada imagem guarda o checkpoint usado; Variar e Upscale usam o da imagem; Mesma seed usa o escolhido agora.
+- Checkpoint ausente: mesmo aviso do item anterior.
+
 ## Ideias para depois
 - Etiqueta de tipo do LoRA (personagem, estilo, detalhe...) por palpite: descartado por enquanto.
 - Buscar as palavras-gatilho no Civitai pelo hash do arquivo.
 - Mostrar no chip do personagem (jogo) quando ele tem LoRA.
+- Misturas de LoRAs salvas com nome; comparar forças lado a lado; mostrar os LoRAs de cada imagem no visualizador (com "Usar estes LoRAs"); backup das configurações em arquivo.
