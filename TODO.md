@@ -33,7 +33,7 @@
 - Mesmo tratamento para o checkpoint (item abaixo).
 
 ### Escolher o checkpoint (modelo base)
-Pensado para ser simples de usar:
+Pensado para ser simples de usar. Visual em teste: depois de usar, revisar e trocar por uma alternativa se não ficar agradável.
 - Linha fixa no topo da seção LoRAs: "Modelo: <nome curto>" com um botão Trocar. Sem lista aberta o tempo todo.
 - Trocar abre o mesmo seletor com busca dos LoRAs (lista lida do ComfyUI só ao clicar).
 - No topo do seletor: os modelos usados recentemente (últimos 3 a 5), para trocar rápido.
