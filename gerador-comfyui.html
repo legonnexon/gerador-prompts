@@ -180,6 +180,52 @@ input[type=range]{width:100%;accent-color:var(--or);margin:2px 0 10px}
 .lr.drag{z-index:1000;opacity:.75;pointer-events:none;box-shadow:0 14px 34px rgba(0,0,0,.32);transform:rotate(1.2deg) scale(1.02);background:var(--card)}
 .lrph{border:2px dashed var(--or);border-radius:12px;background:var(--tint);opacity:.6}
 body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
+.ckw{margin-bottom:12px}
+.ckr{display:flex;align-items:center;gap:8px;padding:10px 10px 10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--raise)}
+.ckn{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.ckn small{font-size:11px;color:var(--mut)}
+.ckn strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+.ckn .ckm{color:#b45309;font-weight:600}
+.ckb{flex:none;display:flex;align-items:center;justify-content:center;gap:4px;height:32px;padding:0 12px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--fg);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.ckb:hover{border-color:var(--or)}
+.ckb[aria-expanded="true"]{border-color:var(--or);background:var(--tint);color:var(--or2)}
+.ckb:disabled{opacity:.6;cursor:wait}
+.ckd{width:32px;padding:0}
+.ckb:focus-visible,.fxb button:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+#ckpick{margin-top:8px;border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--raise)}
+#ckq{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--fg);font-size:14px}
+#ckres{display:flex;flex-direction:column;gap:4px;max-height:280px;overflow:auto}
+.ckh{margin:8px 2px 2px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+.ckh:first-child{margin-top:0}
+.fxi{display:flex;flex:none;color:#d97706}
+.fxi.sm svg{width:18px;height:18px}
+.ckr.miss,.lr.miss{border-color:#f59e0b;background:rgba(245,158,11,.10)}
+.lr.miss .lrh{gap:8px}
+.fxm{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.6)}
+.fxm[hidden]{display:none}
+.fxb{width:min(460px,100%);max-height:calc(100vh - 32px);overflow:auto;padding:20px;border-radius:16px;background:var(--card);color:var(--fg);box-shadow:0 20px 50px rgba(0,0,0,.4)}
+.fxh{display:flex;align-items:center;gap:10px}
+.fxh h2{margin:0;font-size:18px;line-height:1.25}
+.fxb>p{margin:10px 0 0;font-size:14px;color:var(--mut)}
+#fxl{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+#fxl li{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #f59e0b;border-radius:10px;background:rgba(245,158,11,.08)}
+#fxl .fxn{flex:1;min-width:0;display:flex;flex-direction:column}
+#fxl .fxn strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#fxl .fxn small{font-size:12px;color:var(--mut)}
+.fxr{flex:none;padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:var(--raise);color:var(--fg);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.fxr:hover{border-color:#dc2626;color:#dc2626}
+.fxdone{flex:none;font-size:13px;color:var(--mut)}
+.fxa{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin-top:16px}
+.fxa button{padding:10px 16px;border-radius:10px;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+#fxall{border:1px solid var(--line);background:var(--raise);color:var(--fg)}
+#fxok{border:0;background:var(--or);color:#fff}
+.ckr.miss{flex-wrap:wrap;row-gap:8px}
+.ckr.miss .ckn{flex:1 1 calc(100% - 40px)}
+.ckr.miss .ckb:first-of-type{margin-left:auto}
+.lr.miss .lrh{flex-wrap:wrap;row-gap:6px}
+.lr.miss .ckn{flex:1 1 calc(100% - 116px)}
+.lr.miss .lrx{order:4}
+.lr.miss .lrh>.ckb{order:5;margin-left:50px}
 </style>
 <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
 </head>
@@ -206,6 +252,14 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 <label class="ck"><input type="checkbox" id="match" checked>Roupa combinando com o cenário</label>
 </div></details>
 <details open><summary><iconify-icon icon="lucide:layers" width="18" height="18"></iconify-icon>LoRAs<iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
+<div class="ckw">
+<div class="ckr" id="ckr"></div>
+<div id="ckpick" hidden>
+<input type="text" id="ckq" placeholder="Buscar modelo pelo nome" aria-label="Buscar modelo pelo nome" autocomplete="off">
+<p class="hint" id="ckcount" role="status"></p>
+<div id="ckres"></div>
+</div>
+</div>
 <div class="ulw">
 <div id="ul" aria-label="LoRAs escolhidos"></div>
 <p class="hint" id="ulnone">Nenhum LoRA adicionado: a imagem sai só com o checkpoint. Os LoRAs escolhidos aqui ficam salvos e valem no gerador e no jogo.</p>
@@ -404,7 +458,7 @@ const rs=()=>Math.floor(Math.random()*9e15);
 let LAST=null,KEEP=null;
 function seeds(){if($("keep").checked){if(!KEEP)KEEP=LAST?{...LAST}:{s3:rs(),s24:rs(),s58:rs()};return KEEP;}KEEP=null;return {s3:rs(),s24:rs(),s58:rs()};}
 $("keep").onchange=()=>{KEEP=($("keep").checked&&LAST)?{...LAST}:null;};
-function mkSnap(){const r=mkSnap0();r.ul=r._ful||ulPack();delete r._ful;r.text=ulInject(r.text,r.ul);return r;}
+function mkSnap(){const r=mkSnap0();r.ck=CK;r.ul=r._ful||ulPack();delete r._ful;r.text=ulInject(r.text,r.ul);return r;}
 function mkSnap0(){const sp=$("speed").value;const o={neg:negGet(),text:$("txt").value,steps:sp?26:WF["3"].inputs.steps,...seeds(),sp,o:$("fmt").value};
  if(mode==="fav"&&$("fseed").checked){const f=curF();if(f&&f.s){Object.assign(o,f.s);if(Array.isArray(f.ul))o._ful=f.ul;else if(f.lora)o._ful=[{f:f.lora,s:1,tags:[]}];}}
  return o;}
@@ -412,15 +466,17 @@ let QTY=1;try{const q=+localStorage.getItem("qty");if([1,3,6,12].includes(q))QTY
 function renderQ(){document.querySelectorAll(".qty button").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.q===QTY)));}
 document.querySelectorAll(".qty button").forEach(b=>b.onclick=()=>{QTY=+b.dataset.q;renderQ();try{localStorage.setItem("qty",String(QTY));}catch(e){}});
 renderQ();
-async function sendN(){const base=mkSnap();SENDING++;try{for(let i=0;i<QTY;i++){if(!i){await send(base);continue;}const keep=$("txt").value;$("txt").value=make().txt;const sn=mkSnap();$("txt").value=keep;await send(sn);}}finally{SENDING--;}queueStatus(base.sp);kick();}
+async function sendN(){const base=mkSnap();SENDING++;try{for(let i=0;i<QTY;i++){if(!i){if(await send(base)===false)break;continue;}const keep=$("txt").value;$("txt").value=make().txt;const sn=mkSnap();$("txt").value=keep;if(await send(sn)===false)break;}}finally{SENDING--;}queueStatus(base.sp);kick();}
 async function send(snap){
  const st=$("st"),w=JSON.parse(JSON.stringify(WF));
  if(!snap)snap=mkSnap();
+ if(!(await preflight(snap)))return false;
  LAST={s3:snap.s3,s24:snap.s24,s58:snap.s58};
  w["4"].inputs.text=snap.text;if(snap.neg)w["17"].inputs.text=snap.neg;
  {const I=w["15"].inputs,L=[];Object.keys(I).filter(k=>/^lora_\d+$/.test(k)).forEach(k=>delete I[k]);
   if(snap.lora){if(snap.sb!==false)L.push({f:"Smooth_Booster_v5.safetensors",s:snap.sbs!=null?snap.sbs:0.5});L.push({f:snap.lora,s:1});if(snap.dl===true)L.push({f:"S1 Dramatic Lighting Illustrious_V2.safetensors",s:snap.dls!=null?snap.dls:0.8});}
   (snap.ul||[]).forEach(u=>L.push({f:u.f,s:+u.s}));L.forEach((u,i)=>{I["lora_"+(i+1)]={on:true,lora:u.f,strength:u.s};});}
+ w[CK_NODE].inputs.ckpt_name=snap.ck||CK_DEF;
  w["3"].inputs.steps=snap.steps;w["1"].inputs.width=snap.o==="l"?1216:832;w["1"].inputs.height=snap.o==="l"?832:1216;
  if(snap.sp)w["57"].inputs.images=[snap.sp==="ultra"?"10":"25",0];
  w["3"].inputs.seed=snap.s3;w["24"].inputs.seed=snap.s24;w["58"].inputs.seed=snap.s58;
@@ -428,7 +484,9 @@ async function send(snap){
  try{
   const res=await fetch($("url").value.replace(/\/$/,"")+"/prompt",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:w})});
   const d=await res.json().catch(()=>({}));
-  if(res.ok){card.dataset.pid=d.prompt_id;if(!card.isConnected){cancelJob(d.prompt_id);return;}poll(d.prompt_id,$("url").value.replace(/\/$/,""),card);}else{card.remove();st.textContent="O ComfyUI recusou o workflow: "+(d.error&&d.error.message||res.status);}
+  if(res.ok){card.dataset.pid=d.prompt_id;if(!card.isConnected){cancelJob(d.prompt_id);return;}poll(d.prompt_id,$("url").value.replace(/\/$/,""),card);}else{card.remove();const tx=JSON.stringify(d),ck=snap.ck||CK_DEF,bad=/not in|value_not_in_list/.test(tx)?[...fxFiles(snap),ck].filter(n=>tx.includes(JSON.stringify(n).slice(1,-1))):[];
+   if(bad.length){CHK_T=0;if(await fxLists(true))fxApply();fxModal(bad.filter(n=>n!==ck),bad.includes(ck)?ck:null);return false;}
+   st.textContent="O ComfyUI recusou o workflow: "+(d.error&&d.error.message||res.status);}
  }catch(e){card.remove();st.textContent="Não consegui falar com o ComfyUI. Confira se ele está aberto e foi iniciado com --enable-cors-header \"*\".";}
 }
 const VW=document.createElement("div");VW.id="viewer";VW.hidden=true;VW.setAttribute("role","dialog");VW.setAttribute("aria-modal","true");VW.setAttribute("aria-label","Imagem em tela cheia");
@@ -456,7 +514,7 @@ function vbuild(){
  if(sn.sp)mk("maximize-2","Upscale",()=>send({...sn,sp:""}));
  const r=()=>Math.floor(Math.random()*9e15);
  mk("dices","Variar",()=>send({...sn,s3:r(),s24:r(),s58:r()}));
- mk("equal","Mesma seed",()=>{const ul=ulPack();send({...sn,text:ulInject(sn.text,ul),ul,neg:negGet(),lora:undefined,sb:undefined,dl:undefined});});
+ mk("equal","Mesma seed",()=>{const ul=ulPack();send({...sn,text:ulInject(sn.text,ul),ul,neg:negGet(),lora:undefined,sb:undefined,dl:undefined,ck:CK});});
 }
 function vshow(card){
  VC=card;vreset();VI.src=card._u;vbuild();
@@ -586,7 +644,7 @@ function ulClass(t){
 }
 function ulExtra(){return[];}
 function ulExtraFiles(){try{return typeof ulExtra==="function"?ulExtra():[];}catch(e){return[];}}
-function ulPack(extra){const fs=new Set(extra||ulExtraFiles());return UL.filter(u=>u.on||fs.has(u.f)).map(u=>({f:u.f,s:+u.s,tags:(u.tags||[]).map(x=>({t:x.t,p:x.p||"st"}))}));}
+function ulPack(extra){const fs=new Set(extra||ulExtraFiles());return UL.filter(u=>(u.on||fs.has(u.f))&&!u.miss).map(u=>({f:u.f,s:+u.s,tags:(u.tags||[]).map(x=>({t:x.t,p:x.p||"st"}))}));}
 function ulInject(text,ul){
  if(!ul||!ul.length||!text)return text;
  const B=String(text).split(/\n\s*\n/),nb=B.length;
@@ -672,6 +730,8 @@ function ulRender(){
   gr.setAttribute("aria-label","Mover "+ulName(u.f)+" (arraste, ou use as setas para cima e para baixo)");gr.title="Arraste para mudar a ordem";
   gr.onpointerdown=e=>{if(e.button!==0)return;e.preventDefault();ulDrag(e,d,i);};
   gr.onkeydown=e=>{const k=e.key==="ArrowUp"?-1:e.key==="ArrowDown"?1:0;if(!k)return;e.preventDefault();const j=i+k;if(j<0||j>=UL.length)return;const it=UL.splice(i,1)[0];UL.splice(j,0,it);ulSave();ulRender();const n=$("ul").querySelectorAll(".lrg")[j];if(n)n.focus();};
+  if(u.miss){const w=document.createElement("span");w.className="fxi sm";w.innerHTML=fxWarn();const nb=document.createElement("div");nb.className="ckn";const sn=document.createElement("strong");sn.textContent=ulName(u.f);sn.title=u.f;const ms=document.createElement("small");ms.className="ckm";ms.textContent="Não encontrado no ComfyUI";nb.append(sn,ms);
+   const v=document.createElement("button");v.type="button";v.className="ckb";v.textContent="Verificar de novo";v.onclick=()=>fxRecheck(v);d.className="lr miss";h.append(gr,w,nb,v,rm);d.append(h);box.appendChild(d);return;}
   h.append(gr,lab,out,mn,rm);
   const rg=document.createElement("input");rg.type="range";rg.min="0";rg.max="2";rg.step="0.05";rg.value=u.s;rg.setAttribute("aria-label","Força de "+ulName(u.f));
   rg.oninput=()=>{u.s=+rg.value;out.textContent=(+u.s).toFixed(2);ulSave();};
@@ -713,13 +773,124 @@ function ulClose(){$("ulpick").hidden=true;$("uladd").setAttribute("aria-expande
 $("uladd").onclick=async()=>{
  if(!$("ulpick").hidden){ulClose();return;}
  $("ulpick").hidden=false;$("uladd").setAttribute("aria-expanded","true");$("ulq").value="";$("ulres").innerHTML="";$("ulcount").textContent="Buscando os LoRAs no ComfyUI...";
- try{await ulFetchList();}catch(e){if(!UL_LIST){$("ulcount").textContent="Não consegui falar com o ComfyUI. Confira o endereço em Conexão.";return;}ulPickRender();$("ulcount").textContent="ComfyUI fora do ar: mostrando a última lista salva. "+$("ulcount").textContent;$("ulq").focus();return;}
+ try{await ulFetchList();fxApply();}catch(e){if(!UL_LIST){$("ulcount").textContent="Não consegui falar com o ComfyUI. Confira o endereço em Conexão.";return;}ulPickRender();$("ulcount").textContent="ComfyUI fora do ar: mostrando a última lista salva. "+$("ulcount").textContent;$("ulq").focus();return;}
  ulPickRender();$("ulq").focus();
 };
 $("ulq").oninput=ulPickRender;
 $("ulq").onkeydown=e=>{if(e.key==="Escape"){e.preventDefault();ulClose();$("uladd").focus();}if(e.key==="Enter"){e.preventDefault();const b=$("ulres").querySelector(".ulo:not(:disabled)");if(b)b.click();}};
 window.addEventListener("storage",e=>{if(e.key===UL_KEY){try{UL=JSON.parse(e.newValue||"[]")||[];}catch(x){}ulRender();if(typeof ulChar==="function")ulChar();}});
 ulRender();
+
+/* ---- Checkpoint e verificação de arquivos no ComfyUI ---- */
+const CK_NODE=Object.keys(WF).find(k=>WF[k].class_type==="CheckpointLoaderSimple")||"6",CK_DEF=WF[CK_NODE].inputs.ckpt_name;
+let CK=CK_DEF,CK_RECENT=[],CK_MISS=false,CK_LIST=null,CHK_T=0;
+function ckLoad(){try{CK=localStorage.getItem("ckpt")||CK_DEF;const r=JSON.parse(localStorage.getItem("ckpt_recent")||"[]");CK_RECENT=Array.isArray(r)?r:[];CK_MISS=localStorage.getItem("ckpt_miss")==="1";}catch(e){}}
+ckLoad();
+try{const c=JSON.parse(localStorage.getItem("ckpt_list")||"null");if(Array.isArray(c))CK_LIST=c;}catch(e){}
+function ckSave(){try{localStorage.setItem("ckpt",CK);localStorage.setItem("ckpt_recent",JSON.stringify(CK_RECENT));localStorage.setItem("ckpt_miss",CK_MISS?"1":"0");}catch(e){}}
+async function ckFetchList(){
+ const b=ulBase();let L=null;
+ try{const r=await fetch(b+"/models/checkpoints");if(r.ok){const j=await r.json();if(Array.isArray(j)&&j.length)L=j;}}catch(e){}
+ if(!L){const r=await fetch(b+"/object_info/CheckpointLoaderSimple");if(!r.ok)throw new Error("http "+r.status);const j=await r.json();L=j.CheckpointLoaderSimple.input.required.ckpt_name[0];}
+ L=L.map(x=>typeof x==="string"?x:(x&&x.name)).filter(Boolean);
+ CK_LIST=L;try{localStorage.setItem("ckpt_list",JSON.stringify(L));}catch(e){}
+ return L;
+}
+async function fxLists(force){
+ if(!force&&Date.now()-CHK_T<15000&&UL_LIST&&CK_LIST)return true;
+ try{await Promise.all([ulFetchList(),ckFetchList()]);CHK_T=Date.now();return true;}catch(e){return false;}
+}
+function fxApply(){
+ if(UL_LIST){const S=new Set(UL_LIST);let ch=false;UL.forEach(u=>{const m=!S.has(u.f);if(!!u.miss!==m){u.miss=m;ch=true;}});if(ch)ulSave();}
+ if(CK_LIST){const m=!CK_LIST.includes(CK);if(m!==CK_MISS){CK_MISS=m;ckSave();}}
+ ulRender();ckRender();if(typeof ulChar==="function")ulChar();
+}
+function fxFiles(snap){
+ const f=(snap.ul||[]).map(u=>u.f);
+ if(snap.lora){f.push(snap.lora);if(snap.sb!==false)f.push("Smooth_Booster_v5.safetensors");if(snap.dl===true)f.push("S1 Dramatic Lighting Illustrious_V2.safetensors");}
+ return [...new Set(f)];
+}
+async function preflight(snap){
+ const fresh=Date.now()-CHK_T>=15000||!UL_LIST||!CK_LIST;
+ if(!(await fxLists(false)))return true;
+ const ck=snap.ck||CK_DEF,find=()=>{const S=new Set(UL_LIST||[]);return [fxFiles(snap).filter(f=>!S.has(f)),CK_LIST&&!CK_LIST.includes(ck)?ck:null];};
+ let [miss,ckm]=find();
+ if((miss.length||ckm)&&!fresh&&await fxLists(true))[miss,ckm]=find();
+ fxApply();
+ if(!miss.length&&!ckm)return true;
+ fxModal(miss,ckm);return false;
+}
+function fxWarn(){return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>';}
+const FXM=document.createElement("div");FXM.className="fxm";FXM.hidden=true;
+FXM.innerHTML='<div class="fxb" role="alertdialog" aria-modal="true" aria-labelledby="fxt" aria-describedby="fxd"><div class="fxh"><span class="fxi">'+fxWarn()+'</span><h2 id="fxt"></h2></div><p id="fxd"></p><ul id="fxl"></ul><p class="hint" id="fxn" hidden></p><div class="fxa"><button type="button" id="fxall">Remover todos da lista</button><button type="button" id="fxok">Fechar</button></div></div>';
+document.body.appendChild(FXM);
+let FX_BACK=null;
+function fxClose(){FXM.hidden=true;document.removeEventListener("keydown",fxKey,true);if(FX_BACK&&FX_BACK.isConnected)FX_BACK.focus();}
+function fxKey(e){if(e.key==="Escape"){e.preventDefault();e.stopPropagation();fxClose();return;}
+ if(e.key==="Tab"){const b=[...FXM.querySelectorAll("button:not([hidden]):not(:disabled)")];if(!b.length)return;const i=b.indexOf(document.activeElement);if(e.shiftKey&&i<=0){e.preventDefault();b[b.length-1].focus();}else if(!e.shiftKey&&i===b.length-1){e.preventDefault();b[0].focus();}}}
+function fxModal(miss,ckm){
+ FX_BACK=document.activeElement;const n=miss.length+(ckm?1:0);
+ $("fxt").textContent=n>1?"Arquivos não encontrados no ComfyUI":"Arquivo não encontrado no ComfyUI";
+ $("fxd").textContent="Nada foi enviado. "+(n>1?"Estes arquivos não existem mais":"Este arquivo não existe mais")+" na pasta do ComfyUI:";
+ const L=$("fxl");L.innerHTML="";let removable=0,snapOnly=false;
+ const row=(name,kind,btn)=>{const li=document.createElement("li");const t=document.createElement("div");t.className="fxn";const s=document.createElement("strong");s.textContent=ulName(name);s.title=name;const k=document.createElement("small");k.textContent=kind;t.append(s,k);li.appendChild(t);if(btn)li.appendChild(btn);L.appendChild(li);};
+ miss.forEach(f=>{const inList=UL.some(u=>u.f===f);let b=null;
+  if(inList){removable++;b=document.createElement("button");b.type="button";b.className="fxr";b.textContent="Remover da lista";b.onclick=()=>{const i=UL.findIndex(u=>u.f===f);if(i>=0){UL.splice(i,1);ulSave();ulRender();if(typeof ulChar==="function")ulChar();}b.replaceWith(Object.assign(document.createElement("span"),{className:"fxdone",textContent:"Removido"}));fxAllUpd();};}
+  else snapOnly=true;
+  row(f,inList?"LoRA da sua lista":"LoRA usado por esta imagem",b);});
+ if(ckm){let b=null;if(ckm!==CK_DEF){b=document.createElement("button");b.type="button";b.className="fxr";b.textContent="Voltar ao padrão";b.onclick=()=>{ckSet(CK_DEF);b.replaceWith(Object.assign(document.createElement("span"),{className:"fxdone",textContent:"Modelo padrão"}));};}
+  row(ckm,ckm===CK_DEF?"Modelo padrão do workflow":"Modelo",b);}
+ const nt=$("fxn");nt.hidden=!snapOnly;nt.textContent="Para refazer a imagem com os LoRAs da lista atual, use Mesma seed.";
+ const all=$("fxall");all.hidden=removable<2;
+ all.onclick=()=>{L.querySelectorAll(".fxr").forEach(b=>{if(b.textContent==="Remover da lista")b.click();});};
+ $("fxok").onclick=fxClose;
+ FXM.hidden=false;document.addEventListener("keydown",fxKey,true);
+ const st=$("st");if(st)st.textContent="Envio cancelado: "+(n>1?"arquivos não encontrados":"arquivo não encontrado")+" no ComfyUI.";
+ setTimeout(()=>{const f=FXM.querySelector(".fxr")||$("fxok");f.focus();},0);
+}
+function fxAllUpd(){$("fxall").hidden=[...$("fxl").querySelectorAll(".fxr")].filter(b=>b.textContent==="Remover da lista").length<2;}
+async function fxRecheck(btn){
+ if(btn){btn.disabled=true;btn.textContent="Verificando...";}
+ const ok=await fxLists(true);
+ if(ok){fxApply();const st=$("st");if(st)st.textContent="Verificação concluída.";}
+ else{const st=$("st");if(st)st.textContent="Não consegui falar com o ComfyUI. Confira o endereço em Conexão.";if(btn){btn.disabled=false;btn.textContent="Verificar de novo";}}
+}
+function ckSet(f){CK=f;if(f!==CK_DEF){CK_RECENT=[f,...CK_RECENT.filter(x=>x!==f)].slice(0,5);}CK_MISS=CK_LIST?!CK_LIST.includes(f):false;ckSave();ckRender();}
+function ckRender(){
+ const r=$("ckr");if(!r)return;r.innerHTML="";r.classList.toggle("miss",CK_MISS);
+ const n=document.createElement("div");n.className="ckn";
+ const l=document.createElement("small");l.textContent=CK===CK_DEF?"Modelo (padrão)":"Modelo";
+ const s=document.createElement("strong");s.textContent=ulName(CK);s.title=CK;n.append(l,s);
+ if(CK_MISS){const w=document.createElement("span");w.className="fxi sm";w.innerHTML=fxWarn();r.appendChild(w);const m=document.createElement("small");m.className="ckm";m.textContent="Não encontrado no ComfyUI";n.appendChild(m);}
+ r.appendChild(n);
+ if(CK_MISS){const v=document.createElement("button");v.type="button";v.className="ckb";v.textContent="Verificar de novo";v.onclick=()=>fxRecheck(v);r.appendChild(v);}
+ const t=document.createElement("button");t.type="button";t.className="ckb";t.id="cktr";t.textContent="Trocar";t.setAttribute("aria-expanded",String(!$("ckpick").hidden));t.setAttribute("aria-controls","ckpick");t.onclick=ckOpen;r.appendChild(t);
+ if(CK!==CK_DEF){const d=document.createElement("button");d.type="button";d.className="ckb ckd";d.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>';d.setAttribute("aria-label","Voltar ao modelo padrão");d.title="Voltar ao padrão ("+ulName(CK_DEF)+")";d.onclick=()=>{ckSet(CK_DEF);};r.appendChild(d);}
+}
+function ckClose(){$("ckpick").hidden=true;const t=$("cktr");if(t)t.setAttribute("aria-expanded","false");}
+async function ckOpen(){
+ if(!$("ckpick").hidden){ckClose();return;}
+ $("ckpick").hidden=false;$("cktr").setAttribute("aria-expanded","true");$("ckq").value="";$("ckres").innerHTML="";$("ckcount").textContent="Buscando os modelos no ComfyUI...";
+ try{await ckFetchList();fxApply();}catch(e){if(!CK_LIST){$("ckcount").textContent="Não consegui falar com o ComfyUI. Confira o endereço em Conexão.";return;}ckPickRender();$("ckcount").textContent="ComfyUI fora do ar: mostrando a última lista salva. "+$("ckcount").textContent;$("ckq").focus();return;}
+ if(!$("ckpick").hidden){ckPickRender();$("ckq").focus();}
+}
+function ckPickRender(){
+ const q=ulNorm($("ckq").value),L=CK_LIST||[],box=$("ckres");box.innerHTML="";
+ const mk=f=>{const b=document.createElement("button");b.type="button";b.className="ulo";const n=document.createElement("span");n.textContent=ulName(f);b.appendChild(n);
+  const p=f.includes("/")||f.includes("\\")?f.replace(/[\\/][^\\/]*$/,""):"";const tags=[p,f===CK_DEF?"padrão do workflow":""].filter(Boolean).join(" · ");if(tags){const sm=document.createElement("small");sm.textContent=tags;b.appendChild(sm);}
+  if(f===CK){b.disabled=true;const m=document.createElement("small");m.textContent="em uso";b.appendChild(m);}
+  b.onclick=()=>{ckSet(f);ckClose();const t=$("cktr");if(t)t.focus();};return b;};
+ const head=t=>{const h=document.createElement("p");h.className="ckh";h.textContent=t;box.appendChild(h);};
+ const rec=CK_RECENT.filter(f=>(!CK_LIST||CK_LIST.includes(f))&&(!q||ulNorm(f).includes(q)));
+ if(rec.length&&!q){head("Usados recentemente");rec.forEach(f=>box.appendChild(mk(f)));head("Todos os modelos");}
+ const F=L.filter(f=>!q||ulNorm(f).includes(q));F.slice(0,80).forEach(f=>box.appendChild(mk(f)));
+ $("ckcount").textContent=!L.length?"Nenhum modelo encontrado no ComfyUI.":(F.length>80?"Mostrando 80 de "+F.length+". Digite para filtrar.":F.length+" de "+L.length+" modelos");
+}
+$("ckq").oninput=ckPickRender;
+$("ckq").onkeydown=e=>{if(e.key==="Escape"){e.preventDefault();ckClose();const t=$("cktr");if(t)t.focus();}if(e.key==="Enter"){e.preventDefault();const b=$("ckres").querySelector(".ulo:not(:disabled)");if(b)b.click();}};
+window.addEventListener("storage",e=>{if(e.key==="ckpt"||e.key==="ckpt_miss"||e.key==="ckpt_recent"){ckLoad();ckRender();}});
+ckRender();
+if(UL.length||CK!==CK_DEF)setTimeout(()=>{fxLists(true).then(ok=>{if(ok)fxApply();});},700);
 
 function mkCard(snap){
  const card=document.createElement("div");card.className="card";card._snap=snap;card.style.aspectRatio=snap.o==="l"?"1216/832":"832/1216";

@@ -15,33 +15,12 @@
   - Cada tag tem um seletor de posição (Início, Personagem, Roupa, Cenário), com classificação automática.
   - Modo "Só o fundo": tags de Personagem e Roupa não entram.
 - jogo.html: LoRA do personagem no editor; entra sempre com aquele personagem, somando às tags dele.
-
-## A fazer
-
-### Aviso de LoRA não encontrado (prevenção de erros)
-- Quando detectar: antes de enviar (comparando com a lista do ComfyUI) e quando o ComfyUI recusar o prompt (erro 400, "value not in list").
-- Como aparece: janela de aviso no centro da tela, com fundo escurecido (mesmo visual do visualizador de imagem), listando os arquivos que não existem mais.
-  - Botões: "Remover da lista" (em cada LoRA ou todos) e "Fechar".
-  - Nada é enviado enquanto o aviso estiver aberto. Depois de fechar, GENERATE gera sem os LoRAs com problema.
-- LoRA com problema na lista:
-  - Fica desabilitado: sem checkbox, sem controle de força e sem sugestões de tags.
-  - Mostra um símbolo de atenção amarelo e "Não encontrado no ComfyUI".
-  - Mantém o botão × para remover e um link "Verificar de novo" (caso o arquivo volte para a pasta).
-  - As tags e a força ficam guardadas: se o arquivo voltar, o LoRA volta ao normal sozinho na próxima verificação.
-  - Não é enviado ao ComfyUI enquanto estiver com problema.
-- Imagens antigas: Variar, Upscale e Mesma seed também passam pela verificação.
-- Mesmo tratamento para o checkpoint (item abaixo).
-
-### Escolher o checkpoint (modelo base)
-Pensado para ser simples de usar. Visual em teste: depois de usar, revisar e trocar por uma alternativa se não ficar agradável.
-- Linha fixa no topo da seção LoRAs: "Modelo: <nome curto>" com um botão Trocar. Sem lista aberta o tempo todo.
-- Trocar abre o mesmo seletor com busca dos LoRAs (lista lida do ComfyUI só ao clicar).
-- No topo do seletor: os modelos usados recentemente (últimos 3 a 5), para trocar rápido.
-- Nome curto na tela (sem pasta e extensão); nome completo ao passar o mouse.
-- Padrão: o checkpoint que já está no workflow; botão "Voltar ao padrão".
-- Salvo no navegador e compartilhado entre gerador e jogo.
-- Cada imagem guarda o checkpoint usado; Variar e Upscale usam o da imagem; Mesma seed usa o escolhido agora.
-- Checkpoint ausente: mesmo aviso do item anterior.
+- Aviso de arquivo não encontrado:
+  - Antes de enviar, confere LoRAs e checkpoint com a lista do ComfyUI (cache de 15 s, refeito antes de acusar falta). Também lê o erro 400 "value not in list".
+  - Janela no centro com "Remover da lista" (ou "Voltar ao padrão" para o modelo) e "Fechar". Nada é enviado; lotes param no primeiro aviso.
+  - LoRA ausente na lista: só alerta amarelo, "Verificar de novo" e ×; não é enviado; volta ao normal se o arquivo reaparecer.
+  - Imagens antigas (Variar/Upscale) também são verificadas; o aviso sugere Mesma seed.
+- Checkpoint: linha "Modelo" no topo da seção LoRAs com Trocar e Voltar ao padrão; seletor com busca e "Usados recentemente"; salvo e compartilhado entre as páginas; cada imagem guarda o modelo usado. Visual em teste.
 
 ## Ideias para depois
 - Etiqueta de tipo do LoRA (personagem, estilo, detalhe...) por palpite: descartado por enquanto.
