@@ -109,14 +109,14 @@ select:disabled{opacity:.5}
 #viewer[hidden]{display:none}
 #viewer img{max-width:100vw;max-height:100vh;object-fit:contain;transform-origin:center;user-select:none;-webkit-user-drag:none;cursor:grab;will-change:transform}
 #viewer.pan img{cursor:grabbing}
-.vbtn{position:absolute;z-index:2;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;cursor:pointer}
-.vbtn:hover{background:rgba(255,255,255,.28)}
+.vbtn{position:absolute;z-index:2;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border:0;border-radius:50%;background:rgba(10,10,14,.88);border:1px solid rgba(255,255,255,.28);box-shadow:0 2px 10px rgba(0,0,0,.45);color:#fff;cursor:pointer}
+.vbtn:hover{background:#000;border-color:#fff}
 .vbtn:focus-visible,.vact button:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .vbtn[hidden]{display:none}
 #vx{top:12px;right:12px}#vp{left:12px;top:50%;margin-top:-22px}#vn{right:12px;top:50%;margin-top:-22px}
-.vact{position:absolute;z-index:2;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:8px}
-.vact button{display:flex;align-items:center;gap:6px;padding:9px 16px;border:0;border-radius:999px;background:rgba(255,255,255,.16);color:#fff;font:600 13px system-ui,sans-serif;cursor:pointer;white-space:nowrap}
-.vact button:hover{background:rgba(255,255,255,.3)}
+.vact{position:absolute;z-index:2;bottom:16px;left:50%;transform:translateX(-50%);display:flex;flex-wrap:wrap;justify-content:center;gap:8px;width:max-content;max-width:calc(100vw - 24px)}
+.vact button{display:flex;align-items:center;gap:6px;padding:10px 16px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(10,10,14,.88);color:#fff;font:700 14px system-ui,sans-serif;cursor:pointer;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,.45)}
+.vact button:hover{background:#000;border-color:#fff}
 .card a{cursor:zoom-in}
 @media (max-width:859px){
 .app{display:block}
@@ -215,6 +215,8 @@ input[type=range]{width:100%;accent-color:var(--or);margin:2px 0 10px}
 <label class="ck"><input type="checkbox" id="anim">Animações (anime.js)</label>
 <p class="hint" id="animnote"></p>
 <label class="ck"><input type="checkbox" id="snd">Aviso sonoro ao terminar a fila</label>
+<label class="ck"><input type="checkbox" id="bold">Modo ousado</label>
+<p class="hint">Ligado: sorteia roupas e poses mais sugestivas (sem nudez). Desligado: remove essas tags do sorteio e coloca a tag general no começo do prompt.</p>
 <p class="hint">Dica: aperte Espaço para gerar.</p>
 </div></span></div>
 <section id="out" aria-live="polite">
@@ -342,10 +344,12 @@ function make(){
  const out=g==="girl"?to.o:(to.ob||[...many(bT,4),...to.o.slice(0,3)]);
  const clothes=fav&&F&&$("fkeep").checked?F.cl:(fav&&!F)?[...FAV.cl,...many([...DET,...ACC],3)]:(free?[...freeOutfit(g),...dar(g)]:[...(g==="girl"?(to.k||[]):(to.kb||[])),...many(out,Math.min(7,out.length)),...many([...DET,...ACC],2),...dar(g)]);
  const scene=free?[pick(LOC),...many(ENV,3),...many(lights,2),pick(comp)]:[...many(t.s,Math.min(6,t.s.length)),...many(lights,2),pick(comp)];
- const BANS=new Set([...(t.ban||[]),...(to.ban||[])]),F2=a=>a.filter(x=>![...BANS].some(b=>x.includes(b)));
+ const bold=$("bold").checked,SUG=new Set(["sideboob","babydoll","chemise","nightgown","underbust","red bra","cleavage","cleavage cutout","midriff","navel","crop top","short shorts","halterneck","see-through"]);
+ if(bold&&!(fav&&F&&$("fkeep").checked)){who.push(...many(g==="girl"?["hand on own hip","looking back","arched back","hand in own hair","leaning forward","half-closed eyes","seductive smile","parted lips","bare shoulders"]:["hand in own hair","looking back","half-closed eyes","smirk","collarbone"],2));clothes.push(...many(g==="girl"?["babydoll","chemise","nightgown","sideboob","underbust","red bra","cleavage","off shoulder","midriff","crop top","short shorts","miniskirt","halterneck","backless dress","lace trim","thighhighs","garter straps"]:["open shirt","unbuttoned shirt","rolled-up sleeves","loose tie","bare chest"].slice(0,4),2));}
+ const BANS=new Set([...(t.ban||[]),...(to.ban||[])]),F2=a=>a.filter(x=>![...BANS].some(b=>x.includes(b))&&(bold||!SUG.has(x)));
  if(fr==="bg"){const sc2=free?[pick(LOC),...many(ENV,4),...many(lights,2),pick(comp)]:[...many(t.s,Math.min(7,t.s.length)),...many(lights,2),pick(comp)];
-  return {txt:[Q,"",["no humans","scenery",...many(depth,2)].join(", ")+",","",sc2.join(", ")].join("\n"),theme:t.n};}
- return {txt:[Q,"",F2(who).join(", ")+",","",F2(clothes).join(", ")+",","",F2(scene).join(", ")].join("\n"),theme:t.n};
+  return {txt:[(bold?Q:"general, "+Q),"",["no humans","scenery",...many(depth,2)].join(", ")+",","",sc2.join(", ")].join("\n"),theme:t.n};}
+ return {txt:[(bold?Q:"general, "+Q),"",F2(who).join(", ")+",","",F2(clothes).join(", ")+",","",F2(scene).join(", ")].join("\n"),theme:t.n};
 }
 $("gen").onclick=()=>{const r=make();$("txt").value=r.txt;$("txt").hidden=true;$("edit").setAttribute("aria-pressed","false");$("theme").textContent=(mode==="fav"?"Favorita: "+(curF()?curF().name:"padrão")+" · ":"")+($("scene").value?"Cenário: ":"Cenário sorteado: ")+r.theme;$("out").style.display="block";$("send").hidden=false;if($("auto").checked)sendN();};
 const LORAS=[{file:"aiE382A4E383A9E382B9E38388E3818A.cG1u.safetensors"},{file:"takorin_ILXL_v4 (1).safetensors"},{file:"Hata4564.safetensors"},{file:"Niji_oil_animme.safetensors"},{file:"Niji_Semi_realism_F_N_R_epoch_10.safetensors"},{file:"USNR_STYLE_ILL_V1_lokr3-000024.safetensors"}];let LI=0;
@@ -490,6 +494,8 @@ let AC=null,SND=false,DONEIMG=false,LASTFIN=0;
 function beep(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume();[[660,0],[880,.16]].forEach(([f,d])=>{const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime+d;o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.15,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.28);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+.3);});}catch(e){}}
 try{SND=localStorage.getItem("snd_on")==="1";}catch(e){}
 $("snd").checked=SND;
+try{const bv=localStorage.getItem("bold_v2");if(bv!==null)$("bold").checked=bv==="1";}catch(e){}
+$("bold").onchange=()=>{try{localStorage.setItem("bold_v2",$("bold").checked?"1":"0");}catch(e){}};
 $("snd").onchange=()=>{SND=$("snd").checked;try{localStorage.setItem("snd_on",SND?"1":"0");}catch(e){}if(SND)beep();};
 let SENDING=0;
 function kick(){if(!SENDING&&DONEIMG&&!$("res").querySelector(".sk")){DONEIMG=false;if(SND)beep();}}
