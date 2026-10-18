@@ -1,23 +1,20 @@
 # TODO
 
-## LoRAs escolhidos pelo usuário (gerador e jogo.html)
-Inspirado no Power Lora Loader do ComfyUI: nada é carregado por padrão.
-- Botão "Adicionar LoRA": só ao clicar o app busca a lista no ComfyUI (/object_info/LoraLoader) e abre um seletor com busca por nome. Não monta lista fixa na abertura, para não pesar com 10, 20 ou 30+ LoRAs.
-- O app mostra só os LoRAs que o usuário selecionou. Cada um com: checkbox, força, tags de ativação e botão remover.
-- O botão de buscar pode ser repetido a qualquer momento para ver LoRAs novos (substitui a ideia de "botão atualizar").
-- Salvar a seleção no navegador (localStorage). Lista do ComfyUI em cache só para o seletor.
-- Smooth Booster e Dramatic Lighting continuam fixos na seção Estilo.
-- Vários LoRAs ao mesmo tempo (lora_N extras no Power Lora Loader).
-- jogo.html: ligar um LoRA (com força e tags) a um personagem, ex.: Evelyn.
+## Feito
+- LoRAs escolhidos pelo usuário (gerador e jogo.html), em Estilo > Seus LoRAs:
+  - Botão "Adicionar LoRA" busca a lista no ComfyUI só ao clicar (/models/loras, com /object_info/LoraLoader de reserva), seletor com busca, mostra até 80 por vez.
+  - Só os LoRAs escolhidos aparecem: checkbox, força (0 a 2), tags de ativação, botão remover.
+  - LoRAs fixos (Smooth Booster, Dramatic Lighting e os de estilo) aparecem bloqueados no seletor.
+  - Lista salva no navegador e compartilhada entre gerador e jogo. ComfyUI fora do ar: usa a última lista salva.
+  - Enviados como lora_4, lora_5... no Power Lora Loader.
+  - Variar e Upscale reusam os LoRAs da imagem; Mesma seed usa os ligados agora.
+- Tags de ativação:
+  - Lê os metadados do arquivo (/view_metadata/loras): trigger phrase e ss_tag_frequency. Sugere até 15 tags, sem as genéricas e as que o app já sorteia.
+  - Campo para digitar ou colar várias tags com vírgula (ex.: palavras-gatilho do Civitai).
+  - Cada tag tem um seletor de posição (Início, Personagem, Roupa, Cenário), com classificação automática.
+  - Modo "Só o fundo": tags de Personagem e Roupa não entram.
+- jogo.html: LoRA do personagem no editor; entra sempre com aquele personagem, somando às tags dele.
 
-## Tags de ativação dos LoRAs
-- Ao escolher um LoRA, ler só os metadados dele (/view_metadata/loras?filename=...), em especial ss_tag_frequency, e sugerir as tags mais frequentes como chips clicáveis. Ignorar tags genéricas (1girl, solo etc.) e as que o app já conhece.
-- Campo de tags por LoRA, salvo no navegador.
-- Opcional: colar as palavras-gatilho da página do Civitai.
-- Aviso "sem tags conhecidas" quando o LoRA não tiver metadados.
-
-## Onde cada tag do LoRA entra no prompt
-Cada LoRA tem tipos de tag diferentes (pose, iluminação, proporção, estilo, personagem). Plano híbrido:
-- Classificação automática: se a tag já existe numa lista do app (poses, iluminação, câmera, cabelo, roupa etc.), vai para o bloco dessa lista. Palavras-chave (ex.: lighting/light = cena, pose/sitting/standing = personagem, nome de artista/style = início). Se não casar com nada, vai para o início do bloco do personagem.
-- Um seletor pequeno por tag (Início / Personagem / Roupa / Cenário), sempre editável e lembrado para o LoRA.
-- Tags de estilo artístico e de personagem vão logo depois do bloco de qualidade.
+## Ideias para depois
+- Buscar as palavras-gatilho no Civitai pelo hash do arquivo.
+- Mostrar no chip do personagem (jogo) quando ele tem LoRA.

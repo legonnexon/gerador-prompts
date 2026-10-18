@@ -136,6 +136,36 @@ aside{position:static;height:auto;border-right:0}
 .sl{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .sl output{font:600 13px ui-monospace,Consolas,monospace;color:var(--or2)}
 input[type=range]{width:100%;accent-color:var(--or);margin:2px 0 10px}
+.ulw{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+#ul{display:flex;flex-direction:column;gap:10px;margin-bottom:10px}
+.lr{border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--raise)}
+.lrh{display:flex;align-items:center;gap:8px}
+.lrh .ck{flex:1;min-width:0;margin:0}
+.lrn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.lrh output{font:600 13px ui-monospace,Consolas,monospace;color:var(--or2)}
+.lrx,.tgc button{display:flex;align-items:center;justify-content:center;border:0;background:none;color:var(--mut,inherit);cursor:pointer;border-radius:8px}
+.lrx{width:32px;height:32px;font-size:22px;line-height:1}
+.lrx:hover,.tgc button:hover{background:var(--line)}
+.lrt{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px}
+.tgc{display:inline-flex;align-items:center;gap:4px;padding:3px 4px 3px 9px;border:1px solid var(--line);border-radius:999px;background:var(--card);font-size:13px;max-width:100%}
+.tgc>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px}
+.tgc select{height:24px;padding:0 4px;border:1px solid var(--line);border-radius:6px;background:var(--raise);color:inherit;font-size:12px;width:auto}
+.tgc button{width:22px;height:22px;font-size:16px;line-height:1}
+.lri{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--fg);font-size:13px}
+.lrs{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:var(--mut,inherit)}
+.sgb{padding:4px 9px;border:1px dashed var(--or);border-radius:999px;background:none;color:var(--or2);font-size:12px;cursor:pointer}
+.sgb:hover{background:var(--tint)}
+.ulb{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px 12px;border:1px dashed var(--or);border-radius:10px;background:none;color:var(--or2);font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.ulb:hover,.ulb[aria-expanded="true"]{background:var(--tint)}
+#ulpick{margin-top:8px;border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--raise)}
+#ulq{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--fg);font-size:14px}
+#ulres{display:flex;flex-direction:column;gap:4px;max-height:260px;overflow:auto}
+.ulo{display:flex;flex-direction:column;align-items:flex-start;gap:1px;width:100%;padding:8px 10px;border:1px solid transparent;border-radius:8px;background:var(--card);color:var(--fg);text-align:left;cursor:pointer;font-size:13px}
+.ulo span{font-weight:600;word-break:break-all}
+.ulo small{color:var(--mut,inherit);font-size:11px}
+.ulo:hover:not(:disabled){border-color:var(--or)}
+.ulo:disabled{opacity:.55;cursor:default}
+.lrx:focus-visible,.tgc button:focus-visible,.sgb:focus-visible,.ulb:focus-visible,.ulo:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
 </style>
 <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
 </head>
@@ -168,6 +198,17 @@ input[type=range]{width:100%;accent-color:var(--or);margin:2px 0 10px}
 <input type="range" id="sbs" min="0" max="1.5" step="0.05" value="0.5" aria-label="Força do Smooth Booster">
 <div class="sl"><label class="ck"><input type="checkbox" id="dl" checked>Dramatic Lighting</label><output id="dlo">0.80</output></div>
 <input type="range" id="dls" min="0" max="1.5" step="0.05" value="0.8" aria-label="Força do Dramatic Lighting">
+<div class="ulw">
+<span class="lb" id="ull">Seus LoRAs</span>
+<div id="ul" aria-labelledby="ull"></div>
+<p class="hint" id="ulnone">Nenhum LoRA adicionado. Os LoRAs escolhidos aqui ficam salvos e valem no gerador e no jogo.</p>
+<button id="uladd" class="ulb" type="button" aria-expanded="false" aria-controls="ulpick"><iconify-icon icon="lucide:plus" width="16" height="16"></iconify-icon>Adicionar LoRA</button>
+<div id="ulpick" hidden>
+<input type="text" id="ulq" placeholder="Buscar LoRA pelo nome" aria-label="Buscar LoRA pelo nome" autocomplete="off">
+<p class="hint" id="ulcount" role="status"></p>
+<div id="ulres"></div>
+</div>
+</div>
 </div></details>
 <details open><summary><iconify-icon icon="lucide:image" width="18" height="18"></iconify-icon>Saída<iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
 <span class="lb" id="fml">Formato</span>
@@ -351,7 +392,7 @@ function make(){
   return {txt:[(bold?Q:"general, "+Q),"",["no humans","scenery",...many(depth,2)].join(", ")+",","",sc2.join(", ")].join("\n"),theme:t.n};}
  return {txt:[(bold?Q:"general, "+Q),"",F2(who).join(", ")+",","",F2(clothes).join(", ")+",","",F2(scene).join(", ")].join("\n"),theme:t.n};
 }
-$("gen").onclick=()=>{const r=make();$("txt").value=r.txt;$("txt").hidden=true;$("edit").setAttribute("aria-pressed","false");$("theme").textContent=(mode==="fav"?"Favorita: "+(curF()?curF().name:"padrão")+" · ":"")+($("scene").value?"Cenário: ":"Cenário sorteado: ")+r.theme;$("out").style.display="block";$("send").hidden=false;if($("auto").checked)sendN();};
+$("gen").onclick=()=>{const r=make();$("txt").value=ulInject(r.txt,ulPack());$("txt").hidden=true;$("edit").setAttribute("aria-pressed","false");$("theme").textContent=(mode==="fav"?"Favorita: "+(curF()?curF().name:"padrão")+" · ":"")+($("scene").value?"Cenário: ":"Cenário sorteado: ")+r.theme;$("out").style.display="block";$("send").hidden=false;if($("auto").checked)sendN();};
 const LORAS=[{file:"aiE382A4E383A9E382B9E38388E3818A.cG1u.safetensors"},{file:"takorin_ILXL_v4 (1).safetensors"},{file:"Hata4564.safetensors"},{file:"Niji_oil_animme.safetensors"},{file:"Niji_Semi_realism_F_N_R_epoch_10.safetensors"},{file:"USNR_STYLE_ILL_V1_lokr3-000024.safetensors"}];let LI=0;
 try{const f=localStorage.getItem("lora_f");const i=LORAS.findIndex(l=>l.file===f);LI=i>=0?i:0;}catch(e){}
 function renderL(){document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.l===LI));$("lfile").textContent=LORAS[LI].file;}
@@ -363,7 +404,8 @@ const rs=()=>Math.floor(Math.random()*9e15);
 let LAST=null,KEEP=null;
 function seeds(){if($("keep").checked){if(!KEEP)KEEP=LAST?{...LAST}:{s3:rs(),s24:rs(),s58:rs()};return KEEP;}KEEP=null;return {s3:rs(),s24:rs(),s58:rs()};}
 $("keep").onchange=()=>{KEEP=($("keep").checked&&LAST)?{...LAST}:null;};
-function mkSnap(){const sp=$("speed").value;const o={neg:negGet(),dl:$("dl").checked,sbs:+$("sbs").value,dls:+$("dls").value,text:$("txt").value,lora:LORAS[LI].file,sb:$("sb").checked,steps:sp?26:WF["3"].inputs.steps,...seeds(),sp,o:$("fmt").value};
+function mkSnap(){const r=mkSnap0();r.ul=ulPack();r.text=ulInject(r.text,r.ul);return r;}
+function mkSnap0(){const sp=$("speed").value;const o={neg:negGet(),dl:$("dl").checked,sbs:+$("sbs").value,dls:+$("dls").value,text:$("txt").value,lora:LORAS[LI].file,sb:$("sb").checked,steps:sp?26:WF["3"].inputs.steps,...seeds(),sp,o:$("fmt").value};
  if(mode==="fav"&&$("fseed").checked){const f=curF();if(f&&f.s){Object.assign(o,f.s);if(LORAS.some(l=>l.file===f.lora))o.lora=f.lora;}}
  return o;}
 let QTY=1;try{const q=+localStorage.getItem("qty");if([1,3,6,12].includes(q))QTY=q;}catch(e){}
@@ -376,7 +418,7 @@ async function send(snap){
  if(!snap)snap=mkSnap();
  LAST={s3:snap.s3,s24:snap.s24,s58:snap.s58};
  w["4"].inputs.text=snap.text;if(snap.neg)w["17"].inputs.text=snap.neg;
- w["15"].inputs.lora_2.lora=snap.lora;w["15"].inputs.lora_1.on=snap.sb!==false;w["15"].inputs.lora_1.strength=snap.sbs!=null?snap.sbs:0.5;w["15"].inputs.lora_3={on:snap.dl!==false,lora:"S1 Dramatic Lighting Illustrious_V2.safetensors",strength:snap.dls!=null?snap.dls:0.8};
+ w["15"].inputs.lora_2.lora=snap.lora;w["15"].inputs.lora_1.on=snap.sb!==false;w["15"].inputs.lora_1.strength=snap.sbs!=null?snap.sbs:0.5;(snap.ul||[]).forEach((u,i)=>{w["15"].inputs["lora_"+(4+i)]={on:true,lora:u.f,strength:+u.s};});w["15"].inputs.lora_3={on:snap.dl!==false,lora:"S1 Dramatic Lighting Illustrious_V2.safetensors",strength:snap.dls!=null?snap.dls:0.8};
  w["3"].inputs.steps=snap.steps;w["1"].inputs.width=snap.o==="l"?1216:832;w["1"].inputs.height=snap.o==="l"?832:1216;
  if(snap.sp)w["57"].inputs.images=[snap.sp==="ultra"?"10":"25",0];
  w["3"].inputs.seed=snap.s3;w["24"].inputs.seed=snap.s24;w["58"].inputs.seed=snap.s58;
@@ -412,7 +454,7 @@ function vbuild(){
  if(sn.sp)mk("maximize-2","Upscale",()=>send({...sn,sp:""}));
  const r=()=>Math.floor(Math.random()*9e15);
  mk("dices","Variar",()=>send({...sn,s3:r(),s24:r(),s58:r()}));
- mk("equal","Mesma seed",()=>send({...sn,neg:negGet(),lora:LORAS[LI].file,sb:$("sb").checked,dl:$("dl").checked,sbs:+$("sbs").value,dls:+$("dls").value}));
+ mk("equal","Mesma seed",()=>{const ul=ulPack();send({...sn,text:ulInject(sn.text,ul),ul,neg:negGet(),lora:LORAS[LI].file,sb:$("sb").checked,dl:$("dl").checked,sbs:+$("sbs").value,dls:+$("dls").value});});
 }
 function vshow(card){
  VC=card;vreset();VI.src=card._u;vbuild();
@@ -507,6 +549,149 @@ const fmtT=ms=>{const s=Math.round(ms/1000);return s<90?s+" s":Math.round(s/60)+
 function queueStatus(sp){const n=$("res").querySelectorAll(".sk").length;if(!n)return false;const a=durAvg(sp);$("st").textContent="Na fila: "+n+(n>1?" imagens":" imagem")+(a?". Estimativa: "+fmtT(a*n)+".":".");return true;}
 function imgDone(card){const sn=card._snap;if(!card._t0)return;const t=Date.now();if(sn)durAdd(sn.sp||"",t-Math.max(card._t0,LASTFIN));LASTFIN=t;DONEIMG=true;queueStatus(sn&&sn.sp);}
 document.addEventListener("keydown",e=>{if(e.code!=="Space"||e.repeat||!VW.hidden)return;const t=e.target,tg=t&&t.tagName;if(["INPUT","TEXTAREA","SELECT","BUTTON","SUMMARY","A"].includes(tg)||(t&&t.isContentEditable))return;e.preventDefault();$("gen").click();});
+/* ---- LoRAs do usuário (compartilhado entre gerador e jogo) ---- */
+const UL_KEY="uloras",UL_POS={st:"Início",who:"Personagem",cl:"Roupa",sc:"Cenário"};
+let UL=[];try{const x=JSON.parse(localStorage.getItem(UL_KEY)||"[]");if(Array.isArray(x))UL=x;}catch(e){}
+UL.forEach(u=>{if(u.sug==="loading")u.sug=null;});
+function ulSave(){try{localStorage.setItem(UL_KEY,JSON.stringify(UL));}catch(e){}}
+const ulName=f=>String(f).replace(/^.*[\\/]/,"").replace(/\.(safetensors|ckpt|pt|bin)$/i,"");
+const ulBase=()=>($("url").value||"http://127.0.0.1:8188").trim().replace(/\/+$/,"");
+const ulNorm=t=>String(t).toLowerCase().replace(/\\/g,"").replace(/_/g," ").replace(/\s+/g," ").trim();
+const ulEsc=t=>String(t).replace(/(^|[^\\])([()])/g,"$1\\$2").replace(/(^|[^\\])([()])/g,"$1\\$2");
+const UL_FIXED=()=>new Set(["Smooth_Booster_v5.safetensors","S1 Dramatic Lighting Illustrious_V2.safetensors",...(typeof LORAS!=="undefined"?LORAS.map(l=>l.file):[])]);
+const UL_GEN=new Set(["1girl","1boy","2girls","multiple girls","solo","solo focus","male focus","looking at viewer","simple background","white background","grey background","transparent background","smile","open mouth","closed mouth","upper body","full body","cowboy shot","portrait","standing","blush","breasts","small breasts","medium breasts","large breasts","long hair","short hair","medium hair","bangs","jewelry","artist name","signature","watermark","english text","text","masterpiece","best quality","high quality","highres","absurdres","general","sensitive","questionable","explicit","safe","anime","illustration"]);
+let UL_MAP=null;
+function ulMap(){
+ if(UL_MAP)return UL_MAP;
+ const M=new Map(),put=(v,p)=>{if(Array.isArray(v))v.forEach(x=>put(x,p));else if(typeof v==="string"){const k=ulNorm(v);if(k&&!M.has(k))M.set(k,p);}};
+ const G=n=>{try{return Function("return "+n)();}catch(e){return null;}};
+ ["cams","views","looks","poses","exps","hairs","hairx","hcol","ecol","faces","traits","BODY","POSESETS"].forEach(n=>put(G(n),"who"));
+ ["ONE","TOP","BOT","FOOT","HAND","DET","ACC","bT","DARING"].forEach(n=>put(G(n),"cl"));
+ ["depth","lights","comp","LOC","ENV"].forEach(n=>put(G(n),"sc"));
+ const TT=G("T");if(Array.isArray(TT))TT.forEach(t=>{put(t.o,"cl");put(t.ob,"cl");put(t.k,"cl");put(t.kb,"cl");put(t.s,"sc");});
+ const R=G("RACE");if(R)Object.values(R).forEach(v=>put(v,"who"));
+ return UL_MAP=M;
+}
+function ulClass(t){
+ const k=ulNorm(t),m=ulMap().get(k);if(m)return m;
+ if(/\(.+\)|\bstyle\b|\bartist\b|^by |lineart|sketch|watercolor|oil painting|painting|chibi|realistic|cel shading|flat color|monochrome|aesthetic|\b3d\b/.test(k))return"st";
+ if(/hair ornament|hairclip|hair ribbon|hair bow|hair flower|hairband|earring|eyewear|eyepatch|glasses/.test(k))return"cl";
+ if(/\beyes?\b|\bhair\b|pupils|\bskin\b|\bears?\b|\btail\b|horns|wings|eyelashes|freckles|\blips\b|fangs?\b|\bface\b|expression/.test(k))return"who";
+ if(/light|lighting|shadow|background|\bsky\b|scenery|night|sunset|sunrise|rain|snow|bokeh|depth of field|blur|particle|sparkle|indoors|outdoors|room|street|city|forest|beach|water|\btheme\b|atmosphere|fog|glow/.test(k))return"sc";
+ if(/dress|shirt|skirt|jacket|coat|uniform|armor|glove|boot|shoe|heels|stocking|thighhigh|pantyhose|legwear|\bhat\b|cap\b|ribbon|\bbow\b|necktie|\btie\b|scarf|cape|cloak|bikini|swimsuit|kimono|sleeve|collar|belt|choker|earring|jewel|necklace|bracelet|bodysuit|pants|shorts|leotard|apron|hood|headwear|hair ornament|hairclip|accessor|outfit|costume|clothes|lingerie|bra\b|corset|vest|sweater|hoodie|cardigan|holster|strap|lining|trim/.test(k))return"cl";
+ if(/pose|holding|grabbing|carrying|wielding|sitting|standing|lying|kneeling|squatting|leaning|looking|smile|grin|frown|\beyes?\b|hair|blush|expression|\barms?\b|\bhands?\b|\blegs?\b|from above|from below|from side|from behind|view|body|skin|\bears?\b|tail|horns|wings|pupils|freckles|mole|eyelashes|lips|fang/.test(k))return"who";
+ return"st";
+}
+function ulExtra(){return[];}
+function ulExtraFiles(){try{return typeof ulExtra==="function"?ulExtra():[];}catch(e){return[];}}
+function ulPack(extra){const fs=new Set(extra||ulExtraFiles());return UL.filter(u=>u.on||fs.has(u.f)).map(u=>({f:u.f,s:+u.s,tags:(u.tags||[]).map(x=>({t:x.t,p:x.p||"st"}))}));}
+function ulInject(text,ul){
+ if(!ul||!ul.length||!text)return text;
+ const B=String(text).split(/\n\s*\n/),nb=B.length;
+ const noChar=/(^|,)\s*no humans\s*(,|$)/m.test(text);
+ const have=new Set(String(text).split(/[,\n]/).map(ulNorm).filter(Boolean));
+ const add={st:[],who:[],cl:[],sc:[]};
+ ul.forEach(u=>(u.tags||[]).forEach(x=>{const t=String(x.t||"").trim(),k=ulNorm(t);if(!k||have.has(k))return;have.add(k);const p=add[x.p]?x.p:"st";if(noChar&&(p==="who"||p==="cl"))return;add[p].push(t);}));
+ if(!add.st.length&&!add.who.length&&!add.cl.length&&!add.sc.length)return text;
+ const strip=s=>s.replace(/[\s,]+$/,""),lead=s=>s.replace(/^[\s,]+/,"");
+ if(nb===1){const all=[...add.st,...add.who,...add.cl,...add.sc];return strip(B[0])+", "+all.join(", ")+",";}
+ const ci=1,li=nb-1,di=nb>=4?2:ci;
+ const app=(i,a)=>{if(!a.length)return;const had=/,\s*$/.test(B[i]);B[i]=strip(B[i])+(strip(B[i])?", ":"")+a.join(", ")+(had?",":"");};
+ app(ci,add.who);app(di,add.cl);app(li,add.sc);
+ if(add.st.length)B[ci]=add.st.join(", ")+", "+lead(B[ci]);
+ return B.join("\n\n");
+}
+let UL_LIST=null;try{const c=JSON.parse(localStorage.getItem("lora_list")||"null");if(Array.isArray(c))UL_LIST=c;}catch(e){}
+async function ulFetchList(){
+ const b=ulBase();let L=null;
+ try{const r=await fetch(b+"/models/loras");if(r.ok){const j=await r.json();if(Array.isArray(j)&&j.length)L=j;}}catch(e){}
+ if(!L){const r=await fetch(b+"/object_info/LoraLoader");if(!r.ok)throw new Error("http "+r.status);const j=await r.json();L=j.LoraLoader.input.required.lora_name[0];}
+ L=L.map(x=>typeof x==="string"?x:(x&&x.name)).filter(Boolean);
+ UL_LIST=L;try{localStorage.setItem("lora_list",JSON.stringify(L));}catch(e){}
+ return L;
+}
+async function ulMeta(f){
+ const r=await fetch(ulBase()+"/view_metadata/loras?filename="+encodeURIComponent(f));
+ if(!r.ok)return[];
+ let m=null;try{m=await r.json();}catch(e){return[];}
+ if(!m||typeof m!=="object")return[];
+ const first=[];["modelspec.trigger_phrase","ss_trigger_words","trigger_words"].forEach(k=>{if(m[k])String(m[k]).split(",").map(s=>s.trim()).filter(Boolean).forEach(s=>first.push(s));});
+ const cnt={};
+ try{const tf=typeof m.ss_tag_frequency==="string"?JSON.parse(m.ss_tag_frequency):m.ss_tag_frequency;if(tf)for(const d in tf)for(const t in tf[d]){const k=t.trim();if(k)cnt[k]=(cnt[k]||0)+(+tf[d][t]||0);}}catch(e){}
+ const known=ulMap(),seen=new Set(),out=[];
+ [...first,...Object.entries(cnt).sort((a,b)=>b[1]-a[1]).map(x=>x[0])].forEach(t=>{const k=ulNorm(t);if(!k||seen.has(k)||UL_GEN.has(k)||(known.has(k)&&!first.includes(t)))return;seen.add(k);out.push(ulEsc(t));});
+ return out.slice(0,15);
+}
+const ulIc=(n,s)=>'<iconify-icon icon="lucide:'+n+'" width="'+s+'" height="'+s+'"></iconify-icon>';
+function ulAddTags(u,str){
+ String(str).split(",").map(s=>s.trim()).filter(Boolean).forEach(t=>{const k=ulNorm(t);if(!u.tags.some(x=>ulNorm(x.t)===k))u.tags.push({t,p:ulClass(t)});});
+}
+async function ulLoadMeta(u){
+ u.sug="loading";ulRender();
+ let s=[];try{s=await ulMeta(u.f);}catch(e){u.sug=null;u.err=1;ulSave();ulRender();return;}
+ u.err=0;u.sug=s;ulSave();ulRender();
+}
+function ulRender(){
+ const box=$("ul");if(!box)return;box.innerHTML="";
+ $("ulnone").hidden=!!UL.length;
+ UL.forEach((u,i)=>{
+  if(!u.tags)u.tags=[];
+  const d=document.createElement("div");d.className="lr";
+  const h=document.createElement("div");h.className="lrh";
+  const lab=document.createElement("label");lab.className="ck";const cb=document.createElement("input");cb.type="checkbox";cb.checked=!!u.on;cb.onchange=()=>{u.on=cb.checked;ulSave();};
+  const nm=document.createElement("span");nm.className="lrn";nm.textContent=ulName(u.f);nm.title=u.f;lab.append(cb,nm);
+  const out=document.createElement("output");out.textContent=(+u.s).toFixed(2);
+  const rm=document.createElement("button");rm.type="button";rm.className="lrx";rm.textContent="\u00d7";rm.setAttribute("aria-label","Remover "+ulName(u.f));rm.title="Remover da lista";
+  rm.onclick=()=>{UL.splice(i,1);ulSave();ulRender();if(typeof ulChar==="function")ulChar();};
+  h.append(lab,out,rm);
+  const rg=document.createElement("input");rg.type="range";rg.min="0";rg.max="2";rg.step="0.05";rg.value=u.s;rg.setAttribute("aria-label","Força de "+ulName(u.f));
+  rg.oninput=()=>{u.s=+rg.value;out.textContent=(+u.s).toFixed(2);ulSave();};
+  const tg=document.createElement("div");tg.className="lrt";
+  u.tags.forEach((x,j)=>{
+   const c=document.createElement("span");c.className="tgc";
+   const t=document.createElement("span");t.textContent=x.t;
+   const sel=document.createElement("select");sel.setAttribute("aria-label","Onde entra a tag "+x.t);
+   Object.entries(UL_POS).forEach(([v,l])=>{const o=document.createElement("option");o.value=v;o.textContent=l;sel.appendChild(o);});sel.value=x.p||"st";
+   sel.onchange=()=>{x.p=sel.value;ulSave();};
+   const del=document.createElement("button");del.type="button";del.textContent="\u00d7";del.setAttribute("aria-label","Remover tag "+x.t);del.onclick=()=>{u.tags.splice(j,1);ulSave();ulRender();};
+   c.append(t,sel,del);tg.appendChild(c);
+  });
+  const inp=document.createElement("input");inp.type="text";inp.className="lri";inp.placeholder="Tags de ativação (Enter). Pode colar várias com vírgula";inp.setAttribute("aria-label","Adicionar tags de ativação para "+ulName(u.f));
+  inp.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();if(inp.value.trim()){ulAddTags(u,inp.value);ulSave();ulRender();const n=$("ul").querySelectorAll(".lri")[i];if(n)n.focus();}}};
+  inp.onpaste=()=>setTimeout(()=>{if(inp.value.includes(",")){ulAddTags(u,inp.value);ulSave();ulRender();}},0);
+  const sg=document.createElement("div");sg.className="lrs";
+  if(u.sug==="loading"){sg.textContent="Lendo as tags do arquivo...";}
+  else if(Array.isArray(u.sug)){
+   const rest=u.sug.filter(t=>!u.tags.some(x=>ulNorm(x.t)===ulNorm(t)));
+   if(!u.sug.length){sg.textContent="Sem tags conhecidas no arquivo. Cole as palavras-gatilho do Civitai, se houver.";}
+   else if(rest.length){const l=document.createElement("span");l.textContent="Sugestões do arquivo:";sg.appendChild(l);rest.forEach(t=>{const b=document.createElement("button");b.type="button";b.className="sgb";b.textContent="+ "+t;b.title="Adicionar "+t;b.onclick=()=>{ulAddTags(u,t);ulSave();ulRender();};sg.appendChild(b);});}
+  }else{const b=document.createElement("button");b.type="button";b.className="sgb";b.textContent=u.err?"Tentar ler as tags de novo":"Ler tags do arquivo";b.onclick=()=>ulLoadMeta(u);sg.appendChild(b);if(u.err){const e=document.createElement("span");e.textContent="Não consegui ler o arquivo no ComfyUI.";sg.prepend(e);}}
+  d.append(h,rg,tg,inp,sg);box.appendChild(d);
+ });
+}
+function ulPickRender(){
+ const q=ulNorm($("ulq").value),L=UL_LIST||[],fx=UL_FIXED(),sel=new Set(UL.map(u=>u.f)),box=$("ulres");box.innerHTML="";
+ const F=L.filter(f=>!q||ulNorm(f).includes(q));
+ F.slice(0,80).forEach(f=>{const b=document.createElement("button");b.type="button";b.className="ulo";const n=document.createElement("span");n.textContent=ulName(f);const p=document.createElement("small");p.textContent=f.includes("/")||f.includes("\\")?f.replace(/[\\/][^\\/]*$/,""):"";b.append(n,p);
+  if(fx.has(f)||sel.has(f)){b.disabled=true;const m=document.createElement("small");m.textContent=fx.has(f)?"já fixo no app":"já na lista";b.appendChild(m);}
+  b.onclick=()=>ulPickAdd(f);box.appendChild(b);});
+ $("ulcount").textContent=!L.length?"Nenhum LoRA encontrado no ComfyUI.":(F.length>80?"Mostrando 80 de "+F.length+". Digite para filtrar.":F.length+" de "+L.length+" LoRAs");
+}
+function ulPickAdd(f){
+ const u={f,on:true,s:1,tags:[],sug:null};UL.push(u);ulSave();ulClose();ulRender();if(typeof ulChar==="function")ulChar();ulLoadMeta(u);
+}
+function ulClose(){$("ulpick").hidden=true;$("uladd").setAttribute("aria-expanded","false");}
+$("uladd").onclick=async()=>{
+ if(!$("ulpick").hidden){ulClose();return;}
+ $("ulpick").hidden=false;$("uladd").setAttribute("aria-expanded","true");$("ulq").value="";$("ulres").innerHTML="";$("ulcount").textContent="Buscando os LoRAs no ComfyUI...";
+ try{await ulFetchList();}catch(e){if(!UL_LIST){$("ulcount").textContent="Não consegui falar com o ComfyUI. Confira o endereço em Conexão.";return;}ulPickRender();$("ulcount").textContent="ComfyUI fora do ar: mostrando a última lista salva. "+$("ulcount").textContent;$("ulq").focus();return;}
+ ulPickRender();$("ulq").focus();
+};
+$("ulq").oninput=ulPickRender;
+$("ulq").onkeydown=e=>{if(e.key==="Escape"){e.preventDefault();ulClose();$("uladd").focus();}if(e.key==="Enter"){e.preventDefault();const b=$("ulres").querySelector(".ulo:not(:disabled)");if(b)b.click();}};
+window.addEventListener("storage",e=>{if(e.key===UL_KEY){try{UL=JSON.parse(e.newValue||"[]")||[];}catch(x){}ulRender();if(typeof ulChar==="function")ulChar();}});
+ulRender();
+
 function mkCard(snap){
  const card=document.createElement("div");card.className="card";card._snap=snap;card.style.aspectRatio=snap.o==="l"?"1216/832":"832/1216";
  const sk=document.createElement("div");sk.className="sk";sk.setAttribute("aria-hidden","true");
