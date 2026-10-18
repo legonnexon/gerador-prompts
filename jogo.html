@@ -150,7 +150,7 @@ details.ed[open] summary{margin-bottom:10px}
 .sl{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .sl output{font:600 13px ui-monospace,Consolas,monospace;color:var(--or2)}
 input[type=range]{width:100%;accent-color:var(--or);margin:2px 0 10px}
-.ulw{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.ulw{margin:0}
 #ul{display:flex;flex-direction:column;gap:10px;margin-bottom:10px}
 .lr{border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--raise)}
 .lrh{display:flex;align-items:center;gap:8px}
@@ -236,17 +236,10 @@ input[type=range]{width:100%;accent-color:var(--or);margin:2px 0 10px}
 <label class="lb" for="extra">Tags extras (opcional)</label>
 <input type="text" id="extra" placeholder="ex.: blush, hand on own chest">
 </div></details>
-<details><summary><iconify-icon icon="lucide:palette" width="18" height="18"></iconify-icon>Estilo<iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
-<div class="seg" role="group" aria-label="LoRA"><button data-l="0" aria-pressed="true">AIイラストおじさん</button><button data-l="1" aria-pressed="false">Takorin Style</button><button data-l="2" aria-pressed="false">Hata4564</button><button data-l="3" aria-pressed="false">Niji Oil</button><button data-l="4" aria-pressed="false">Niji Semi-realism</button><button data-l="5" aria-pressed="false">USNR Style</button></div>
-<span id="lfile"></span>
-<div class="sl"><label class="ck"><input type="checkbox" id="sb" checked>Smooth Booster</label><output id="sbo">0.50</output></div>
-<input type="range" id="sbs" min="0" max="1.5" step="0.05" value="0.5" aria-label="Força do Smooth Booster">
-<div class="sl"><label class="ck"><input type="checkbox" id="dl" checked>Dramatic Lighting</label><output id="dlo">0.80</output></div>
-<input type="range" id="dls" min="0" max="1.5" step="0.05" value="0.8" aria-label="Força do Dramatic Lighting">
+<details><summary><iconify-icon icon="lucide:layers" width="18" height="18"></iconify-icon>LoRAs<iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
 <div class="ulw">
-<span class="lb" id="ull">Seus LoRAs</span>
-<div id="ul" aria-labelledby="ull"></div>
-<p class="hint" id="ulnone">Nenhum LoRA adicionado. Os LoRAs escolhidos aqui ficam salvos e valem no gerador e no jogo.</p>
+<div id="ul" aria-label="LoRAs escolhidos"></div>
+<p class="hint" id="ulnone">Nenhum LoRA adicionado: a imagem sai só com o checkpoint. Os LoRAs escolhidos aqui ficam salvos e valem no gerador e no jogo.</p>
 <button id="uladd" class="ulb" type="button" aria-expanded="false" aria-controls="ulpick"><iconify-icon icon="lucide:plus" width="16" height="16"></iconify-icon>Adicionar LoRA</button>
 <div id="ulpick" hidden>
 <input type="text" id="ulq" placeholder="Buscar LoRA pelo nome" aria-label="Buscar LoRA pelo nome" autocomplete="off">
@@ -314,20 +307,15 @@ g("negr").onclick=()=>{n.value=NEG0;try{localStorage.removeItem("neg");}catch(e)
 const $=id=>document.getElementById(id);
 const DIMS={p:[832,1216],l:[1216,832],s:[1024,1024]};
 const norm=t=>(t||"").split(",").map(x=>x.trim()).filter(Boolean).join(", ");
-const LORAS=[{file:"aiE382A4E383A9E382B9E38388E3818A.cG1u.safetensors"},{file:"takorin_ILXL_v4 (1).safetensors"},{file:"Hata4564.safetensors"},{file:"Niji_oil_animme.safetensors"},{file:"Niji_Semi_realism_F_N_R_epoch_10.safetensors"},{file:"USNR_STYLE_ILL_V1_lokr3-000024.safetensors"}];let LI=0;
-try{const f=localStorage.getItem("lora_f");const i=LORAS.findIndex(l=>l.file===f);LI=i>=0?i:0;}catch(e){}
-function renderL(){document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.l===LI));$("lfile").textContent=LORAS[LI].file;}
-document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{LI=+b.dataset.l;renderL();try{localStorage.setItem("lora_f",LORAS[LI].file);}catch(e){}});
-renderL();
-["sb","dl"].forEach(k=>{try{const m=localStorage.getItem(k+"_on");if(m!==null)$(k).checked=m==="1";}catch(e){}$(k).onchange=()=>{try{localStorage.setItem(k+"_on",$(k).checked?"1":"0");}catch(e){}};});
-(()=>{const g=id=>document.getElementById(id);[["sbs","sbo"],["dls","dlo"]].forEach(([r,o])=>{const R=g(r),O=g(o);try{const v=localStorage.getItem(r);if(v!==null)R.value=v;}catch(e){}const up=()=>{O.textContent=(+R.value).toFixed(2);};up();R.addEventListener("input",()=>{up();try{localStorage.setItem(r,R.value);}catch(e){}});});})();
 const rs=()=>Math.floor(Math.random()*9e15);
 try{const u=localStorage.getItem("cfy_url");if(u)$("url").value=u;}catch(e){}
 $("url").onchange=()=>{try{localStorage.setItem("cfy_url",$("url").value);}catch(e){}};
 async function send(snap){
  const st=$("st"),w=JSON.parse(JSON.stringify(WF));
  w["4"].inputs.text=snap.text;if(snap.neg)w["17"].inputs.text=snap.neg;
- w["15"].inputs.lora_2.lora=snap.lora;w["15"].inputs.lora_1.on=snap.sb!==false;w["15"].inputs.lora_1.strength=snap.sbs!=null?snap.sbs:0.5;(snap.ul||[]).forEach((u,i)=>{w["15"].inputs["lora_"+(4+i)]={on:true,lora:u.f,strength:+u.s};});w["15"].inputs.lora_3={on:snap.dl!==false,lora:"S1 Dramatic Lighting Illustrious_V2.safetensors",strength:snap.dls!=null?snap.dls:0.8};
+ {const I=w["15"].inputs,L=[];Object.keys(I).filter(k=>/^lora_\d+$/.test(k)).forEach(k=>delete I[k]);
+  if(snap.lora){if(snap.sb!==false)L.push({f:"Smooth_Booster_v5.safetensors",s:snap.sbs!=null?snap.sbs:0.5});L.push({f:snap.lora,s:1});if(snap.dl===true)L.push({f:"S1 Dramatic Lighting Illustrious_V2.safetensors",s:snap.dls!=null?snap.dls:0.8});}
+  (snap.ul||[]).forEach(u=>L.push({f:u.f,s:+u.s}));L.forEach((u,i)=>{I["lora_"+(i+1)]={on:true,lora:u.f,strength:u.s};});}
  w["3"].inputs.steps=snap.steps;const D=DIMS[snap.o]||DIMS.p;w["1"].inputs.width=D[0];w["1"].inputs.height=D[1];
  if(snap.sp)w["57"].inputs.images=[snap.sp==="ultra"?"10":"25",0];
  w["3"].inputs.seed=snap.s3;w["24"].inputs.seed=snap.s24;w["58"].inputs.seed=snap.s58;
@@ -360,7 +348,7 @@ function vbuild(){
  if(sn.sp)mk("maximize-2","Upscale",()=>send({...sn,sp:""}));
  const r=()=>Math.floor(Math.random()*9e15);
  mk("dices","Variar",()=>send({...sn,s3:r(),s24:r(),s58:r()}));
- mk("equal","Mesma seed",()=>{const ul=ulPack();send({...sn,text:ulInject(sn.text,ul),ul,neg:negGet(),lora:LORAS[LI].file,sb:$("sb").checked,dl:$("dl").checked,sbs:+$("sbs").value,dls:+$("dls").value});});
+ mk("equal","Mesma seed",()=>{const ul=ulPack();send({...sn,text:ulInject(sn.text,ul),ul,neg:negGet(),lora:undefined,sb:undefined,dl:undefined});});
 }
 function vshow(card){
  VC=card;vreset();VI.src=card._u;vbuild();
@@ -462,7 +450,7 @@ const ulName=f=>String(f).replace(/^.*[\\/]/,"").replace(/\.(safetensors|ckpt|pt
 const ulBase=()=>($("url").value||"http://127.0.0.1:8188").trim().replace(/\/+$/,"");
 const ulNorm=t=>String(t).toLowerCase().replace(/\\/g,"").replace(/_/g," ").replace(/\s+/g," ").trim();
 const ulEsc=t=>String(t).replace(/(^|[^\\])([()])/g,"$1\\$2").replace(/(^|[^\\])([()])/g,"$1\\$2");
-const UL_FIXED=()=>new Set(["Smooth_Booster_v5.safetensors","S1 Dramatic Lighting Illustrious_V2.safetensors",...(typeof LORAS!=="undefined"?LORAS.map(l=>l.file):[])]);
+const UL_FIXED=()=>new Set();
 const UL_GEN=new Set(["1girl","1boy","2girls","multiple girls","solo","solo focus","male focus","looking at viewer","simple background","white background","grey background","transparent background","smile","open mouth","closed mouth","upper body","full body","cowboy shot","portrait","standing","blush","breasts","small breasts","medium breasts","large breasts","long hair","short hair","medium hair","bangs","jewelry","artist name","signature","watermark","english text","text","masterpiece","best quality","high quality","highres","absurdres","general","sensitive","questionable","explicit","safe","anime","illustration"]);
 let UL_MAP=null;
 function ulMap(){
@@ -706,7 +694,7 @@ $("gen").onclick=async()=>{
  const ULP=ulPack(),sp=$("speed").value,o=$("fmt").value,prompts=list.map(e=>ulInject(build(e),ULP));
  $("ptxt").value=prompts.join("\n\n---\n\n");
  $("gen").disabled=true;SENDING++;
- for(let i=list.length-1;i>=0;i--){await send({ul:ULP,neg:negGet(),dl:$("dl").checked,sbs:+$("sbs").value,dls:+$("dls").value,text:prompts[i],lora:LORAS[LI].file,sb:$("sb").checked,steps:sp?26:WF["3"].inputs.steps,...SEEDS,sp,o,exp:list[i].l});}
+ for(let i=list.length-1;i>=0;i--){await send({ul:ULP,neg:negGet(),text:prompts[i],steps:sp?26:WF["3"].inputs.steps,...SEEDS,sp,o,exp:list[i].l});}
  SENDING--;queueStatus(sp);kick();$("gen").disabled=false;
 };
 </script>
