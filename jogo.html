@@ -188,6 +188,12 @@ input[type=range]{width:100%;accent-color:var(--or);margin:2px 0 10px}
 .lr.min>:not(.lrh){display:none}
 .lr.min{padding:6px 10px}
 .lrc{flex:none;margin-left:6px;padding:1px 7px;border-radius:999px;background:var(--line);color:var(--mut);font-size:11px;font-weight:600}
+.lrg{display:flex;align-items:center;justify-content:center;flex:none;width:24px;height:32px;margin-left:-4px;border:0;border-radius:6px;background:none;color:var(--mut);cursor:grab;touch-action:none}
+.lrg:hover{background:var(--line);color:var(--fg)}
+.lrg:focus-visible{outline:3px solid var(--fg);outline-offset:1px}
+.lr.drag{z-index:1000;opacity:.75;pointer-events:none;box-shadow:0 14px 34px rgba(0,0,0,.32);transform:rotate(1.2deg) scale(1.02);background:var(--card)}
+.lrph{border:2px dashed var(--or);border-radius:12px;background:var(--tint);opacity:.6}
+body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 </style>
 <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
 </head>
@@ -522,6 +528,24 @@ async function ulLoadMeta(u){
  let s=[];try{s=await ulMeta(u.f);}catch(e){u.sug=null;u.err=1;ulSave();ulRender();return;}
  u.err=0;u.sug=s;ulSave();ulRender();
 }
+function ulDrag(e,card,from){
+ const box=$("ul"),sc=card.closest(".scroll"),r=card.getBoundingClientRect(),dy=e.clientY-r.top;
+ const ph=document.createElement("div");ph.className="lrph";ph.style.height=r.height+"px";box.insertBefore(ph,card);
+ card.classList.add("drag");Object.assign(card.style,{position:"fixed",left:r.left+"px",top:r.top+"px",width:r.width+"px"});
+ document.body.classList.add("dragging");
+ let y=e.clientY,raf=0,done=false;
+ const place=()=>{card.style.top=(y-dy)+"px";const cs=[...box.querySelectorAll(".lr:not(.drag)")];let before=null;for(const c of cs){const b=c.getBoundingClientRect();if(y<b.top+b.height/2){before=c;break;}}
+  if(before){if(ph.nextSibling!==before)box.insertBefore(ph,before);}else if(box.lastElementChild!==ph)box.appendChild(ph);};
+ const tick=()=>{raf=0;if(sc){const b=sc.getBoundingClientRect();if(y<b.top+40)sc.scrollTop-=12;else if(y>b.bottom-40)sc.scrollTop+=12;}place();if(!done&&sc&&(y<sc.getBoundingClientRect().top+40||y>sc.getBoundingClientRect().bottom-40))raf=requestAnimationFrame(tick);};
+ const mv=ev=>{y=ev.clientY;if(!raf)raf=requestAnimationFrame(tick);};
+ const end=cancel=>{done=true;if(raf)cancelAnimationFrame(raf);document.removeEventListener("pointermove",mv);document.removeEventListener("pointerup",up);document.removeEventListener("pointercancel",cc);document.removeEventListener("keydown",kd);document.body.classList.remove("dragging");
+  const to=[...box.children].filter(x=>x!==card).indexOf(ph);ph.remove();card.classList.remove("drag");card.removeAttribute("style");
+  if(!cancel&&to>=0&&to!==from){const it=UL.splice(from,1)[0];UL.splice(to,0,it);ulSave();}
+  ulRender();const n=$("ul").querySelectorAll(".lrg")[cancel||to<0?from:to];if(n)n.focus({preventScroll:true});};
+ const up=()=>end(false),cc=()=>end(true),kd=ev=>{if(ev.key==="Escape"){ev.preventDefault();end(true);}};
+ document.addEventListener("pointermove",mv);document.addEventListener("pointerup",up);document.addEventListener("pointercancel",cc);document.addEventListener("keydown",kd);
+ place();
+}
 function ulRender(){
  const box=$("ul");if(!box)return;box.innerHTML="";
  $("ulnone").hidden=!!UL.length;
@@ -539,7 +563,11 @@ function ulRender(){
   mn.onclick=()=>{u.min=!u.min;ulSave();ulRender();const b=$("ul").querySelectorAll(".lrm")[i];if(b)b.focus();};
   if(u.min){const c=document.createElement("span");c.className="lrc";c.textContent=u.tags.length?u.tags.length+(u.tags.length>1?" tags":" tag"):"sem tags";lab.appendChild(c);}
   d.classList.toggle("min",!!u.min);
-  h.append(lab,out,mn,rm);
+  const gr=document.createElement("button");gr.type="button";gr.className="lrg";gr.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>';
+  gr.setAttribute("aria-label","Mover "+ulName(u.f)+" (arraste, ou use as setas para cima e para baixo)");gr.title="Arraste para mudar a ordem";
+  gr.onpointerdown=e=>{if(e.button!==0)return;e.preventDefault();ulDrag(e,d,i);};
+  gr.onkeydown=e=>{const k=e.key==="ArrowUp"?-1:e.key==="ArrowDown"?1:0;if(!k)return;e.preventDefault();const j=i+k;if(j<0||j>=UL.length)return;const it=UL.splice(i,1)[0];UL.splice(j,0,it);ulSave();ulRender();const n=$("ul").querySelectorAll(".lrg")[j];if(n)n.focus();};
+  h.append(gr,lab,out,mn,rm);
   const rg=document.createElement("input");rg.type="range";rg.min="0";rg.max="2";rg.step="0.05";rg.value=u.s;rg.setAttribute("aria-label","Força de "+ulName(u.f));
   rg.oninput=()=>{u.s=+rg.value;out.textContent=(+u.s).toFixed(2);ulSave();};
   const tg=document.createElement("div");tg.className="lrt";
