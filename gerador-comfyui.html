@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gerador de prompts + ComfyUI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eceaf0;--card:#ffffff;--raise:#f4f2f7;--line:#dcd7e3;--fg:#1d1926;--mut:#6b6477;--or:#ff7a1a;--or2:#d95a00;--tint:color-mix(in srgb,var(--or) 14%,transparent)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15121a;--card:#1e1a26;--raise:#2a2433;--line:#3a3346;--fg:#f0ebf4;--mut:#a89fb5;--or2:#ff9a4d}}
+:root[data-theme="dark"]{--bg:#15121a;--card:#1e1a26;--raise:#2a2433;--line:#3a3346;--fg:#f0ebf4;--mut:#a89fb5;--or2:#ff9a4d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 "Bricolage Grotesque",system-ui,sans-serif}
+button,select,input,textarea{font-family:inherit}
+.app{display:grid;grid-template-columns:372px minmax(0,1fr);min-height:100vh}
+aside{background:var(--card);border-right:1px solid var(--line);display:flex;flex-direction:column;height:100vh;position:sticky;top:0}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 18px 12px}
+h1{margin:0;font:700 21px/1.1 "Bricolage Grotesque",system-ui,sans-serif;letter-spacing:-.01em}
+.nav{display:flex;align-items:center;gap:6px;color:var(--mut);font-size:13px;text-decoration:none;padding:6px 8px;border-radius:8px}
+.nav:hover{background:var(--raise);color:var(--fg)}
+.scroll{overflow:auto;flex:1;padding:0 18px 18px}
+details{border-top:1px solid var(--line)}
+summary{display:flex;align-items:center;gap:8px;padding:14px 0;font-weight:700;font-size:15px;cursor:pointer;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary iconify-icon{color:var(--or2)}
+summary .chev{margin-left:auto;color:var(--mut);transition:transform .15s}
+details[open] summary .chev{transform:rotate(180deg)}
+details>.in{padding-bottom:16px}
+summary:focus-visible,.nav:focus-visible{outline:3px solid var(--fg);outline-offset:2px;border-radius:8px}
+.lb{display:block;margin:14px 0 6px;color:var(--mut);font-size:13px}
+.in>.lb:first-child{margin-top:0}
+.mode{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.mode button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;height:64px;border:1px solid var(--line);border-radius:12px;background:var(--raise);color:var(--fg);font-size:12px;cursor:pointer}
+.mode button[aria-pressed="true"],.pair button[aria-pressed="true"],.spd button[aria-pressed="true"],.seg button[aria-pressed="true"]{border-color:var(--or);background:var(--tint);color:var(--or2)}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.fld{display:flex;flex-direction:column;gap:6px;min-width:0}
+.fld label{color:var(--mut);font-size:13px}
+select,#url{width:100%;min-width:0;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--raise);color:var(--fg);font-size:14px}
+select:disabled{opacity:.5}
+.ck{display:flex;align-items:center;gap:10px;margin-top:12px;color:var(--fg);font-size:14px;cursor:pointer}
+.ck input{width:18px;height:18px;accent-color:var(--or2);flex:none;cursor:pointer}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.seg button{padding:10px 8px;border:1px solid var(--line);border-radius:10px;background:var(--raise);color:var(--fg);font:600 14px "Yu Gothic","Hiragino Sans","Noto Sans JP","Bricolage Grotesque",system-ui,sans-serif;cursor:pointer}
+#lfile{display:block;margin-top:8px;font:12px ui-monospace,Consolas,monospace;color:var(--mut);word-break:break-all}
+.spd,.pair{display:flex;gap:6px}
+.spd button,.pair button{flex:1;height:52px;border:1px solid var(--line);border-radius:10px;background:var(--raise);color:var(--fg);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.qty button{font:700 16px "Bricolage Grotesque",system-ui,sans-serif}
+.mode button:focus-visible,.pair button:focus-visible,.spd button:focus-visible,.seg button:focus-visible,#gen:focus-visible,#send:focus-visible,#clr:focus-visible,.ibtn:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.dock{padding:14px 18px calc(14px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--card);display:grid;gap:8px}
+#gen{display:block;width:100%;height:60px;border:0;border-radius:14px;background:linear-gradient(180deg,var(--or),#e85f00);color:#fff;font:800 22px/1 "Bricolage Grotesque",system-ui,sans-serif;letter-spacing:.1em;cursor:pointer;box-shadow:0 5px 0 #b04800;transition:transform .08s,box-shadow .08s}
+#gen:active{transform:translateY(4px);box-shadow:0 1px 0 #b04800}
+#send{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:46px;border:1px solid var(--line);border-radius:12px;background:var(--raise);color:var(--fg);font:600 15px "Bricolage Grotesque",system-ui,sans-serif;cursor:pointer}
+#send[hidden]{display:none}
+#send:hover{border-color:var(--or)}
+.stage{padding:20px 24px 40px;min-width:0}
+.bar{display:flex;align-items:center;gap:12px;min-height:40px;margin-bottom:14px}
+#st{margin:0;flex:1;font-size:14px;color:var(--mut)}
+#clr{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--fg);cursor:pointer}
+#clr:hover{border-color:var(--or)}
+#out{display:none;margin-bottom:18px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.ohead{display:flex;align-items:center;gap:10px}
+#theme{margin:0;flex:1;color:var(--mut);font-size:14px}
+.ibtn{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:var(--raise);color:var(--fg);cursor:pointer}
+.ibtn[aria-pressed="true"]{border-color:var(--or);color:var(--or2)}
+#txt{display:block;width:100%;min-height:240px;margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);font:14px/1.6 ui-monospace,Consolas,monospace;resize:vertical}
+#txt[hidden]{display:none}
+.fv{position:absolute;top:6px;left:6px;z-index:2;width:26px;height:26px;border:0;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.fv:hover{background:rgba(0,0,0,.8)}
+.fv[aria-pressed="true"]{color:#ffb020}
+.fv:focus-visible{outline:2px solid #fff;outline-offset:1px}
+#flist{display:grid;gap:6px;max-height:300px;overflow:auto}
+.fi{display:flex;align-items:stretch;gap:4px}
+.fsel{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:6px;border:1px solid var(--line);border-radius:10px;background:var(--raise);color:var(--fg);text-align:left;cursor:pointer;font-size:14px}
+.fsel[aria-pressed="true"]{border-color:var(--or);background:var(--tint)}
+.fsel img,.fsel .ph{width:36px;height:48px;flex:none;border-radius:6px;object-fit:cover;background:var(--line);display:flex;align-items:center;justify-content:center;color:var(--mut)}
+.fsel span.nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fi .sm{width:34px;flex:none;border:1px solid var(--line);border-radius:10px;background:var(--raise);color:var(--mut);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.fi .sm:hover{color:var(--fg);border-color:var(--fg)}
+.fsel:focus-visible,.fi .sm:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.cfgw{position:relative}
+.gear{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--fg);cursor:pointer}
+.gear:hover{border-color:var(--or)}
+.gear:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+#pop{position:absolute;top:48px;right:0;z-index:60;width:min(300px,calc(100vw - 32px));background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 12px 32px rgba(0,0,0,.28)}
+#pop[hidden]{display:none}
+.pt{margin:0 0 4px;font-weight:700}
+.hint{margin:8px 0 0;font-size:13px;color:var(--mut)}
+#res{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;align-items:start}
+#res:empty::before{content:"As imagens aparecem aqui. Gere um prompt e envie ao ComfyUI.";grid-column:1/-1;display:flex;align-items:center;justify-content:center;min-height:42vh;padding:24px;border:1px dashed var(--line);border-radius:16px;color:var(--mut);text-align:center}
+.sk{width:100%;aspect-ratio:832/1216;border-radius:10px;background:linear-gradient(100deg,var(--line) 30%,color-mix(in srgb,var(--line),#fff 45%) 50%,var(--line) 70%);background-size:200% 100%;animation:sh 1.3s linear infinite}
+.card{position:relative;aspect-ratio:832/1216;border-radius:10px;overflow:hidden}
+.card .sk{height:100%;aspect-ratio:auto;border-radius:0}
+.card a{display:block;height:100%}
+.card img{height:100%;object-fit:cover}
+.x{position:absolute;top:6px;right:6px;z-index:2;width:26px;height:26px;border:0;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font:16px/1 system-ui,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.up{display:flex;align-items:center;gap:5px;position:absolute;bottom:6px;right:6px;z-index:2;padding:4px 10px;border:0;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;font:600 12px system-ui,sans-serif;cursor:pointer}
+.up.cp{right:auto;left:6px}
+.up:hover{background:rgba(0,0,0,.8)}
+.up:focus-visible{outline:2px solid #fff;outline-offset:1px}
+.x:hover{background:rgba(0,0,0,.8)}
+.x:focus-visible{outline:2px solid #fff;outline-offset:1px}
+@keyframes sh{from{background-position:200% 0}to{background-position:-200% 0}}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.sk{animation:none}#res img{animation:none}}
+#res img{display:block;width:100%;border-radius:10px;animation:fi .4s}
+#viewer{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.94);overflow:hidden;touch-action:none}
+#viewer[hidden]{display:none}
+#viewer img{max-width:100vw;max-height:100vh;object-fit:contain;transform-origin:center;user-select:none;-webkit-user-drag:none;cursor:grab;will-change:transform}
+#viewer.pan img{cursor:grabbing}
+.vbtn{position:absolute;z-index:2;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;cursor:pointer}
+.vbtn:hover{background:rgba(255,255,255,.28)}
+.vbtn:focus-visible,.vact button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.vbtn[hidden]{display:none}
+#vx{top:12px;right:12px}#vp{left:12px;top:50%;margin-top:-22px}#vn{right:12px;top:50%;margin-top:-22px}
+.vact{position:absolute;z-index:2;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:8px}
+.vact button{display:flex;align-items:center;gap:6px;padding:9px 16px;border:0;border-radius:999px;background:rgba(255,255,255,.16);color:#fff;font:600 13px system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+.vact button:hover{background:rgba(255,255,255,.3)}
+.card a{cursor:zoom-in}
+@media (max-width:859px){
+.app{display:block}
+aside{position:static;height:auto;border-right:0}
+.scroll{overflow:visible}
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:50;grid-template-columns:1fr auto;box-shadow:0 -8px 24px rgba(0,0,0,.18)}
+#gen{height:54px;font-size:20px}
+#send{width:auto;padding:0 16px;height:54px}
+.stage{padding:16px 16px calc(110px + env(safe-area-inset-bottom,0px))}
+#res{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+}
+#neg{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--raise);color:var(--fg);resize:vertical;font:13px/1.5 ui-monospace,Consolas,monospace}
+#neg:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.act{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.act button{display:flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--fg);font:inherit;font-size:14px;cursor:pointer}
+.act button:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.sl{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sl output{font:600 13px ui-monospace,Consolas,monospace;color:var(--or2)}
+input[type=range]{width:100%;accent-color:var(--or);margin:2px 0 10px}
+</style>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+</head>
+<body>
+<div class="app">
+<aside>
+<div class="brand"><h1>Gerador de prompts</h1><a class="nav" href="jogo.html"><iconify-icon icon="lucide:gamepad-2" width="18" height="18"></iconify-icon>Jogo</a></div>
+<div class="scroll">
+<details open><summary><iconify-icon icon="lucide:user-round" width="18" height="18"></iconify-icon>Personagem<iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
+<div class="mode" role="group" aria-label="Personagem">
+<button data-m="girl" aria-pressed="true" aria-label="1girl" title="1girl"><iconify-icon icon="lucide:venus" width="24" height="24"></iconify-icon>Garota</button>
+<button data-m="boy" aria-pressed="false" aria-label="1boy" title="1boy"><iconify-icon icon="lucide:mars" width="24" height="24"></iconify-icon>Garoto</button>
+<button data-m="rand" aria-pressed="false" aria-label="Aleatório" title="Aleatório"><iconify-icon icon="lucide:shuffle" width="24" height="24"></iconify-icon>Sorteio</button>
+<button data-m="fav" aria-pressed="false" aria-label="Favorita" title="Personagem favorita"><iconify-icon icon="lucide:star" width="24" height="24"></iconify-icon>Favorita</button>
+</div>
+<div id="favp" hidden>
+<span class="lb">Favoritas</span>
+<div id="flist"></div>
+<label class="ck"><input type="checkbox" id="fkeep">Manter a roupa salva</label>
+<label class="ck"><input type="checkbox" id="fseed">Usar o LoRA e as seeds salvos</label>
+</div>
+<div class="duo"><div class="fld"><label for="race">Raça</label><select id="race"><option value="">Sem raça (sorteio)</option><option value="fox">Fox</option><option value="angel">Angel</option><option value="dragon">Dragon</option><option value="elf">Elf</option><option value="demon">Demon</option><option value="wolf">Wolf</option><option value="horse">Horse</option><option value="oni">Oni</option><option value="fairy">Fairy</option><option value="tiger">Tiger</option></select></div><div class="fld"><label for="scene">Cenário</label><select id="scene"><option value="">Sorteio</option><option value="free">Livre (todas as tags)</option></select></div></div>
+<div class="fld" style="margin-top:12px"><label for="frame">Enquadramento</label><select id="frame"><option value="">Sorteio</option><option value="portrait">Retrato (portrait)</option><option value="upper">Retrato (upper body)</option><option value="both">Retrato (portrait + upper body)</option><option value="cowboy">Cowboy shot</option><option value="full">Corpo inteiro</option><option value="bg">Só o fundo (sem personagem)</option></select></div>
+<label class="ck"><input type="checkbox" id="match" checked>Roupa combinando com o cenário</label>
+</div></details>
+<details open><summary><iconify-icon icon="lucide:palette" width="18" height="18"></iconify-icon>Estilo<iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
+<div class="seg" role="group" aria-label="LoRA"><button data-l="0" aria-pressed="true">AIイラストおじさん</button><button data-l="1" aria-pressed="false">Takorin Style</button><button data-l="2" aria-pressed="false">Hata4564</button><button data-l="3" aria-pressed="false">Niji Oil</button><button data-l="4" aria-pressed="false">Niji Semi-realism</button><button data-l="5" aria-pressed="false">USNR Style</button></div>
+<span id="lfile"></span>
+<div class="sl"><label class="ck"><input type="checkbox" id="sb" checked>Smooth Booster</label><output id="sbo">0.50</output></div>
+<input type="range" id="sbs" min="0" max="1.5" step="0.05" value="0.5" aria-label="Força do Smooth Booster">
+<div class="sl"><label class="ck"><input type="checkbox" id="dl" checked>Dramatic Lighting</label><output id="dlo">0.80</output></div>
+<input type="range" id="dls" min="0" max="1.5" step="0.05" value="0.8" aria-label="Força do Dramatic Lighting">
+</div></details>
+<details open><summary><iconify-icon icon="lucide:image" width="18" height="18"></iconify-icon>Saída<iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
+<span class="lb" id="fml">Formato</span>
+<input type="hidden" id="fmt" value="p">
+<div class="pair fmt" role="group" aria-labelledby="fml">
+<button data-v="p" aria-pressed="true" aria-label="Retrato" title="Retrato (832x1216)"><iconify-icon icon="lucide:rectangle-vertical" width="26" height="26"></iconify-icon></button>
+<button data-v="l" aria-pressed="false" aria-label="Horizontal" title="Horizontal (1216x832)"><iconify-icon icon="lucide:rectangle-horizontal" width="26" height="26"></iconify-icon></button>
+</div>
+<span class="lb" id="spl">Velocidade</span>
+<input type="hidden" id="speed" value="">
+<div class="spd" role="group" aria-labelledby="spl">
+<button data-v="" aria-pressed="true" aria-label="Completo" title="Completo: workflow original, com hires fix e tile upscale"><iconify-icon icon="lucide:gem" width="26" height="26"></iconify-icon></button>
+<button data-v="fast" aria-pressed="false" aria-label="Rápido" title="Rápido: 26 steps, sem o tile upscale final"><iconify-icon icon="lucide:zap" width="26" height="26"></iconify-icon></button>
+<button data-v="ultra" aria-pressed="false" aria-label="Ultra-rápido" title="Ultra-rápido: 26 steps, sem hires fix e sem tile upscale"><iconify-icon icon="lucide:fast-forward" width="26" height="26"></iconify-icon></button>
+</div>
+<span class="lb" id="ql">Quantidade</span>
+<div class="pair qty" role="group" aria-labelledby="ql">
+<button data-q="1" aria-pressed="true" title="Gerar 1 imagem">1</button>
+<button data-q="3" aria-pressed="false" title="Gerar 3 imagens, cada uma com um prompt sorteado diferente">3</button>
+<button data-q="6" aria-pressed="false" title="Gerar 6 imagens, cada uma com um prompt sorteado diferente">6</button>
+<button data-q="12" aria-pressed="false" title="Gerar 12 imagens, cada uma com um prompt sorteado diferente">12</button>
+</div>
+<label class="ck"><input type="checkbox" id="keep">Manter a seed da última imagem</label>
+<label class="ck"><input type="checkbox" id="auto">Enviar ao ComfyUI ao clicar em GENERATE</label>
+</div></details>
+<details><summary><iconify-icon icon="lucide:ban" width="18" height="18"></iconify-icon>Negativo<iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
+<label class="lb" for="neg">Prompt negativo</label>
+<textarea id="neg" rows="7" spellcheck="false"></textarea>
+<div class="act"><button id="negr" type="button"><iconify-icon icon="lucide:rotate-ccw" width="18" height="18"></iconify-icon>Restaurar padrão</button></div>
+<p class="hint">Vale para as próximas imagens. Fica salvo neste navegador.</p>
+</div></details>
+<details><summary><iconify-icon icon="lucide:plug" width="18" height="18"></iconify-icon>Conexão<iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
+<label class="lb" for="url">Endereço do ComfyUI</label><input type="text" id="url" value="http://127.0.0.1:8188">
+</div></details>
+</div>
+<div class="dock">
+<button id="gen">GENERATE</button>
+<button id="send" hidden><iconify-icon icon="lucide:send" width="18" height="18"></iconify-icon>Enviar ao ComfyUI</button>
+</div>
+</aside>
+<main class="stage">
+<div class="bar"><p id="st" role="status"></p><button id="clr" aria-label="Limpar galeria" title="Limpar galeria"><iconify-icon icon="lucide:trash-2" width="20" height="20"></iconify-icon></button><span class="cfgw"><button id="cfg" class="gear" aria-label="Configurações" aria-expanded="false" aria-controls="pop" title="Configurações"><iconify-icon icon="lucide:settings" width="20" height="20"></iconify-icon></button>
+<div id="pop" role="dialog" aria-label="Configurações" hidden>
+<p class="pt">Configurações</p>
+<label class="ck"><input type="checkbox" id="anim">Animações (anime.js)</label>
+<p class="hint" id="animnote"></p>
+<label class="ck"><input type="checkbox" id="snd">Aviso sonoro ao terminar a fila</label>
+<p class="hint">Dica: aperte Espaço para gerar.</p>
+</div></span></div>
+<section id="out" aria-live="polite">
+<div class="ohead"><p id="theme"></p>
+<button class="ibtn" id="copy" aria-label="Copiar prompt" title="Copiar prompt"><iconify-icon id="copyic" icon="lucide:copy" width="20" height="20"></iconify-icon></button>
+<button class="ibtn" id="edit" aria-label="Editar prompt" title="Editar prompt" aria-pressed="false"><iconify-icon icon="lucide:pencil" width="20" height="20"></iconify-icon></button></div>
+<textarea id="txt" hidden rows="14" spellcheck="false" aria-label="Prompt gerado"></textarea>
+</section>
+<div id="res"></div>
+</main>
+</div>
+<script>if(innerWidth<860)document.querySelectorAll("aside details").forEach((d,i)=>{if(i)d.open=false;});</script>
+<script>
+const Q="highly detailed, sharp focus, intricate lineart, fine textures, absurdres, intricate details, detailed textures, detailed background, complex details,";
+const WF={"1":{"inputs":{"width":832,"height":1216,"batch_size":1},"class_type":"EmptyLatentImage","_meta":{"title":"Imagem Latente Vazia"}},"3":{"inputs":{"seed":828317518510267,"steps":35,"cfg":4,"sampler_name":"dpmpp_2m","scheduler":"karras","denoise":1,"model":["15",0],"positive":["4",0],"negative":["17",0],"latent_image":["1",0]},"class_type":"KSampler","_meta":{"title":"KSampler"}},"4":{"inputs":{"text":"highly detailed, sharp focus, intricate lineart, fine textures, absurdres, intricate details, detailed textures, detailed background, complex details,\n\n1girl, solo, upper body, front view, looking away, crossed legs, smiling, white hair, wavy hair, single hair bun, wispy bangs, pink eyes, elf ears, bags under eyes, blurry background, shallow depth of field,\n\nschool uniform, sailor collar, knee socks, school bag, pleated skirt, neck ribbon, loafers,\n\nclassroom, chalkboard, falling petals, sunset through window, nostalgic atmosphere, wooden desks, dramatic lighting, steam haze, serene composition","clip":["15",1]},"class_type":"CLIPTextEncode","_meta":{"title":"Codificação de Texto CLIP (Prompt)"}},"6":{"inputs":{"ckpt_name":"waiIllustriousSDXL_v170.safetensors"},"class_type":"CheckpointLoaderSimple","_meta":{"title":"Carregar Checkpoint"}},"10":{"inputs":{"samples":["3",0],"vae":["6",2]},"class_type":"VAEDecode","_meta":{"title":"VAE Decodificar"}},"15":{"inputs":{"PowerLoraLoaderHeaderWidget":{"type":"PowerLoraLoaderHeaderWidget"},"lora_1":{"on":true,"lora":"Smooth_Booster_v5.safetensors","strength":0.5},"lora_2":{"on":true,"lora":"aiE382A4E383A9E382B9E38388E3818A.cG1u.safetensors","strength":1},"lora_3":{"on":false,"lora":"takorin_ILXL_v4 (1).safetensors","strength":1},"➕ Add Lora":"","model":["6",0],"clip":["6",1]},"class_type":"Power Lora Loader (rgthree)","_meta":{"title":"Power Lora Loader (rgthree)"}},"17":{"inputs":{"text":"3d, (worst quality, low quality, normal quality, lowres, blurry, jpeg artifacts), (bad anatomy, bad hands, missing fingers, extra fingers, fewer fingers, extra limbs, malformed limbs), (text, watermark, signature, logo), monochrome, grayscale, extra head, extra body, bad perspective, deformed face, poorly drawn eyes, poorly drawn hands, mutated","clip":["15",1]},"class_type":"CLIPTextEncode","_meta":{"title":"Codificação de Texto CLIP (Prompt)"}},"19":{"inputs":{"upscale_model":["20",0],"image":["10",0]},"class_type":"ImageUpscaleWithModel","_meta":{"title":"Aumentar Resolução da Imagem (usando Modelo)"}},"20":{"inputs":{"model_name":"4x-UltraSharp.safetensors"},"class_type":"UpscaleModelLoader","_meta":{"title":"Carregar Modelo de Upscale"}},"21":{"inputs":{"upscale_method":"lanczos","megapixels":3.86,"resolution_steps":1,"image":["19",0]},"class_type":"ImageScaleToTotalPixels","_meta":{"title":"Redimensionar Imagem para Total de Pixels"}},"23":{"inputs":{"tile_size":1536,"overlap":64,"temporal_size":64,"temporal_overlap":8,"pixels":["21",0],"vae":["6",2]},"class_type":"VAEEncodeTiled","_meta":{"title":"VAE Codificar (Em Blocos)"}},"24":{"inputs":{"seed":1,"steps":4,"cfg":1,"sampler_name":"lcm","scheduler":"ddim_uniform","denoise":0.35,"model":["33",0],"positive":["4",0],"negative":["17",0],"latent_image":["23",0]},"class_type":"KSampler","_meta":{"title":"KSampler"}},"25":{"inputs":{"tile_size":1536,"overlap":64,"temporal_size":64,"temporal_overlap":8,"samples":["24",0],"vae":["6",2]},"class_type":"VAEDecodeTiled","_meta":{"title":"VAE Decodificar (Em Blocos)"}},"33":{"inputs":{"lora_name":"dmd2_sdxl_4step_lora_fp16.safetensors","strength_model":1,"model":["15",0]},"class_type":"LoraLoaderModelOnly","_meta":{"title":"LoraLoaderModelOnly"}},"57":{"inputs":{"filename_prefix":"Simplesmente IA/Illustrious","images":["58",0]},"class_type":"SaveImage","_meta":{"title":"Salvar Imagem"}},"58":{"inputs":{"upscale_by":1.5,"seed":2,"steps":3,"cfg":1,"sampler_name":"euler_ancestral","scheduler":"karras","denoise":0.2,"mode_type":"Linear","tile_width":1024,"tile_height":1024,"mask_blur":8,"tile_padding":32,"seam_fix_mode":"None","seam_fix_denoise":1,"seam_fix_width":64,"seam_fix_mask_blur":8,"seam_fix_padding":16,"force_uniform_tiles":true,"tiled_decode":false,"batch_size":1,"image":["25",0],"model":["33",0],"positive":["4",0],"negative":["17",0],"vae":["6",2],"upscale_model":["20",0]},"class_type":"UltimateSDUpscale","_meta":{"title":"Ultimate SD Upscale"}},"65":{"inputs":{"images":["10",0]},"class_type":"PreviewImage","_meta":{"title":"Imagem de Pré-visualização"}}};
+const NEG0=WF["17"].inputs.text;
+function negGet(){const v=document.getElementById("neg").value.trim();return v||NEG0;}
+(()=>{const g=id=>document.getElementById(id),n=g("neg");
+try{const sv=localStorage.getItem("neg");n.value=sv!==null?sv:NEG0;}catch(e){n.value=NEG0;}
+n.addEventListener("input",()=>{try{localStorage.setItem("neg",n.value);}catch(e){}});
+g("negr").onclick=()=>{n.value=NEG0;try{localStorage.removeItem("neg");}catch(e){}};})();
+const $=id=>document.getElementById(id);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const many=(a,n)=>[...a].sort(()=>Math.random()-.5).slice(0,n);
+const cams=["cowboy shot","cowboy shot","cowboy shot","portrait", "upper body", "upper body portrait", "full body", "medium shot", "face focus", "wide angle shot", "candid portrait", "dutch angle"];
+const views=["front view", "side view", "three-quarter view", "profile", "from above", "from below", "from side", "from behind", "high angle", "diagonal angle", "facing away", "dynamic view", "dynamic angle"];
+const looks=["looking at viewer","looking at viewer","looking away", "looking back", "looking down", "looking afar"];
+const poses=["legs apart","standing", "sitting", "walking", "squatting", "crouching", "crossed legs", "leaning forward", "bent over", "arms up", "hands up", "hand up", "raised hand", "arm up", "arms behind head", "arm behind back", "hand on own face", "hand on own chest", "outstretched arm", "adjusting clothes", "holding hair", "midair", "pointing", "pointing at viewer", "claw pose", "v", "double v", "w", "double w", "floating hair", "head tilt"];
+const exps=["smile", "smiling", "grin", "gentle smile", "close mouth", "closed mouth", "open mouth", "parted lips", "angry", "blush", "embarrassed", "crying", "tears", "furrowed brow", "v-shaped eyebrows", "glaring", "calm expression", "sleepy", "winking", "one eye closed", "closed eyes", ":o", ":p", ":q", "teeth", "fangs", "upper teeth only", "tongue out", "confident smile"];
+const hairs=["long hair", "very long hair", "medium hair", "short hair", "twintails", "twin braids", "two side up", "ponytail", "high ponytail", "folded ponytail", "braid", "single braid", "braided ponytail", "crown braid", "hair bun", "half updo", "messy hair", "spiked hair", "wavy hair", "wet hair"];
+const hairx=["bangs", "blunt bangs", "parted bangs", "wispy bangs", "sidelocks", "long sidelocks", "loose strands", "hair flaps", "ahoge", "huge ahoge", "hair over one eye", "hair between eyes", "multicolored hair", "two-tone hair", "gradient hair", "split-color hair", "colored inner hair", "hair ornament", "single hair bun"];
+const hcol=["black hair", "brown hair", "blonde hair", "white hair", "grey hair", "silver hair", "pink hair", "purple hair", "blue hair", "aqua hair", "red hair"];
+const ecol=["blue eyes", "red eyes", "green eyes", "purple eyes", "pink eyes", "yellow eyes", "orange eyes", "brown eyes", "cyan eyes", "golden eyes"];
+const faces=["freckles", "thick eyebrows", "bags under eyes", "slit pupils", "gradient eyes", "very long eyelashes", "eyelashes", "grey eyelashes", "eyeliner", "makeup", "red lips", "pale skin", "fair skin", "dark skin", "mole", "mole under eye", "mole under mouth", "scar", "scar on cheek", "elf ears", "pointy ears"];
+const depth=["depth of field", "shallow depth of field", "blurry background", "foreground", "blurred periphery", "foreshortening"];
+const lights=["rim light", "soft backlight", "dappled sunlight", "cinematic light", "dramatic lighting", "light particles", "glowing motes", "lens flare", "steam haze", "warm glow", "magical aura", "soft lighting", "moonlight", "golden sunlight", "sparkles", "glowing", "glint", "motion blur", "motion lines", "afterimage"];
+const comp=["dynamic composition", "serene composition", "limited palette", "dynamic pose", "dynamic angle", "dark theme", "dark background"];
+const T=[
+{n:"Cidade à noite",o:["business attire","white dress shirt","tailored blazer","pencil skirt","leather shoes","wristwatch","shoulder bag","small earrings"],s:["city street at night","glowing street lamps","shop windows","warm interior lighting","dry pavement","blurred pedestrians","bokeh lights","cinematic atmosphere"]},
+{n:"Café",o:["oversized cardigan","white blouse","ribbon","long skirt","knit scarf","wristwatch","glasses","small earrings"],s:["cozy cafe","window seat","wooden table","coffee cup","cake slice","potted plants","warm pendant lights","rainy window","quiet atmosphere"]},
+{n:"Medieval",k:["medieval dress"],kb:["tunic"],o:["corset","long sleeves","cape","leather belt","boots","pendant","hair ribbon", "corset dress", "bodice", "peasant blouse", "puffy sleeves", "bell sleeves", "surcoat", "tabard", "layered skirt", "lace-up", "hooded cloak", "gambeson", "chainmail", "leather armor", "bracers", "gauntlets", "greaves", "circlet", "tiara", "crown", "veil", "brooch", "amulet", "gold trim", "embroidery", "purse", "satchel", "thigh boots"],ob:["leather vest","cape","leather belt","gloves","boots","sword sheath","pauldron", "breastplate", "plate armor", "chainmail", "gambeson", "surcoat", "tabard", "hooded cloak", "bracers", "gauntlets", "greaves", "sword", "scabbard", "shield", "dagger"],s:["medieval castle courtyard","stone walls","wooden gates","banners","distant towers","cobblestone street","market stalls","torches","cloudy sky","atmospheric fog", "sword", "shield", "dagger", "scabbard"]},
+{n:"Fantasia",o:["fantasy outfit","cape","detached sleeves","thigh boots","fingerless gloves","belt","pauldron","ornate sword","alternate costume"],s:["ancient ruins","enchanted forest","glowing crystals","magical particles","mist","moonlight","fantasy atmosphere"]},
+{n:"Inverno",o:["winter coat","fur trim","knit scarf","earmuffs","gloves","long skirt","boots","pom pom \\(clothes\\)"],s:["snowy street","falling snow","christmas lights","bare trees","overcast sky","cold atmosphere","breath mist"]},
+{n:"Gótico",ban:["sunglasses","tinted eyewear","blue-tinted eyewear"],o:["gothic style","black lace dress","detached sleeves","choker","fingerless gloves","spiked bracelet","platform boots","chain"],s:["abandoned gothic church","cracked stone floor","black candles","moonlight through windows","floating dust particles","dark atmosphere","dramatic shadows"]},
+{n:"Campo de flores",o:["sundress","straw hat","ribbon","sandals","small earrings","bare shoulders","collarbone","wristwatch"],s:["blooming flower field","white flowers","tall grass","bright blue sky","fluffy clouds","golden sunlight","floating petals","serene atmosphere"]},
+{n:"Estilo japonês",o:["kimono","obi","hakama","ornate sash","wooden sandals","hair ornament","katana","ceremonial accessories"],s:["ancient japanese village","torii gate","cherry blossom trees","falling petals","paper lanterns","evening sky","light mist","warm lighting"]},
+{n:"Uniforme escolar",k:["school uniform"],kb:["school uniform"],o:["sailor collar","pleated skirt","neck ribbon","knee socks","loafers","school bag", "blazer", "cardigan", "sweater vest", "plaid skirt", "necktie", "collared shirt", "black thighhighs", "white socks", "hairclip"],s:["classroom","sunset through window","wooden desks","chalkboard","falling petals","nostalgic atmosphere", "hallway", "rooftop", "locker", "window", "curtains", "chair", "desk", "cherry blossoms", "afternoon", "school"]},
+{n:"Praia",o:["bikini", "sarong", "sun hat", "sunglasses", "bare shoulders", "collarbone", "anklet", "bracelet", "sandals", "blue bikini", "strapless bikini", "side-tie bikini bottom", "bandeau", "black one-piece swimsuit", "highleg swimsuit", "competition swimsuit", "cutout swimsuit"],ob:["swim trunks", "hawaiian shirt", "open shirt", "sunglasses", "sandals", "sun hat", "wristband"],s:["beach", "ocean", "sand", "palm trees", "waves", "seashell", "horizon", "blue sky", "sunny", "golden sunlight", "summer", "water", "water drops", "reflection"]}
+];
+const bT=["jacket","hooded jacket","open jacket","white shirt","scarf","belt","cargo pants","combat boots","fingerless gloves","wristband"];
+const traits=[null,null,null,["wolf girl","wolf ears","animal ear fluff","wolf tail"],["horns","demon horns","demon girl"],["animal ears","tail"]];
+const FAV={id:["kitagawa marin","red hair","long hair","two side up","blunt bangs","green eyes","pointy ears"],tr:["demon girl","demon horns","black horns","demon tail","demon wings","fangs"],det:["black nails","nail polish"],cl:["cosplay","long sleeves","frills"],ex:["smile","open mouth","blush","teeth"]};
+const RACE={fox:["fox girl","fox ears","fox tail","animal ear fluff"],angel:["angel wings","white wings","large wings","head wings","halo","feathers"],dragon:["dragon girl","horns","dragon tail","slit pupils","scales"],elf:["elf","elf ears","pointy ears"],demon:["demon girl","demon horns","demon tail","demon wings","fangs"],wolf:["wolf girl","wolf ears","wolf tail","animal ear fluff"],horse:["horse girl","horse ears","horse tail"],oni:["oni","oni horns","horns"],fairy:["fairy", "fairy wings", "butterfly wings", "translucent wings", "pointy ears"],tiger:["tiger girl", "tiger ears", "tiger tail", "animal ear fluff"]}
+const RACEX={demon:["curled horns", "large horns", "spade tail", "arrow tail"],dragon:["dragon horns"]};
+const SCADD={
+Fantasia:{o:["armor", "leather armor", "gauntlets", "bracers", "hooded cloak", "flowing cloak", "gold trim", "gem", "pendant", "amulet", "circlet", "tiara", "wide sleeves", "corset", "feathers", "hair flower", "staff"],s:["fireflies", "magic circle", "waterfall", "floating island", "glowing mushrooms", "crystals", "castle", "floating lights", "sparkles", "giant tree", "moonlit lake"]},
+Inverno:{o:["scarf", "coat", "long coat", "winter clothes", "mittens", "beanie", "sweater", "turtleneck", "hair ribbon", "pantyhose", "fur-trimmed coat"],s:["snowflakes", "frozen lake", "icicles", "snowy forest", "pine tree", "ice", "snowman", "footprints", "bokeh", "night", "street lamp", "log cabin"]},
+Gótico:{o:["gothic lolita", "corset", "lace trim", "lace-up boots", "black gloves", "veil", "cross necklace", "black nails", "black lipstick", "frills", "black cape", "layered skirt"],s:["stained glass", "gargoyle", "graveyard", "iron fence", "gothic architecture", "fog", "bats", "full moon", "candelabra", "chandelier", "crow", "rose petals", "tombstone", "cobweb"]}};
+T.forEach(t=>{const a=SCADD[t.n];if(a){["o","s"].forEach(k=>a[k].forEach(x=>{if(!t[k].includes(x))t[k].push(x);}));}});
+T.push({n:"Piscina",o:["blue bikini", "strapless bikini", "side-tie bikini bottom", "black bikini", "one-piece swimsuit", "highleg swimsuit", "see-through sleeves", "off shoulder", "bare shoulders", "collarbone", "hair ornament", "pearl earrings", "choker", "pendant", "jewelry", "sarong"],ob:["swim trunks", "open shirt", "towel around neck", "wristband", "necklace", "wet hair", "bare shoulders"],s:["swimming pool", "poolside", "pool ladder", "tile floor", "water", "water drops", "ripples", "reflection", "wet", "partially submerged", "night", "bokeh", "light particles", "blue theme", "glowing"]});
+T.forEach((t,i)=>{const o=document.createElement("option");o.value=i;o.textContent=t.n;$("scene").appendChild(o);});
+const ONE=["dress", "short dress", "sleeveless dress", "black dress", "red dress", "white dress", "blue dress", "kimono", "yukata", "silk robe", "black bodysuit", "one-piece swimsuit", "swimsuit", "bikini", "santa dress", "santa costume", "halloween costume", "office lady", "cosplay", "corset"],TOP=["shirt", "white shirt", "collared shirt", "sleeveless shirt", "tank top", "crop top", "turtleneck", "jacket", "coat", "blazer", "cardigan", "hoodie", "shrug \\(clothing\\)", "long sleeves", "short sleeves", "sleeveless", "puffy sleeves", "juliet sleeves", "bare shoulders", "collarbone", "asymmetrical clothes", "clothing cutout"],BOT=["skirt", "miniskirt", "black skirt", "pencil skirt", "pleated skirt", "shorts", "pants", "black pants"],FOOT=["boots", "thigh boots", "black footwear", "white footwear", "thighhighs", "striped thighhighs", "fishnet thighhighs", "fishnets", "pantyhose", "black pantyhose"],HAND=["gloves", "black gloves", "brown gloves", "elbow gloves", "fingerless gloves", "fur-trimmed gloves", "detached sleeves", "jacket around waist", "clothes around waist", "tattered clothes", "loosely tied"],DET=["fur trim", "fur collar", "lace", "lace trim", "frills", "striped clothes", "vertical-striped clothes", "animal print", "pom pom \\(clothes\\)", "o-ring", "chest belt", "arm strap", "belt", "black belt", "thigh strap", "bracer", "vambraces", "sash", "scarf", "white scarf", "ribbon", "hair ribbon", "neck ribbon", "red ribbon", "brooch", "bow", "pink bow", "purple bow", "green bow", "ear bow", "bowtie", "fur-trimmed legwear", "lace-trimmed legwear"],ACC=["choker", "black choker", "necklace", "star necklace", "jewelry", "earrings", "stud earrings", "hairband", "hairpin", "hair stick", "glasses", "round glasses", "sunglasses", "aviator sunglasses", "eyewear on head", "tinted eyewear", "hat", "santa hat", "pillbox hat", "garrison cap", "nurse cap", "earmuffs", "chain", "nail polish", "black nails", "basket", "katana", "sword", "ornate sword", "heart", "star \\(symbol\\)"],LOC=["indoors", "outdoors", "bedroom", "cafe", "rooftop", "city street", "hot spring", "flower field", "mountain view", "space", "nebula", "cherry blossom trees", "fruit tree", "simple background", "white background", "purple background", "blue background", "window"],ENV=["night", "day", "sunny", "autumn", "christmas", "halloween", "blue sky", "starry sky", "falling petals", "pink petals", "leaf", "steam rising", "sparkles", "mist", "clouds", "wind", "stone pathway", "wooden table", "potted plants"];
+function freeOutfit(g){const base=g==="girl"&&Math.random()<.5?[pick(ONE)]:[pick(TOP),pick(g==="girl"?BOT:["pants","black pants","shorts"])];return [...base,pick(FOOT),...many(HAND,1),...many(DET,2),...many(ACC,2)];}
+const POSESETS=[["lying", "on back", "looking at viewer"], ["lying", "on side", "head rest", "looking at viewer"], ["lying", "on stomach", "looking at viewer"], ["lying", "on back", "arms up", "closed eyes"], ["sleeping", "closed eyes", "lying", "on side"], ["dozing", "closed eyes", "sitting", "head rest"], ["reclining", "looking at viewer"], ["stretching", "arms up", "yawning"]];
+const BODY=["toned", "tall female", "mature female", "wide hips", "thick thighs", "muscular female", "small breasts", "medium breasts", "large breasts"],DARING=["cleavage", "midriff", "navel", "bare back", "off-shoulder", "strapless", "halterneck", "side slit", "thighs", "high heels", "highleg"];
+function pose(){return Math.random()<.3?pick(POSESETS):[pick(looks),pick(poses)];}
+function bodyTags(g){if(g!=="girl")return Math.random()<.4?[pick(["muscular male","tall"])]:[];return [...(Math.random()<.7?[pick(BODY)]:[]),...(Math.random()<.136?["curvy"]:[])];}
+function dar(g){return g==="girl"&&Math.random()<.6?many(DARING,2):[];}
+const EXTRA3=[[looks,["looking to the side"]],[exps,["expressionless", "half-closed eyes", ":p", ";p"]],[faces,["heterochromia", "diamond-shaped pupils", "symbol-shaped pupils", "forehead tattoo"]],[hcol,["orange hair"]],[hairs,["one side up"]],[hairx,["antenna hair", "hair intakes"]],[depth,["blurry foreground", "blurry"]],[ONE,["frilled dress", "nun", "magical girl", "red dress", "white dress"]],[TOP,["camisole", "capelet", "black capelet", "frilled capelet", "black jacket", "sleeveless shirt"]],[BOT,["denim shorts", "black skirt"]],[FOOT,["white thighhighs", "black pantyhose", "pantyhose"]],[HAND,["wrist cuffs", "purple wrist cuffs", "single detached sleeve", "pink gloves"]],[DET,["blue neckerchief", "neckerchief", "heart brooch", "gem", "cross", "diamond \\(shape\\)", "heart", "frills"]],[ACC,["beret", "nun headdress", "veil", "purple veil", "white veil", "heart earrings", "diamond hairband", "blue-tinted eyewear", "round eyewear", "denim", "staff", "holding staff", "chalice", "cup", "holding cup"]],[ENV,["cherry blossoms", "sky", "butterfly", "blue butterfly", "bug"]]];
+EXTRA3.forEach(([a,x])=>x.forEach(t=>{if(!a.includes(t))a.push(t);}));
+const EXTRA4=[[hcol,["green hair"]],[hairs,["bob cut", "side ponytail", "low twintails"]],[exps,["light smile"]],[poses,["hand on headphones", "adjusting headphones", "arm at side", "contrapposto", "hand on own hip"]],[comp,["pink theme"]],[TOP,["pink shirt", "t-shirt", "print shirt"]],[BOT,["red shorts", "pink shorts", "short shorts", "dolphin shorts", "cuffed shorts"]],[FOOT,["sneakers", "pink sneakers", "white sneakers", "red sneakers", "shoes", "red footwear", "pink footwear", "grey footwear"]],[DET,["clothes writing", "belt pouch", "pouch", "strap", "drawstring", "bare legs", "lipstick", "ear piercing"]],[ACC,["headphones", "pink headphones", "animal ear headphones", "headphones around neck", "bag", "handbag", "duffel bag", "suitcase", "holding bag", "holding suitcase"]],[ENV,["beige background", "grey background", "floating leaves", "leaves"]]];
+EXTRA4.forEach(([a,x])=>x.forEach(t=>{if(!a.includes(t))a.push(t);}));
+const EXTRA5=[[exps,["tired", "light blush", "wink"]],[TOP,["white jacket", "collared jacket", "cropped jacket", "oversized clothes", "red turtleneck", "see-through", "see-through sleeves", "black shirt", "off shoulder", "off-shoulder shirt", "pink cardigan", "cropped cardigan", "pink jacket"]],[DET,["high collar", "cleavage cutout", "wide belt", "belt buckle", "coral", "pearl \\(gemstone\\)", "wet", "wet clothes", "gold trim", "sideboob", "green nails", "hexagon pattern", "body markings", "iridescent", "sleeves past wrists", "spaghetti strap"]],[FOOT,["grey pantyhose", "pink thighhighs"]],[ACC,["bell", "neck bell", "jingle bell", "red earrings", "hairclip", "crown", "hair feathers", "pearl earrings", "hair flower", "blue flower", "maid headdress", "frilled hairband", "visor cap", "drop earrings", "star earrings", "dangle earrings", "bangle", "flower", "pink flower", "blue ribbon"]],[hcol,["streaked hair"]],[poses,["kneeling", "partially submerged", "head down", "reaching", "finger to mouth", "index finger raised"]],[depth,["bokeh"]],[comp,["blue theme", "pastel colors"]],[cams,["close-up"]],[faces,["facial mark", "shiny skin", "shiny hair", "eyeshadow"]],[hairx,["hair over shoulder"]],[lights,["backlighting", "light rays", "sunlight", "sunbeam"]],[ENV,["tree", "branch", "abstract background", "gradient background", "splashing"]],[ONE,["babydoll", "chemise", "nightgown", "black one-piece swimsuit", "highleg swimsuit", "competition swimsuit", "cutout swimsuit", "light blue dress"]],[BOT,["pink skirt"]],[BODY,["tan"]]];
+EXTRA5.forEach(([a,x])=>x.forEach(t=>{if(!a.includes(t))a.push(t);}));
+const EXTRA6=[[DET,["red bra", "underbust"]]];
+EXTRA6.forEach(([a,x])=>x.forEach(t=>{if(!a.includes(t))a.push(t);}));
+let mode="girl";
+let FAVS=null;try{FAVS=JSON.parse(localStorage.getItem("favs")||"null");}catch(e){}
+if(!Array.isArray(FAVS)){FAVS=[{id:"f0",name:"Kitagawa Marin",g:"girl",who:[...FAV.id,...FAV.tr,...FAV.det],cl:[...FAV.cl],ex:[...FAV.ex]}];}
+let FSEL="";try{FSEL=localStorage.getItem("fav_sel")||"";}catch(e){}
+function saveF(){try{localStorage.setItem("favs",JSON.stringify(FAVS));localStorage.setItem("fav_sel",FSEL);return true;}catch(e){$("st").textContent="Não consegui salvar: o armazenamento do navegador está cheio.";return false;}}
+const curF=()=>FAVS.find(f=>f.id===FSEL)||FAVS[0]||null;
+const FAV_NOT=()=>new Set([...cams,...views,...looks,...poses,...POSESETS.flat(),...exps,...depth,"solo","1girl","1boy"]);
+function thumb(u){return new Promise(res=>{const im=new Image();im.crossOrigin="anonymous";im.onload=()=>{try{const h=120,w=Math.max(1,Math.round(im.naturalWidth*h/im.naturalHeight)),c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(im,0,0,w,h);res(c.toDataURL("image/jpeg",.7));}catch(e){res(null);}};im.onerror=()=>res(null);im.src=u;});}
+const isFav=card=>FAVS.some(f=>f.src===card._u);
+function refreshStars(){document.querySelectorAll(".card .fv").forEach(b=>{const c=b.parentNode,on=isFav(c);b.setAttribute("aria-pressed",String(on));b.title=on?"Nos favoritos (clique para remover)":"Salvar esta personagem nos favoritos";b.firstChild.setAttribute("icon",on?"mdi:star":"mdi:star-outline");});}
+function mkStar(card){const b=document.createElement("button");b.className="fv";b.type="button";b.setAttribute("aria-label","Favoritar personagem");const i=document.createElement("iconify-icon");i.setAttribute("icon","mdi:star-outline");i.setAttribute("width","16");i.setAttribute("height","16");b.appendChild(i);b.onclick=()=>toggleFav(card);card.appendChild(b);refreshStars();}
+async function toggleFav(card){
+ const ex=FAVS.find(f=>f.src===card._u);
+ if(ex){if(!confirm("Remover \""+ex.name+"\" dos favoritos?"))return;FAVS=FAVS.filter(f=>f!==ex);if(FSEL===ex.id)FSEL=FAVS[0]?FAVS[0].id:"";saveF();renderF();refreshStars();return;}
+ const sn=card._snap,parts=sn&&sn.text?sn.text.split(/\n\s*\n/):[];
+ if(parts.length<4){$("st").textContent="Não consegui separar o prompt desta imagem em blocos.";return;}
+ const tg=x=>x.split(",").map(y=>y.trim()).filter(Boolean),w=tg(parts[1]),NOT=FAV_NOT();
+ const name=prompt("Nome da favorita","Favorita "+(FAVS.length+1));if(name===null)return;
+ const f={id:"f"+Date.now(),name:name.trim()||"Sem nome",g:w.includes("1boy")?"boy":"girl",who:w.filter(t=>!NOT.has(t)),cl:tg(parts[2]),lora:sn.lora,s:{s3:sn.s3,s24:sn.s24,s58:sn.s58},src:card._u,th:await thumb(card._u)};
+ FAVS.push(f);FSEL=f.id;if(!saveF()){FAVS.pop();return;}renderF();refreshStars();$("st").textContent="Salva nos favoritos: "+f.name+".";
+}
+function favBtn(cls,icon,label,fn){const b=document.createElement("button");b.type="button";b.className=cls;b.setAttribute("aria-label",label);b.title=label;const i=document.createElement("iconify-icon");i.setAttribute("icon",icon);i.setAttribute("width","16");i.setAttribute("height","16");b.appendChild(i);b.onclick=fn;return b;}
+function renderF(){
+ const L=$("flist");L.innerHTML="";
+ if(!FAVS.length){const p=document.createElement("p");p.className="hint";p.textContent="Nenhuma favorita ainda. Clique na estrela de uma imagem para salvar a personagem.";L.appendChild(p);return;}
+ const cur=curF();
+ FAVS.forEach(f=>{
+  const row=document.createElement("div");row.className="fi";
+  const sel=document.createElement("button");sel.type="button";sel.className="fsel";sel.setAttribute("aria-pressed",String(cur&&cur.id===f.id));
+  let im;if(f.th||f.src){im=document.createElement("img");im.alt="";im.src=f.th||f.src;im.onerror=()=>{im.style.visibility="hidden";};}else{im=document.createElement("span");im.className="ph";}
+  const nm=document.createElement("span");nm.className="nm";nm.textContent=f.name;
+  sel.append(im,nm);sel.onclick=()=>{FSEL=f.id;saveF();renderF();};
+  row.append(sel,favBtn("sm","lucide:pencil","Renomear "+f.name,()=>{const n=prompt("Novo nome",f.name);if(n===null)return;f.name=n.trim()||f.name;saveF();renderF();}),favBtn("sm","lucide:trash-2","Apagar "+f.name,()=>{if(!confirm("Apagar \""+f.name+"\" dos favoritos?"))return;FAVS=FAVS.filter(x=>x!==f);if(FSEL===f.id)FSEL=FAVS[0]?FAVS[0].id:"";saveF();renderF();refreshStars();}));
+  L.appendChild(row);
+ });
+}
+["fkeep","fseed"].forEach(k=>{try{const m=localStorage.getItem(k+"_on");if(m!==null)$(k).checked=m==="1";}catch(e){}$(k).onchange=()=>{try{localStorage.setItem(k+"_on",$(k).checked?"1":"0");}catch(e){}};});
+renderF();
+try{const fv=localStorage.getItem("frame");if(fv!==null)document.getElementById("frame").value=fv;}catch(e){}
+document.getElementById("frame").addEventListener("change",e=>{try{localStorage.setItem("frame",e.target.value);}catch(x){}});
+function make(){
+ const fav=mode==="fav", F=fav?curF():null, g=mode==="rand"?pick(["girl","boy"]):(fav?(F?F.g:"girl"):mode), sc=$("scene").value, free=sc==="free", t=free?{n:"Livre",o:[],s:[]}:(sc===""?pick(T):T[+sc]), to=(sc===""||free||$("match").checked)?t:pick(T);
+ const tag=g==="girl"?"1girl":"1boy";
+ const fr=$("frame").value,camt=()=>({portrait:["portrait"],upper:["upper body"],both:["portrait","upper body"],cowboy:["cowboy shot"],full:["full body"]}[fr]||[pick(cams)]);
+ let who=[tag,"solo",...camt(),pick(views),...pose(),pick(exps),pick(hcol),pick(hairs),...many(hairx,2),pick(ecol),...many(faces,2),...bodyTags(g),...many(depth,2)];
+ if(fav&&F){who=[tag,"solo",...camt(),pick(views),...pose(),...(F.ex||[pick(exps)]),...F.who,...many(depth,1)];}
+ else if(fav){who=[tag,"solo",...FAV.id,...camt(),pick(views),...pose(),...FAV.ex,...FAV.tr,...FAV.det,pick(hairx),...many(depth,1)];}
+ else{const rc=$("race").value; if(rc)who.push(...RACE[rc],...many(RACEX[rc]||[],2)); else{const tr=pick([null,null,null,null,...Object.values(RACE)]); if(tr&&g==="girl")who.push(...tr);}}
+ const out=g==="girl"?to.o:(to.ob||[...many(bT,4),...to.o.slice(0,3)]);
+ const clothes=fav&&F&&$("fkeep").checked?F.cl:(fav&&!F)?[...FAV.cl,...many([...DET,...ACC],3)]:(free?[...freeOutfit(g),...dar(g)]:[...(g==="girl"?(to.k||[]):(to.kb||[])),...many(out,Math.min(7,out.length)),...many([...DET,...ACC],2),...dar(g)]);
+ const scene=free?[pick(LOC),...many(ENV,3),...many(lights,2),pick(comp)]:[...many(t.s,Math.min(6,t.s.length)),...many(lights,2),pick(comp)];
+ const BANS=new Set([...(t.ban||[]),...(to.ban||[])]),F2=a=>a.filter(x=>![...BANS].some(b=>x.includes(b)));
+ if(fr==="bg"){const sc2=free?[pick(LOC),...many(ENV,4),...many(lights,2),pick(comp)]:[...many(t.s,Math.min(7,t.s.length)),...many(lights,2),pick(comp)];
+  return {txt:[Q,"",["no humans","scenery",...many(depth,2)].join(", ")+",","",sc2.join(", ")].join("\n"),theme:t.n};}
+ return {txt:[Q,"",F2(who).join(", ")+",","",F2(clothes).join(", ")+",","",F2(scene).join(", ")].join("\n"),theme:t.n};
+}
+$("gen").onclick=()=>{const r=make();$("txt").value=r.txt;$("txt").hidden=true;$("edit").setAttribute("aria-pressed","false");$("theme").textContent=(mode==="fav"?"Favorita: "+(curF()?curF().name:"padrão")+" · ":"")+($("scene").value?"Cenário: ":"Cenário sorteado: ")+r.theme;$("out").style.display="block";$("send").hidden=false;if($("auto").checked)sendN();};
+const LORAS=[{file:"aiE382A4E383A9E382B9E38388E3818A.cG1u.safetensors"},{file:"takorin_ILXL_v4 (1).safetensors"},{file:"Hata4564.safetensors"},{file:"Niji_oil_animme.safetensors"},{file:"Niji_Semi_realism_F_N_R_epoch_10.safetensors"},{file:"USNR_STYLE_ILL_V1_lokr3-000024.safetensors"}];let LI=0;
+try{const f=localStorage.getItem("lora_f");const i=LORAS.findIndex(l=>l.file===f);LI=i>=0?i:0;}catch(e){}
+function renderL(){document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.l===LI));$("lfile").textContent=LORAS[LI].file;}
+document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{LI=+b.dataset.l;renderL();try{localStorage.setItem("lora_f",LORAS[LI].file);}catch(e){}});
+renderL();
+["sb","dl"].forEach(k=>{try{const m=localStorage.getItem(k+"_on");if(m!==null)$(k).checked=m==="1";}catch(e){}$(k).onchange=()=>{try{localStorage.setItem(k+"_on",$(k).checked?"1":"0");}catch(e){}};});
+(()=>{const g=id=>document.getElementById(id);[["sbs","sbo"],["dls","dlo"]].forEach(([r,o])=>{const R=g(r),O=g(o);try{const v=localStorage.getItem(r);if(v!==null)R.value=v;}catch(e){}const up=()=>{O.textContent=(+R.value).toFixed(2);};up();R.addEventListener("input",()=>{up();try{localStorage.setItem(r,R.value);}catch(e){}});});})();
+const rs=()=>Math.floor(Math.random()*9e15);
+let LAST=null,KEEP=null;
+function seeds(){if($("keep").checked){if(!KEEP)KEEP=LAST?{...LAST}:{s3:rs(),s24:rs(),s58:rs()};return KEEP;}KEEP=null;return {s3:rs(),s24:rs(),s58:rs()};}
+$("keep").onchange=()=>{KEEP=($("keep").checked&&LAST)?{...LAST}:null;};
+function mkSnap(){const sp=$("speed").value;const o={neg:negGet(),dl:$("dl").checked,sbs:+$("sbs").value,dls:+$("dls").value,text:$("txt").value,lora:LORAS[LI].file,sb:$("sb").checked,steps:sp?26:WF["3"].inputs.steps,...seeds(),sp,o:$("fmt").value};
+ if(mode==="fav"&&$("fseed").checked){const f=curF();if(f&&f.s){Object.assign(o,f.s);if(LORAS.some(l=>l.file===f.lora))o.lora=f.lora;}}
+ return o;}
+let QTY=1;try{const q=+localStorage.getItem("qty");if([1,3,6,12].includes(q))QTY=q;}catch(e){}
+function renderQ(){document.querySelectorAll(".qty button").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.q===QTY)));}
+document.querySelectorAll(".qty button").forEach(b=>b.onclick=()=>{QTY=+b.dataset.q;renderQ();try{localStorage.setItem("qty",String(QTY));}catch(e){}});
+renderQ();
+async function sendN(){const base=mkSnap();SENDING++;try{for(let i=0;i<QTY;i++){if(!i){await send(base);continue;}const keep=$("txt").value;$("txt").value=make().txt;const sn=mkSnap();$("txt").value=keep;await send(sn);}}finally{SENDING--;}queueStatus(base.sp);kick();}
+async function send(snap){
+ const st=$("st"),w=JSON.parse(JSON.stringify(WF));
+ if(!snap)snap=mkSnap();
+ LAST={s3:snap.s3,s24:snap.s24,s58:snap.s58};
+ w["4"].inputs.text=snap.text;if(snap.neg)w["17"].inputs.text=snap.neg;
+ w["15"].inputs.lora_2.lora=snap.lora;w["15"].inputs.lora_1.on=snap.sb!==false;w["15"].inputs.lora_1.strength=snap.sbs!=null?snap.sbs:0.5;w["15"].inputs.lora_3={on:snap.dl!==false,lora:"S1 Dramatic Lighting Illustrious_V2.safetensors",strength:snap.dls!=null?snap.dls:0.8};
+ w["3"].inputs.steps=snap.steps;w["1"].inputs.width=snap.o==="l"?1216:832;w["1"].inputs.height=snap.o==="l"?832:1216;
+ if(snap.sp)w["57"].inputs.images=[snap.sp==="ultra"?"10":"25",0];
+ w["3"].inputs.seed=snap.s3;w["24"].inputs.seed=snap.s24;w["58"].inputs.seed=snap.s58;
+ st.textContent="Enviando...";const card=mkCard(snap);card._t0=Date.now();$("res").prepend(card);
+ try{
+  const res=await fetch($("url").value.replace(/\/$/,"")+"/prompt",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:w})});
+  const d=await res.json().catch(()=>({}));
+  if(res.ok){card.dataset.pid=d.prompt_id;if(!card.isConnected){cancelJob(d.prompt_id);return;}poll(d.prompt_id,$("url").value.replace(/\/$/,""),card);}else{card.remove();st.textContent="O ComfyUI recusou o workflow: "+(d.error&&d.error.message||res.status);}
+ }catch(e){card.remove();st.textContent="Não consegui falar com o ComfyUI. Confira se ele está aberto e foi iniciado com --enable-cors-header \"*\".";}
+}
+const VW=document.createElement("div");VW.id="viewer";VW.hidden=true;VW.setAttribute("role","dialog");VW.setAttribute("aria-modal","true");VW.setAttribute("aria-label","Imagem em tela cheia");
+const VI=document.createElement("img");VI.alt="Imagem gerada";VI.draggable=false;
+const ic=(n,s)=>'<iconify-icon icon="lucide:'+n+'" width="'+s+'" height="'+s+'"></iconify-icon>';
+const vb=(id,n,l)=>{const b=document.createElement("button");b.id=id;b.className="vbtn";b.type="button";b.innerHTML=ic(n,22);b.setAttribute("aria-label",l);b.title=l;return b;};
+const VX=vb("vx","x","Fechar"),VP=vb("vp","chevron-left","Imagem anterior"),VN=vb("vn","chevron-right","Próxima imagem");
+const VA=document.createElement("div");VA.className="vact";
+VW.append(VI,VX,VP,VN,VA);document.body.appendChild(VW);
+let VC=null,vk=1,vx=0,vy=0;const vpt=new Map();let vd=0,vmoved=0,vdist=0;
+function vlist(){return [...document.getElementById("res").querySelectorAll(".card")].filter(c=>c._u);}
+function vapply(){VI.style.transform="translate("+vx+"px,"+vy+"px) scale("+vk+")";}
+function vreset(){vk=1;vx=0;vy=0;vapply();}
+function vzoom(k2,px,py){k2=Math.min(8,Math.max(1,k2));vx=px-(px-vx)*(k2/vk);vy=py-(py-vy)*(k2/vk);vk=k2;if(vk===1){vx=0;vy=0;}vapply();}
+function vcenter(e){return [e.clientX-innerWidth/2,e.clientY-innerHeight/2];}
+async function copyPrompt(sn,btn,label){const s=sn&&sn.text||"";let ok=true;try{await navigator.clipboard.writeText(s);}catch(e){const t=document.createElement("textarea");t.value=s;t.style.position="fixed";t.style.opacity="0";document.body.appendChild(t);t.select();try{ok=document.execCommand("copy");}catch(e2){ok=false;}t.remove();}
+ if(btn){const old=btn.innerHTML;btn.innerHTML=(label?ic("check",16):'<iconify-icon icon="lucide:check" width="13" height="13"></iconify-icon>')+(ok?"Copiado":"Falhou");setTimeout(()=>{btn.innerHTML=old;},1400);}}
+function vbuild(){
+ VA.innerHTML="";const sn=VC._snap,card=VC;if(!sn)return;
+ const fb=document.createElement("button");fb.type="button";
+ const fon=isFav(card);fb.innerHTML='<iconify-icon icon="'+(fon?"mdi:star":"mdi:star-outline")+'" width="16" height="16"></iconify-icon>'+(fon?"Nos favoritos":"Favoritar");
+ fb.onclick=async()=>{await toggleFav(card);if(VC===card)vbuild();};VA.appendChild(fb);
+ const mk=(n,t,f)=>{const b=document.createElement("button");b.type="button";b.innerHTML=ic(n,16)+t;b.onclick=()=>{closeNow();f();};VA.appendChild(b);};
+ {const cb=document.createElement("button");cb.type="button";cb.innerHTML=ic("copy",16)+"Copiar prompt";cb.onclick=()=>copyPrompt(sn,cb,1);VA.appendChild(cb);}
+ if(sn.sp)mk("maximize-2","Upscale",()=>send({...sn,sp:""}));
+ const r=()=>Math.floor(Math.random()*9e15);
+ mk("dices","Variar",()=>send({...sn,s3:r(),s24:r(),s58:r()}));
+ mk("equal","Mesma seed",()=>send({...sn,neg:negGet(),lora:LORAS[LI].file,sb:$("sb").checked,dl:$("dl").checked,sbs:+$("sbs").value,dls:+$("dls").value}));
+}
+function vshow(card){
+ VC=card;vreset();VI.src=card._u;vbuild();
+ const l=vlist(),i=l.indexOf(card);VP.hidden=i<=0;VN.hidden=i<0||i>=l.length-1;
+}
+function vgo(d){if(!VC)return;const l=vlist(),i=l.indexOf(VC)+d;if(i>=0&&i<l.length)vshow(l[i]);}
+function openV(card){
+ const a=A();if(a)VW.style.opacity=0;
+ VW.hidden=false;document.body.style.overflow="hidden";vshow(card);
+ if(a){const go=()=>vflip(card,false,null);if(VI.complete&&VI.naturalWidth)go();else VI.addEventListener("load",go,{once:true});setTimeout(()=>{if(!VBUSY)VW.style.opacity="";},1500);}
+}
+function closeNow(){VBUSY=false;VW.style.opacity="";VW.hidden=true;VC=null;VI.removeAttribute("src");document.body.style.overflow="";VW.classList.remove("pan");vpt.clear();}
+let VBUSY=false;
+function vflip(card,rev,done){
+ const a=A(),src=card&&card.isConnected&&card.querySelector("img");
+ const r=src&&src.getBoundingClientRect(),f=VI.getBoundingClientRect();
+ if(!a||!r||vk!==1||vx||vy||!f.width||!r.width||r.bottom<0||r.top>innerHeight){VW.style.opacity="";if(done)done();return;}
+ const dx=r.left+r.width/2-(f.left+f.width/2),dy=r.top+r.height/2-(f.top+f.height/2),sc=r.width/f.width,o={p:rev?1:0};
+ VBUSY=true;
+ a.animate(o,{p:rev?0:1,duration:rev?260:380,ease:rev?"inQuad":"outExpo",onUpdate:()=>{const q=o.p;VI.style.transform="translate("+dx*(1-q)+"px,"+dy*(1-q)+"px) scale("+(sc+(1-sc)*q)+")";VW.style.opacity=q;},onComplete:()=>{VBUSY=false;VW.style.opacity="";vapply();if(done)done();}});
+}
+function closeV(){if(VW.hidden||VBUSY)return;vflip(VC,true,closeNow);}
+VX.onclick=closeV;VP.onclick=()=>vgo(-1);VN.onclick=()=>vgo(1);
+VW.addEventListener("wheel",e=>{e.preventDefault();const [px,py]=vcenter(e);vzoom(vk*Math.exp(-e.deltaY*0.002),px,py);},{passive:false});
+VI.ondblclick=e=>{const [px,py]=vcenter(e);if(vk>1)vzoom(1,0,0);else vzoom(2.5,px,py);};
+VW.addEventListener("pointerdown",e=>{if(e.target.closest(".vbtn,.vact"))return;vpt.set(e.pointerId,[e.clientX,e.clientY]);vmoved=0;
+ if(vpt.size===2){const p=[...vpt.values()];vdist=Math.hypot(p[0][0]-p[1][0],p[0][1]-p[1][1]);}
+ if(e.target===VI&&vk>1)VW.classList.add("pan");try{VW.setPointerCapture(e.pointerId);}catch(_){}});
+VW.addEventListener("pointermove",e=>{const o=vpt.get(e.pointerId);if(!o)return;
+ const dx=e.clientX-o[0],dy=e.clientY-o[1];vmoved+=Math.abs(dx)+Math.abs(dy);vpt.set(e.pointerId,[e.clientX,e.clientY]);
+ if(vpt.size===2){const p=[...vpt.values()],d=Math.hypot(p[0][0]-p[1][0],p[0][1]-p[1][1]);
+  if(vdist){vzoom(vk*d/vdist,(p[0][0]+p[1][0])/2-innerWidth/2,(p[0][1]+p[1][1])/2-innerHeight/2);}vdist=d;}
+ else if(vk>1){vx+=dx;vy+=dy;vapply();}});
+function vup(e){const had=vpt.delete(e.pointerId);VW.classList.remove("pan");vdist=0;
+ if(had&&e.type==="pointerup"&&e.target===VW&&vmoved<6&&vpt.size===0)closeV();}
+VW.addEventListener("pointerup",vup);VW.addEventListener("pointercancel",vup);
+document.addEventListener("keydown",e=>{if(VW.hidden)return;
+ if(e.key==="Escape")closeV();else if(e.key==="ArrowLeft")vgo(-1);else if(e.key==="ArrowRight")vgo(1);
+ else if(e.key==="+"||e.key==="=")vzoom(vk*1.3,0,0);else if(e.key==="-")vzoom(vk/1.3,0,0);else if(e.key==="0")vreset();});
+let HIST=[];try{HIST=JSON.parse(localStorage.getItem("hist")||"[]");}catch(e){}
+function saveH(){HIST=HIST.slice(0,60);try{localStorage.setItem("hist",JSON.stringify(HIST));}catch(e){}}
+const ANIM={on:false,ok:false,p:null};
+const ANIME_CDN="https://cdn.jsdelivr.net/npm/animejs@4.3.6/dist/bundles/anime.umd.min.js";
+function animLoad(){
+ if(window.anime){ANIM.ok=true;return Promise.resolve(true);}
+ if(!ANIM.p)ANIM.p=new Promise(res=>{const sc=document.createElement("script");sc.src=ANIME_CDN;sc.onload=()=>{ANIM.ok=!!window.anime;if(!ANIM.ok)ANIM.p=null;res(ANIM.ok);};sc.onerror=()=>{ANIM.p=null;res(false);};document.head.appendChild(sc);});
+ return ANIM.p;
+}
+const A=()=>ANIM.on&&ANIM.ok&&window.anime?window.anime:null;
+async function setAnim(on,save){
+ ANIM.on=on;$("anim").checked=on;
+ if(save)try{localStorage.setItem("anim",on?"1":"0");}catch(e){}
+ const n=$("animnote");
+ if(!on){n.textContent="Desligado. O anime.js não é carregado da internet.";return;}
+ n.textContent="Carregando o anime.js...";
+ const ok=await animLoad();
+ if(!ANIM.on)return;
+ n.textContent=ok?"Ligado.":"Sem conexão com o anime.js. O app funciona normal, só sem animações.";
+}
+function animIn(card,delay){const a=A();if(!a)return;a.animate(card,{opacity:[0,1],scale:[.92,1],translateY:[14,0],duration:520,delay:delay||0,ease:"outExpo",onComplete:()=>{card.style.transform="";card.style.opacity="";}});}
+function animRemove(card){
+ const a=A();if(!a||!card.parentNode)return null;
+ const sibs=[...card.parentNode.children].filter(c=>c!==card&&c.classList.contains("card"));
+ const before=sibs.map(c=>c.getBoundingClientRect()),r=card.getBoundingClientRect();
+ const gh=card.cloneNode(true);
+ Object.assign(gh.style,{position:"fixed",left:r.left+"px",top:r.top+"px",width:r.width+"px",height:r.height+"px",margin:"0",pointerEvents:"none",zIndex:"40",aspectRatio:"auto"});
+ document.body.appendChild(gh);
+ a.animate(gh,{opacity:[1,0],scale:[1,.85],duration:260,ease:"outQuad",onComplete:()=>gh.remove()});
+ return ()=>sibs.forEach((c,i)=>{const n=c.getBoundingClientRect(),dx=before[i].left-n.left,dy=before[i].top-n.top;if(dx||dy)a.animate(c,{translateX:[dx,0],translateY:[dy,0],duration:380,ease:"outExpo",onComplete:()=>{c.style.transform="";}});});
+}
+const cfg=$("cfg"),pop=$("pop");
+function popClose(){pop.hidden=true;cfg.setAttribute("aria-expanded","false");}
+cfg.onclick=e=>{e.stopPropagation();const o=pop.hidden;pop.hidden=!o;cfg.setAttribute("aria-expanded",String(o));};
+document.addEventListener("click",e=>{if(!pop.hidden&&!pop.contains(e.target))popClose();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!pop.hidden){popClose();cfg.focus();}});
+$("anim").onchange=()=>setAnim($("anim").checked,true);
+{let sa=null;try{sa=localStorage.getItem("anim");}catch(e){}setAnim(sa===null?!matchMedia("(prefers-reduced-motion: reduce)").matches:sa==="1",false);}
+let AC=null,SND=false,DONEIMG=false,LASTFIN=0;
+function beep(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume();[[660,0],[880,.16]].forEach(([f,d])=>{const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime+d;o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.15,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.28);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+.3);});}catch(e){}}
+try{SND=localStorage.getItem("snd_on")==="1";}catch(e){}
+$("snd").checked=SND;
+$("snd").onchange=()=>{SND=$("snd").checked;try{localStorage.setItem("snd_on",SND?"1":"0");}catch(e){}if(SND)beep();};
+let SENDING=0;
+function kick(){if(!SENDING&&DONEIMG&&!$("res").querySelector(".sk")){DONEIMG=false;if(SND)beep();}}
+new MutationObserver(kick).observe($("res"),{childList:true,subtree:true});
+const durKey=sp=>"dur_"+(sp||"full");
+function durAvg(sp){try{const a=JSON.parse(localStorage.getItem(durKey(sp))||"[]");return a.length?a.reduce((x,y)=>x+y,0)/a.length:0;}catch(e){return 0;}}
+function durAdd(sp,ms){try{const a=JSON.parse(localStorage.getItem(durKey(sp))||"[]");a.push(ms);localStorage.setItem(durKey(sp),JSON.stringify(a.slice(-8)));}catch(e){}}
+const fmtT=ms=>{const s=Math.round(ms/1000);return s<90?s+" s":Math.round(s/60)+" min";};
+function queueStatus(sp){const n=$("res").querySelectorAll(".sk").length;if(!n)return false;const a=durAvg(sp);$("st").textContent="Na fila: "+n+(n>1?" imagens":" imagem")+(a?". Estimativa: "+fmtT(a*n)+".":".");return true;}
+function imgDone(card){const sn=card._snap;if(!card._t0)return;const t=Date.now();if(sn)durAdd(sn.sp||"",t-Math.max(card._t0,LASTFIN));LASTFIN=t;DONEIMG=true;queueStatus(sn&&sn.sp);}
+document.addEventListener("keydown",e=>{if(e.code!=="Space"||e.repeat||!VW.hidden)return;const t=e.target,tg=t&&t.tagName;if(["INPUT","TEXTAREA","SELECT","BUTTON","SUMMARY","A"].includes(tg)||(t&&t.isContentEditable))return;e.preventDefault();$("gen").click();});
+function mkCard(snap){
+ const card=document.createElement("div");card.className="card";card._snap=snap;card.style.aspectRatio=snap.o==="l"?"1216/832":"832/1216";
+ const sk=document.createElement("div");sk.className="sk";sk.setAttribute("aria-hidden","true");
+ const xb=document.createElement("button");xb.className="x";xb.innerHTML='<iconify-icon icon="lucide:x" width="16" height="16"></iconify-icon>';xb.setAttribute("aria-label","Remover imagem");
+ xb.onclick=()=>{const pid=card.dataset.pid,busy=card.querySelector(".sk");const aft=animRemove(card);card.remove();if(aft)aft();if(card._id){HIST=HIST.filter(h=>h.id!==card._id);saveH();}if(busy&&pid)cancelJob(pid);};
+ card.append(sk,xb);return card;
+}
+function showImg(card,im){
+ const u=$("url").value.replace(/\/$/,"")+"/view?"+new URLSearchParams({filename:im.filename,subfolder:im.subfolder||"",type:im.type||"output"});
+ const a=document.createElement("a");a.href=u;card._u=u;a.onclick=e=>{e.preventDefault();openV(card);};const g=document.createElement("img");g.alt="Imagem gerada";a.appendChild(g);
+ g.onload=()=>{const k=card.querySelector(".sk");if(k)k.replaceWith(a);animIn(card,card._d);imgDone(card);const sn=card._snap;if(sn&&!card.querySelector(".fv"))mkStar(card);
+  if(sn&&sn.text&&!card.querySelector(".cp")){const c=document.createElement("button");c.className="up cp";c.type="button";c.innerHTML='<iconify-icon icon="lucide:copy" width="13" height="13"></iconify-icon>Prompt';c.title="Copiar o prompt desta imagem";c.onclick=e=>{e.stopPropagation();copyPrompt(sn,c);};card.appendChild(c);}
+  if(sn&&sn.sp&&!card.querySelector(".up")){const b=document.createElement("button");b.className="up";b.innerHTML='<iconify-icon icon="lucide:maximize-2" width="13" height="13"></iconify-icon>Upscale';b.title="Refazer esta mesma imagem com hires fix e tile upscale";b.onclick=()=>send({...sn,sp:""});card.appendChild(b);}};
+ g.onerror=()=>card.remove();
+ g.src=u;
+}
+HIST.forEach((h,i)=>{const c=mkCard(h.snap);c._id=h.id;c._d=Math.min(i,12)*50;$("res").appendChild(c);showImg(c,h.im);});
+$("clr").onclick=()=>{if(!confirm("Remover todas as imagens da tela?"))return;$("res").innerHTML="";HIST=[];saveH();};
+async function poll(id,base,card){
+ const st=$("st"),t0=Date.now();
+ st.textContent="Gerando...";
+ while(card.isConnected&&Date.now()-t0<600000){
+  try{
+   const h=await (await fetch(base+"/history/"+id)).json();
+   const o=h[id]&&h[id].outputs;
+   if(o){const im=((o["57"]||{}).images||[])[0]||Object.values(o).flatMap(x=>x.images||[]).pop();
+    if(im){card._id=Date.now()+Math.random();HIST.unshift({id:card._id,snap:card._snap,im:{filename:im.filename,subfolder:im.subfolder||"",type:im.type||"output"}});saveH();showImg(card,im);
+     if(card.isConnected)st.textContent="Pronto. Clique na imagem para abrir em tamanho real.";return;}
+    if(h[id].status&&h[id].status.status_str==="error"){card.remove();st.textContent="O ComfyUI terminou com erro. Veja o console dele.";return;}}
+  }catch(e){}
+  await new Promise(r=>setTimeout(r,1500));
+ }
+ if(card.isConnected){card.remove();st.textContent="Tempo esgotado esperando a imagem. Ela pode ainda aparecer no ComfyUI.";}
+}
+async function cancelJob(id){
+ const base=$("url").value.replace(/\/$/,""),H={"Content-Type":"application/json"};
+ try{
+  const q=await (await fetch(base+"/queue")).json();
+  const run=(q.queue_running||[]).some(x=>x[1]===id),pend=(q.queue_pending||[]).some(x=>x[1]===id);
+  if(run)await fetch(base+"/interrupt",{method:"POST",headers:H,body:JSON.stringify({prompt_id:id})});
+  else if(pend)await fetch(base+"/queue",{method:"POST",headers:H,body:JSON.stringify({delete:[id]})});
+  else return;
+  $("st").textContent="Geração cancelada.";
+ }catch(e){}
+}
+document.querySelectorAll(".spd button").forEach(b=>b.onclick=()=>{$("speed").value=b.dataset.v;document.querySelectorAll(".spd button").forEach(x=>x.setAttribute("aria-pressed",x===b));});
+document.querySelectorAll(".fmt button").forEach(b=>b.onclick=()=>{$("fmt").value=b.dataset.v;document.querySelectorAll(".fmt button").forEach(x=>x.setAttribute("aria-pressed",x===b));});
+$("send").onclick=()=>sendN();
+$("copy").onclick=async()=>{const s=$("txt").value,ic=$("copyic");let ok=true;try{await navigator.clipboard.writeText(s);}catch(e){const t=$("txt"),h=t.hidden;t.hidden=false;t.select();ok=document.execCommand("copy");t.hidden=h;}if(ok){ic.setAttribute("icon","lucide:check");setTimeout(()=>ic.setAttribute("icon","lucide:copy"),1500);}};
+$("edit").onclick=()=>{const t=$("txt");t.hidden=!t.hidden;$("edit").setAttribute("aria-pressed",String(!t.hidden));if(!t.hidden)t.focus();};
+document.querySelectorAll(".mode button").forEach(b=>b.onclick=()=>{mode=b.dataset.m;$("race").disabled=mode==="fav";$("favp").hidden=mode!=="fav";document.querySelectorAll(".mode button").forEach(x=>x.setAttribute("aria-pressed",x===b));});
+</script>
+</body>
+</html>

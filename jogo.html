@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Retratos do jogo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eceaf0;--card:#ffffff;--raise:#f4f2f7;--line:#dcd7e3;--fg:#1d1926;--mut:#6b6477;--or:#ff7a1a;--or2:#d95a00;--tint:color-mix(in srgb,var(--or) 14%,transparent)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15121a;--card:#1e1a26;--raise:#2a2433;--line:#3a3346;--fg:#f0ebf4;--mut:#a89fb5;--or2:#ff9a4d}}
+:root[data-theme="dark"]{--bg:#15121a;--card:#1e1a26;--raise:#2a2433;--line:#3a3346;--fg:#f0ebf4;--mut:#a89fb5;--or2:#ff9a4d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 "Bricolage Grotesque",system-ui,sans-serif}
+button,select,input,textarea{font-family:inherit}
+.app{display:grid;grid-template-columns:372px minmax(0,1fr);min-height:100vh}
+aside{background:var(--card);border-right:1px solid var(--line);display:flex;flex-direction:column;height:100vh;position:sticky;top:0}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 18px 12px}
+h1{margin:0;font:700 21px/1.1 "Bricolage Grotesque",system-ui,sans-serif;letter-spacing:-.01em}
+.nav{display:flex;align-items:center;gap:6px;color:var(--mut);font-size:13px;text-decoration:none;padding:6px 8px;border-radius:8px}
+.nav:hover{background:var(--raise);color:var(--fg)}
+.scroll{overflow:auto;flex:1;padding:0 18px 18px}
+details{border-top:1px solid var(--line)}
+summary{display:flex;align-items:center;gap:8px;padding:14px 0;font-weight:700;font-size:15px;cursor:pointer;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary iconify-icon{color:var(--or2)}
+summary .chev{margin-left:auto;color:var(--mut);transition:transform .15s}
+details[open] summary .chev{transform:rotate(180deg)}
+details>.in{padding-bottom:16px}
+summary:focus-visible,.nav:focus-visible{outline:3px solid var(--fg);outline-offset:2px;border-radius:8px}
+.lb{display:block;margin:14px 0 6px;color:var(--mut);font-size:13px}
+.in>.lb:first-child{margin-top:0}
+.mode{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.mode button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;height:64px;border:1px solid var(--line);border-radius:12px;background:var(--raise);color:var(--fg);font-size:12px;cursor:pointer}
+.mode button[aria-pressed="true"],.pair button[aria-pressed="true"],.spd button[aria-pressed="true"],.seg button[aria-pressed="true"]{border-color:var(--or);background:var(--tint);color:var(--or2)}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.fld{display:flex;flex-direction:column;gap:6px;min-width:0}
+.fld label{color:var(--mut);font-size:13px}
+select,#url{width:100%;min-width:0;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--raise);color:var(--fg);font-size:14px}
+select:disabled{opacity:.5}
+.ck{display:flex;align-items:center;gap:10px;margin-top:12px;color:var(--fg);font-size:14px;cursor:pointer}
+.ck input{width:18px;height:18px;accent-color:var(--or2);flex:none;cursor:pointer}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.seg button{padding:10px 8px;border:1px solid var(--line);border-radius:10px;background:var(--raise);color:var(--fg);font:600 14px "Yu Gothic","Hiragino Sans","Noto Sans JP","Bricolage Grotesque",system-ui,sans-serif;cursor:pointer}
+#lfile{display:block;margin-top:8px;font:12px ui-monospace,Consolas,monospace;color:var(--mut);word-break:break-all}
+.spd,.pair{display:flex;gap:6px}
+.spd button,.pair button{flex:1;height:52px;border:1px solid var(--line);border-radius:10px;background:var(--raise);color:var(--fg);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.qty button{font:700 16px "Bricolage Grotesque",system-ui,sans-serif}
+.mode button:focus-visible,.pair button:focus-visible,.spd button:focus-visible,.seg button:focus-visible,#gen:focus-visible,#send:focus-visible,#clr:focus-visible,.ibtn:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.dock{padding:14px 18px calc(14px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--card);display:grid;gap:8px}
+#gen{display:block;width:100%;height:60px;border:0;border-radius:14px;background:linear-gradient(180deg,var(--or),#e85f00);color:#fff;font:800 22px/1 "Bricolage Grotesque",system-ui,sans-serif;letter-spacing:.1em;cursor:pointer;box-shadow:0 5px 0 #b04800;transition:transform .08s,box-shadow .08s}
+#gen:active{transform:translateY(4px);box-shadow:0 1px 0 #b04800}
+#send{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:46px;border:1px solid var(--line);border-radius:12px;background:var(--raise);color:var(--fg);font:600 15px "Bricolage Grotesque",system-ui,sans-serif;cursor:pointer}
+#send[hidden]{display:none}
+#send:hover{border-color:var(--or)}
+.stage{padding:20px 24px 40px;min-width:0}
+.bar{display:flex;align-items:center;gap:12px;min-height:40px;margin-bottom:14px}
+#st{margin:0;flex:1;font-size:14px;color:var(--mut)}
+#clr{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--fg);cursor:pointer}
+#clr:hover{border-color:var(--or)}
+#out{display:none;margin-bottom:18px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.ohead{display:flex;align-items:center;gap:10px}
+#theme{margin:0;flex:1;color:var(--mut);font-size:14px}
+.ibtn{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:var(--raise);color:var(--fg);cursor:pointer}
+.ibtn[aria-pressed="true"]{border-color:var(--or);color:var(--or2)}
+#txt{display:block;width:100%;min-height:240px;margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);font:14px/1.6 ui-monospace,Consolas,monospace;resize:vertical}
+#txt[hidden]{display:none}
+.fv{position:absolute;top:6px;left:6px;z-index:2;width:26px;height:26px;border:0;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.fv:hover{background:rgba(0,0,0,.8)}
+.fv[aria-pressed="true"]{color:#ffb020}
+.fv:focus-visible{outline:2px solid #fff;outline-offset:1px}
+#flist{display:grid;gap:6px;max-height:300px;overflow:auto}
+.fi{display:flex;align-items:stretch;gap:4px}
+.fsel{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:6px;border:1px solid var(--line);border-radius:10px;background:var(--raise);color:var(--fg);text-align:left;cursor:pointer;font-size:14px}
+.fsel[aria-pressed="true"]{border-color:var(--or);background:var(--tint)}
+.fsel img,.fsel .ph{width:36px;height:48px;flex:none;border-radius:6px;object-fit:cover;background:var(--line);display:flex;align-items:center;justify-content:center;color:var(--mut)}
+.fsel span.nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fi .sm{width:34px;flex:none;border:1px solid var(--line);border-radius:10px;background:var(--raise);color:var(--mut);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.fi .sm:hover{color:var(--fg);border-color:var(--fg)}
+.fsel:focus-visible,.fi .sm:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.cfgw{position:relative}
+.gear{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--fg);cursor:pointer}
+.gear:hover{border-color:var(--or)}
+.gear:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+#pop{position:absolute;top:48px;right:0;z-index:60;width:min(300px,calc(100vw - 32px));background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 12px 32px rgba(0,0,0,.28)}
+#pop[hidden]{display:none}
+.pt{margin:0 0 4px;font-weight:700}
+.hint{margin:8px 0 0;font-size:13px;color:var(--mut)}
+#res{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;align-items:start}
+#res:empty::before{content:"As imagens aparecem aqui. Gere um prompt e envie ao ComfyUI.";grid-column:1/-1;display:flex;align-items:center;justify-content:center;min-height:42vh;padding:24px;border:1px dashed var(--line);border-radius:16px;color:var(--mut);text-align:center}
+.sk{width:100%;aspect-ratio:832/1216;border-radius:10px;background:linear-gradient(100deg,var(--line) 30%,color-mix(in srgb,var(--line),#fff 45%) 50%,var(--line) 70%);background-size:200% 100%;animation:sh 1.3s linear infinite}
+.card{position:relative;aspect-ratio:832/1216;border-radius:10px;overflow:hidden}
+.card .sk{height:100%;aspect-ratio:auto;border-radius:0}
+.card a{display:block;height:100%}
+.card img{height:100%;object-fit:cover}
+.x{position:absolute;top:6px;right:6px;z-index:2;width:26px;height:26px;border:0;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font:16px/1 system-ui,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.up{display:flex;align-items:center;gap:5px;position:absolute;bottom:6px;right:6px;z-index:2;padding:4px 10px;border:0;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;font:600 12px system-ui,sans-serif;cursor:pointer}
+.up.cp{right:auto;left:6px}
+.up:hover{background:rgba(0,0,0,.8)}
+.up:focus-visible{outline:2px solid #fff;outline-offset:1px}
+.x:hover{background:rgba(0,0,0,.8)}
+.x:focus-visible{outline:2px solid #fff;outline-offset:1px}
+@keyframes sh{from{background-position:200% 0}to{background-position:-200% 0}}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.sk{animation:none}#res img{animation:none}}
+#res img{display:block;width:100%;border-radius:10px;animation:fi .4s}
+#viewer{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.94);overflow:hidden;touch-action:none}
+#viewer[hidden]{display:none}
+#viewer img{max-width:100vw;max-height:100vh;object-fit:contain;transform-origin:center;user-select:none;-webkit-user-drag:none;cursor:grab;will-change:transform}
+#viewer.pan img{cursor:grabbing}
+.vbtn{position:absolute;z-index:2;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;cursor:pointer}
+.vbtn:hover{background:rgba(255,255,255,.28)}
+.vbtn:focus-visible,.vact button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.vbtn[hidden]{display:none}
+#vx{top:12px;right:12px}#vp{left:12px;top:50%;margin-top:-22px}#vn{right:12px;top:50%;margin-top:-22px}
+.vact{position:absolute;z-index:2;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:8px}
+.vact button{display:flex;align-items:center;gap:6px;padding:9px 16px;border:0;border-radius:999px;background:rgba(255,255,255,.16);color:#fff;font:600 13px system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+.vact button:hover{background:rgba(255,255,255,.3)}
+.card a{cursor:zoom-in}
+@media (max-width:859px){
+.app{display:block}
+aside{position:static;height:auto;border-right:0}
+.scroll{overflow:visible}
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:50;grid-template-columns:1fr auto;box-shadow:0 -8px 24px rgba(0,0,0,.18)}
+#gen{height:54px;font-size:20px}
+#send{width:auto;padding:0 16px;height:54px}
+.stage{padding:16px 16px calc(110px + env(safe-area-inset-bottom,0px))}
+#res{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+}
+
+input[type=text],textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--raise);color:var(--fg);font-size:14px}
+textarea{resize:vertical;font:14px/1.5 ui-monospace,Consolas,monospace}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--raise);color:var(--fg);font-size:14px;cursor:pointer}
+.chips button[aria-pressed="true"]{border-color:var(--or);background:var(--tint);color:var(--or2);font-weight:700}
+.chips button:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+details.ed{margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--raise)}
+details.ed summary{padding:0;font-weight:600;font-size:14px}
+details.ed[open] summary{margin-bottom:10px}
+.pair.sm button{height:44px}
+.act{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.act button,.mini{display:flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--fg);font-size:14px;cursor:pointer}
+.act button:focus-visible,.mini:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.row2{display:flex;gap:6px}
+.row2 select{flex:1}
+.bd{position:absolute;top:6px;left:6px;z-index:2;padding:2px 9px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;font:600 11px system-ui,sans-serif}
+#gen:disabled{opacity:.6;cursor:wait}
+.stage details.ed{margin:0 0 16px}
+.sl{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sl output{font:600 13px ui-monospace,Consolas,monospace;color:var(--or2)}
+input[type=range]{width:100%;accent-color:var(--or);margin:2px 0 10px}
+</style>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+</head>
+<body>
+<div class="app">
+<aside>
+<div class="brand"><h1>Retratos do jogo</h1><a class="nav" href="gerador-comfyui.html"><iconify-icon icon="lucide:arrow-left" width="18" height="18"></iconify-icon>Gerador</a></div>
+<div class="scroll">
+<details open><summary><iconify-icon icon="lucide:user-round" width="18" height="18"></iconify-icon>Personagem<iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
+<div class="chips" id="chars" role="group" aria-label="Personagem"></div>
+<div id="fiw" hidden>
+<span class="lb">Importar favorita do gerador</span>
+<div class="row2"><select id="fimp" aria-label="Favoritas do gerador"></select><button class="mini" id="fiok" type="button"><iconify-icon icon="lucide:download" width="16" height="16"></iconify-icon>Importar</button></div>
+</div>
+<p class="hint" id="finone" hidden>Nenhuma favorita do gerador encontrada neste navegador.</p>
+<details class="ed" id="ed"><summary>Editar personagem</summary>
+<label class="lb" for="cn">Nome</label><input type="text" id="cn">
+<span class="lb" id="cgl">Gênero</span>
+<div class="pair sm" id="cg" role="group" aria-labelledby="cgl">
+<button data-g="girl" aria-pressed="true" aria-label="1girl" title="1girl"><iconify-icon icon="lucide:venus" width="22" height="22"></iconify-icon></button>
+<button data-g="boy" aria-pressed="false" aria-label="1boy" title="1boy"><iconify-icon icon="lucide:mars" width="22" height="22"></iconify-icon></button>
+</div>
+<label class="lb" for="ct">Aparência (cabelo, olhos, rosto)</label><textarea id="ct" rows="3" spellcheck="false"></textarea>
+<label class="lb" for="cc">Roupas e acessórios</label><textarea id="cc" rows="3" spellcheck="false"></textarea>
+<div class="act">
+<button id="csave" type="button"><iconify-icon icon="lucide:save" width="18" height="18"></iconify-icon>Salvar</button>
+<button id="cnew" type="button"><iconify-icon icon="lucide:plus" width="18" height="18"></iconify-icon>Novo</button>
+<button id="cdel" type="button"><iconify-icon icon="lucide:trash-2" width="18" height="18"></iconify-icon>Excluir</button>
+</div>
+</details>
+</div></details>
+<details open><summary><iconify-icon icon="lucide:smile" width="18" height="18"></iconify-icon>Expressões<iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
+<span class="lb" id="exl">Uma imagem por expressão marcada</span>
+<div class="chips" id="exps" role="group" aria-labelledby="exl"></div>
+</div></details>
+<details open><summary><iconify-icon icon="lucide:frame" width="18" height="18"></iconify-icon>Cena<iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
+<div class="duo"><div class="fld"><label for="cam">Enquadramento</label><select id="cam">
+<option value="portrait">Retrato</option><option value="upper body portrait">Busto</option><option value="face focus">Rosto</option><option value="upper body">Meio corpo</option></select></div>
+<div class="fld"><label for="view">Visão</label><select id="view">
+<option value="three-quarter view">Três quartos</option><option value="front view">Frente</option><option value="side view">Lado</option></select></div></div>
+<label class="lb" for="bg">Fundo</label>
+<select id="bg">
+<option value="white">Branco liso</option><option value="grey">Cinza claro</option><option value="dark">Escuro</option><option value="gradient">Degradê suave</option><option value="parchment">Pergaminho</option><option value="frame">Moldura de RPG</option></select>
+<label class="lb" for="extra">Tags extras (opcional)</label>
+<input type="text" id="extra" placeholder="ex.: blush, hand on own chest">
+</div></details>
+<details><summary><iconify-icon icon="lucide:palette" width="18" height="18"></iconify-icon>Estilo<iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
+<div class="seg" role="group" aria-label="LoRA"><button data-l="0" aria-pressed="true">AIイラストおじさん</button><button data-l="1" aria-pressed="false">Takorin Style</button><button data-l="2" aria-pressed="false">Hata4564</button><button data-l="3" aria-pressed="false">Niji Oil</button><button data-l="4" aria-pressed="false">Niji Semi-realism</button><button data-l="5" aria-pressed="false">USNR Style</button></div>
+<span id="lfile"></span>
+<div class="sl"><label class="ck"><input type="checkbox" id="sb" checked>Smooth Booster</label><output id="sbo">0.50</output></div>
+<input type="range" id="sbs" min="0" max="1.5" step="0.05" value="0.5" aria-label="Força do Smooth Booster">
+<div class="sl"><label class="ck"><input type="checkbox" id="dl" checked>Dramatic Lighting</label><output id="dlo">0.80</output></div>
+<input type="range" id="dls" min="0" max="1.5" step="0.05" value="0.8" aria-label="Força do Dramatic Lighting">
+</div></details>
+<details open><summary><iconify-icon icon="lucide:image" width="18" height="18"></iconify-icon>Saída<iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
+<span class="lb" id="fml">Formato</span>
+<input type="hidden" id="fmt" value="p">
+<div class="pair fmt" role="group" aria-labelledby="fml">
+<button data-v="p" aria-pressed="true" aria-label="Retrato" title="Retrato (832x1216)"><iconify-icon icon="lucide:rectangle-vertical" width="26" height="26"></iconify-icon></button>
+<button data-v="s" aria-pressed="false" aria-label="Quadrado" title="Quadrado (1024x1024), bom para avatar"><iconify-icon icon="lucide:square" width="26" height="26"></iconify-icon></button>
+</div>
+<span class="lb" id="spl">Velocidade</span>
+<input type="hidden" id="speed" value="">
+<div class="spd" role="group" aria-labelledby="spl">
+<button data-v="" aria-pressed="true" aria-label="Completo" title="Completo: workflow original, com hires fix e tile upscale"><iconify-icon icon="lucide:gem" width="26" height="26"></iconify-icon></button>
+<button data-v="fast" aria-pressed="false" aria-label="Rápido" title="Rápido: 26 steps, sem o tile upscale final"><iconify-icon icon="lucide:zap" width="26" height="26"></iconify-icon></button>
+<button data-v="ultra" aria-pressed="false" aria-label="Ultra-rápido" title="Ultra-rápido: 26 steps, sem hires fix e sem tile upscale"><iconify-icon icon="lucide:fast-forward" width="26" height="26"></iconify-icon></button>
+</div>
+<span class="lb" id="sdl">Seed</span>
+<div class="pair sm" role="group" aria-labelledby="sdl">
+<button id="lock" aria-pressed="false" aria-label="Manter seed" title="Manter a mesma seed entre gerações: o rosto se repete ao trocar roupa, fundo ou expressão"><iconify-icon id="lockic" icon="lucide:lock-open" width="22" height="22"></iconify-icon></button>
+</div>
+</div></details>
+<details><summary><iconify-icon icon="lucide:ban" width="18" height="18"></iconify-icon>Negativo<iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
+<label class="lb" for="neg">Prompt negativo</label>
+<textarea id="neg" rows="7" spellcheck="false"></textarea>
+<div class="act"><button id="negr" type="button"><iconify-icon icon="lucide:rotate-ccw" width="18" height="18"></iconify-icon>Restaurar padrão</button></div>
+<p class="hint">Vale para as próximas imagens. Fica salvo neste navegador.</p>
+</div></details>
+<details><summary><iconify-icon icon="lucide:plug" width="18" height="18"></iconify-icon>Conexão<iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
+<label class="lb" for="url">Endereço do ComfyUI</label><input type="text" id="url" value="http://127.0.0.1:8188">
+</div></details>
+</div>
+<div class="dock">
+<button id="gen" title="Gerar (Espaço)">GENERATE</button>
+</div>
+</aside>
+<main class="stage">
+<div class="bar"><p id="st" role="status"></p><button id="clr" aria-label="Limpar galeria" title="Limpar galeria"><iconify-icon icon="lucide:trash-2" width="20" height="20"></iconify-icon></button><span class="cfgw"><button id="cfg" class="gear" aria-label="Configurações" aria-expanded="false" aria-controls="pop" title="Configurações"><iconify-icon icon="lucide:settings" width="20" height="20"></iconify-icon></button>
+<div id="pop" role="dialog" aria-label="Configurações" hidden>
+<p class="pt">Configurações</p>
+<label class="ck"><input type="checkbox" id="anim">Animações (anime.js)</label>
+<p class="hint" id="animnote"></p>
+<label class="ck"><input type="checkbox" id="snd">Aviso sonoro ao terminar a fila</label>
+<p class="hint">Dica: aperte Espaço para gerar.</p>
+</div></span></div>
+<details class="ed"><summary>Prompt usado</summary><textarea id="ptxt" rows="12" readonly spellcheck="false" aria-label="Prompts usados"></textarea></details>
+<div id="res"></div>
+</main>
+</div>
+<script>if(innerWidth<860)document.querySelectorAll("aside .scroll>details").forEach((d,i)=>{if(i)d.open=false;});</script>
+<script>
+const Q="highly detailed, sharp focus, intricate lineart, fine textures, absurdres, intricate details, detailed textures, detailed background, complex details,";
+const WF={"1":{"inputs":{"width":832,"height":1216,"batch_size":1},"class_type":"EmptyLatentImage","_meta":{"title":"Imagem Latente Vazia"}},"3":{"inputs":{"seed":828317518510267,"steps":35,"cfg":4,"sampler_name":"dpmpp_2m","scheduler":"karras","denoise":1,"model":["15",0],"positive":["4",0],"negative":["17",0],"latent_image":["1",0]},"class_type":"KSampler","_meta":{"title":"KSampler"}},"4":{"inputs":{"text":"highly detailed, sharp focus, intricate lineart, fine textures, absurdres, intricate details, detailed textures, detailed background, complex details,\n\n1girl, solo, upper body, front view, looking away, crossed legs, smiling, white hair, wavy hair, single hair bun, wispy bangs, pink eyes, elf ears, bags under eyes, blurry background, shallow depth of field,\n\nschool uniform, sailor collar, knee socks, school bag, pleated skirt, neck ribbon, loafers,\n\nclassroom, chalkboard, falling petals, sunset through window, nostalgic atmosphere, wooden desks, dramatic lighting, steam haze, serene composition","clip":["15",1]},"class_type":"CLIPTextEncode","_meta":{"title":"Codificação de Texto CLIP (Prompt)"}},"6":{"inputs":{"ckpt_name":"waiIllustriousSDXL_v170.safetensors"},"class_type":"CheckpointLoaderSimple","_meta":{"title":"Carregar Checkpoint"}},"10":{"inputs":{"samples":["3",0],"vae":["6",2]},"class_type":"VAEDecode","_meta":{"title":"VAE Decodificar"}},"15":{"inputs":{"PowerLoraLoaderHeaderWidget":{"type":"PowerLoraLoaderHeaderWidget"},"lora_1":{"on":true,"lora":"Smooth_Booster_v5.safetensors","strength":0.5},"lora_2":{"on":true,"lora":"aiE382A4E383A9E382B9E38388E3818A.cG1u.safetensors","strength":1},"lora_3":{"on":false,"lora":"takorin_ILXL_v4 (1).safetensors","strength":1},"➕ Add Lora":"","model":["6",0],"clip":["6",1]},"class_type":"Power Lora Loader (rgthree)","_meta":{"title":"Power Lora Loader (rgthree)"}},"17":{"inputs":{"text":"3d, (worst quality, low quality, normal quality, lowres, blurry, jpeg artifacts), (bad anatomy, bad hands, missing fingers, extra fingers, fewer fingers, extra limbs, malformed limbs), (text, watermark, signature, logo), monochrome, grayscale, extra head, extra body, bad perspective, deformed face, poorly drawn eyes, poorly drawn hands, mutated","clip":["15",1]},"class_type":"CLIPTextEncode","_meta":{"title":"Codificação de Texto CLIP (Prompt)"}},"19":{"inputs":{"upscale_model":["20",0],"image":["10",0]},"class_type":"ImageUpscaleWithModel","_meta":{"title":"Aumentar Resolução da Imagem (usando Modelo)"}},"20":{"inputs":{"model_name":"4x-UltraSharp.safetensors"},"class_type":"UpscaleModelLoader","_meta":{"title":"Carregar Modelo de Upscale"}},"21":{"inputs":{"upscale_method":"lanczos","megapixels":3.86,"resolution_steps":1,"image":["19",0]},"class_type":"ImageScaleToTotalPixels","_meta":{"title":"Redimensionar Imagem para Total de Pixels"}},"23":{"inputs":{"tile_size":1536,"overlap":64,"temporal_size":64,"temporal_overlap":8,"pixels":["21",0],"vae":["6",2]},"class_type":"VAEEncodeTiled","_meta":{"title":"VAE Codificar (Em Blocos)"}},"24":{"inputs":{"seed":1,"steps":4,"cfg":1,"sampler_name":"lcm","scheduler":"ddim_uniform","denoise":0.35,"model":["33",0],"positive":["4",0],"negative":["17",0],"latent_image":["23",0]},"class_type":"KSampler","_meta":{"title":"KSampler"}},"25":{"inputs":{"tile_size":1536,"overlap":64,"temporal_size":64,"temporal_overlap":8,"samples":["24",0],"vae":["6",2]},"class_type":"VAEDecodeTiled","_meta":{"title":"VAE Decodificar (Em Blocos)"}},"33":{"inputs":{"lora_name":"dmd2_sdxl_4step_lora_fp16.safetensors","strength_model":1,"model":["15",0]},"class_type":"LoraLoaderModelOnly","_meta":{"title":"LoraLoaderModelOnly"}},"57":{"inputs":{"filename_prefix":"Simplesmente IA/Illustrious","images":["58",0]},"class_type":"SaveImage","_meta":{"title":"Salvar Imagem"}},"58":{"inputs":{"upscale_by":1.5,"seed":2,"steps":3,"cfg":1,"sampler_name":"euler_ancestral","scheduler":"karras","denoise":0.2,"mode_type":"Linear","tile_width":1024,"tile_height":1024,"mask_blur":8,"tile_padding":32,"seam_fix_mode":"None","seam_fix_denoise":1,"seam_fix_width":64,"seam_fix_mask_blur":8,"seam_fix_padding":16,"force_uniform_tiles":true,"tiled_decode":false,"batch_size":1,"image":["25",0],"model":["33",0],"positive":["4",0],"negative":["17",0],"vae":["6",2],"upscale_model":["20",0]},"class_type":"UltimateSDUpscale","_meta":{"title":"Ultimate SD Upscale"}},"65":{"inputs":{"images":["10",0]},"class_type":"PreviewImage","_meta":{"title":"Imagem de Pré-visualização"}}};
+const NEG0=WF["17"].inputs.text;
+function negGet(){const v=document.getElementById("neg").value.trim();return v||NEG0;}
+(()=>{const g=id=>document.getElementById(id),n=g("neg");
+try{const sv=localStorage.getItem("neg");n.value=sv!==null?sv:NEG0;}catch(e){n.value=NEG0;}
+n.addEventListener("input",()=>{try{localStorage.setItem("neg",n.value);}catch(e){}});
+g("negr").onclick=()=>{n.value=NEG0;try{localStorage.removeItem("neg");}catch(e){}};})();
+const $=id=>document.getElementById(id);
+const DIMS={p:[832,1216],l:[1216,832],s:[1024,1024]};
+const norm=t=>(t||"").split(",").map(x=>x.trim()).filter(Boolean).join(", ");
+const LORAS=[{file:"aiE382A4E383A9E382B9E38388E3818A.cG1u.safetensors"},{file:"takorin_ILXL_v4 (1).safetensors"},{file:"Hata4564.safetensors"},{file:"Niji_oil_animme.safetensors"},{file:"Niji_Semi_realism_F_N_R_epoch_10.safetensors"},{file:"USNR_STYLE_ILL_V1_lokr3-000024.safetensors"}];let LI=0;
+try{const f=localStorage.getItem("lora_f");const i=LORAS.findIndex(l=>l.file===f);LI=i>=0?i:0;}catch(e){}
+function renderL(){document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.l===LI));$("lfile").textContent=LORAS[LI].file;}
+document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{LI=+b.dataset.l;renderL();try{localStorage.setItem("lora_f",LORAS[LI].file);}catch(e){}});
+renderL();
+["sb","dl"].forEach(k=>{try{const m=localStorage.getItem(k+"_on");if(m!==null)$(k).checked=m==="1";}catch(e){}$(k).onchange=()=>{try{localStorage.setItem(k+"_on",$(k).checked?"1":"0");}catch(e){}};});
+(()=>{const g=id=>document.getElementById(id);[["sbs","sbo"],["dls","dlo"]].forEach(([r,o])=>{const R=g(r),O=g(o);try{const v=localStorage.getItem(r);if(v!==null)R.value=v;}catch(e){}const up=()=>{O.textContent=(+R.value).toFixed(2);};up();R.addEventListener("input",()=>{up();try{localStorage.setItem(r,R.value);}catch(e){}});});})();
+const rs=()=>Math.floor(Math.random()*9e15);
+try{const u=localStorage.getItem("cfy_url");if(u)$("url").value=u;}catch(e){}
+$("url").onchange=()=>{try{localStorage.setItem("cfy_url",$("url").value);}catch(e){}};
+async function send(snap){
+ const st=$("st"),w=JSON.parse(JSON.stringify(WF));
+ w["4"].inputs.text=snap.text;if(snap.neg)w["17"].inputs.text=snap.neg;
+ w["15"].inputs.lora_2.lora=snap.lora;w["15"].inputs.lora_1.on=snap.sb!==false;w["15"].inputs.lora_1.strength=snap.sbs!=null?snap.sbs:0.5;w["15"].inputs.lora_3={on:snap.dl!==false,lora:"S1 Dramatic Lighting Illustrious_V2.safetensors",strength:snap.dls!=null?snap.dls:0.8};
+ w["3"].inputs.steps=snap.steps;const D=DIMS[snap.o]||DIMS.p;w["1"].inputs.width=D[0];w["1"].inputs.height=D[1];
+ if(snap.sp)w["57"].inputs.images=[snap.sp==="ultra"?"10":"25",0];
+ w["3"].inputs.seed=snap.s3;w["24"].inputs.seed=snap.s24;w["58"].inputs.seed=snap.s58;
+ st.textContent="Enviando...";const card=mkCard(snap);card._t0=Date.now();$("res").prepend(card);
+ try{
+  const res=await fetch($("url").value.replace(/\/$/,"")+"/prompt",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:w})});
+  const d=await res.json().catch(()=>({}));
+  if(res.ok){card.dataset.pid=d.prompt_id;if(!card.isConnected){cancelJob(d.prompt_id);return;}poll(d.prompt_id,$("url").value.replace(/\/$/,""),card);}else{card.remove();st.textContent="O ComfyUI recusou o workflow: "+(d.error&&d.error.message||res.status);}
+ }catch(e){card.remove();st.textContent="Não consegui falar com o ComfyUI. Confira se ele está aberto e foi iniciado com --enable-cors-header \"*\".";}
+}
+const VW=document.createElement("div");VW.id="viewer";VW.hidden=true;VW.setAttribute("role","dialog");VW.setAttribute("aria-modal","true");VW.setAttribute("aria-label","Imagem em tela cheia");
+const VI=document.createElement("img");VI.alt="Imagem gerada";VI.draggable=false;
+const ic=(n,s)=>'<iconify-icon icon="lucide:'+n+'" width="'+s+'" height="'+s+'"></iconify-icon>';
+const vb=(id,n,l)=>{const b=document.createElement("button");b.id=id;b.className="vbtn";b.type="button";b.innerHTML=ic(n,22);b.setAttribute("aria-label",l);b.title=l;return b;};
+const VX=vb("vx","x","Fechar"),VP=vb("vp","chevron-left","Imagem anterior"),VN=vb("vn","chevron-right","Próxima imagem");
+const VA=document.createElement("div");VA.className="vact";
+VW.append(VI,VX,VP,VN,VA);document.body.appendChild(VW);
+let VC=null,vk=1,vx=0,vy=0;const vpt=new Map();let vd=0,vmoved=0,vdist=0;
+function vlist(){return [...document.getElementById("res").querySelectorAll(".card")].filter(c=>c._u);}
+function vapply(){VI.style.transform="translate("+vx+"px,"+vy+"px) scale("+vk+")";}
+function vreset(){vk=1;vx=0;vy=0;vapply();}
+function vzoom(k2,px,py){k2=Math.min(8,Math.max(1,k2));vx=px-(px-vx)*(k2/vk);vy=py-(py-vy)*(k2/vk);vk=k2;if(vk===1){vx=0;vy=0;}vapply();}
+function vcenter(e){return [e.clientX-innerWidth/2,e.clientY-innerHeight/2];}
+async function copyPrompt(sn,btn,label){const s=sn&&sn.text||"";let ok=true;try{await navigator.clipboard.writeText(s);}catch(e){const t=document.createElement("textarea");t.value=s;t.style.position="fixed";t.style.opacity="0";document.body.appendChild(t);t.select();try{ok=document.execCommand("copy");}catch(e2){ok=false;}t.remove();}
+ if(btn){const old=btn.innerHTML;btn.innerHTML=(label?ic("check",16):'<iconify-icon icon="lucide:check" width="13" height="13"></iconify-icon>')+(ok?"Copiado":"Falhou");setTimeout(()=>{btn.innerHTML=old;},1400);}}
+function vbuild(){
+ VA.innerHTML="";const sn=VC._snap,card=VC;if(!sn)return;
+ const mk=(n,t,f)=>{const b=document.createElement("button");b.type="button";b.innerHTML=ic(n,16)+t;b.onclick=()=>{closeNow();f();};VA.appendChild(b);};
+ {const cb=document.createElement("button");cb.type="button";cb.innerHTML=ic("copy",16)+"Copiar prompt";cb.onclick=()=>copyPrompt(sn,cb,1);VA.appendChild(cb);}
+ if(sn.sp)mk("maximize-2","Upscale",()=>send({...sn,sp:""}));
+ const r=()=>Math.floor(Math.random()*9e15);
+ mk("dices","Variar",()=>send({...sn,s3:r(),s24:r(),s58:r()}));
+ mk("equal","Mesma seed",()=>send({...sn,neg:negGet(),lora:LORAS[LI].file,sb:$("sb").checked,dl:$("dl").checked,sbs:+$("sbs").value,dls:+$("dls").value}));
+}
+function vshow(card){
+ VC=card;vreset();VI.src=card._u;vbuild();
+ const l=vlist(),i=l.indexOf(card);VP.hidden=i<=0;VN.hidden=i<0||i>=l.length-1;
+}
+function vgo(d){if(!VC)return;const l=vlist(),i=l.indexOf(VC)+d;if(i>=0&&i<l.length)vshow(l[i]);}
+function openV(card){
+ const a=A();if(a)VW.style.opacity=0;
+ VW.hidden=false;document.body.style.overflow="hidden";vshow(card);
+ if(a){const go=()=>vflip(card,false,null);if(VI.complete&&VI.naturalWidth)go();else VI.addEventListener("load",go,{once:true});setTimeout(()=>{if(!VBUSY)VW.style.opacity="";},1500);}
+}
+function closeNow(){VBUSY=false;VW.style.opacity="";VW.hidden=true;VC=null;VI.removeAttribute("src");document.body.style.overflow="";VW.classList.remove("pan");vpt.clear();}
+let VBUSY=false;
+function vflip(card,rev,done){
+ const a=A(),src=card&&card.isConnected&&card.querySelector("img");
+ const r=src&&src.getBoundingClientRect(),f=VI.getBoundingClientRect();
+ if(!a||!r||vk!==1||vx||vy||!f.width||!r.width||r.bottom<0||r.top>innerHeight){VW.style.opacity="";if(done)done();return;}
+ const dx=r.left+r.width/2-(f.left+f.width/2),dy=r.top+r.height/2-(f.top+f.height/2),sc=r.width/f.width,o={p:rev?1:0};
+ VBUSY=true;
+ a.animate(o,{p:rev?0:1,duration:rev?260:380,ease:rev?"inQuad":"outExpo",onUpdate:()=>{const q=o.p;VI.style.transform="translate("+dx*(1-q)+"px,"+dy*(1-q)+"px) scale("+(sc+(1-sc)*q)+")";VW.style.opacity=q;},onComplete:()=>{VBUSY=false;VW.style.opacity="";vapply();if(done)done();}});
+}
+function closeV(){if(VW.hidden||VBUSY)return;vflip(VC,true,closeNow);}
+VX.onclick=closeV;VP.onclick=()=>vgo(-1);VN.onclick=()=>vgo(1);
+VW.addEventListener("wheel",e=>{e.preventDefault();const [px,py]=vcenter(e);vzoom(vk*Math.exp(-e.deltaY*0.002),px,py);},{passive:false});
+VI.ondblclick=e=>{const [px,py]=vcenter(e);if(vk>1)vzoom(1,0,0);else vzoom(2.5,px,py);};
+VW.addEventListener("pointerdown",e=>{if(e.target.closest(".vbtn,.vact"))return;vpt.set(e.pointerId,[e.clientX,e.clientY]);vmoved=0;
+ if(vpt.size===2){const p=[...vpt.values()];vdist=Math.hypot(p[0][0]-p[1][0],p[0][1]-p[1][1]);}
+ if(e.target===VI&&vk>1)VW.classList.add("pan");try{VW.setPointerCapture(e.pointerId);}catch(_){}});
+VW.addEventListener("pointermove",e=>{const o=vpt.get(e.pointerId);if(!o)return;
+ const dx=e.clientX-o[0],dy=e.clientY-o[1];vmoved+=Math.abs(dx)+Math.abs(dy);vpt.set(e.pointerId,[e.clientX,e.clientY]);
+ if(vpt.size===2){const p=[...vpt.values()],d=Math.hypot(p[0][0]-p[1][0],p[0][1]-p[1][1]);
+  if(vdist){vzoom(vk*d/vdist,(p[0][0]+p[1][0])/2-innerWidth/2,(p[0][1]+p[1][1])/2-innerHeight/2);}vdist=d;}
+ else if(vk>1){vx+=dx;vy+=dy;vapply();}});
+function vup(e){const had=vpt.delete(e.pointerId);VW.classList.remove("pan");vdist=0;
+ if(had&&e.type==="pointerup"&&e.target===VW&&vmoved<6&&vpt.size===0)closeV();}
+VW.addEventListener("pointerup",vup);VW.addEventListener("pointercancel",vup);
+document.addEventListener("keydown",e=>{if(VW.hidden)return;
+ if(e.key==="Escape")closeV();else if(e.key==="ArrowLeft")vgo(-1);else if(e.key==="ArrowRight")vgo(1);
+ else if(e.key==="+"||e.key==="=")vzoom(vk*1.3,0,0);else if(e.key==="-")vzoom(vk/1.3,0,0);else if(e.key==="0")vreset();});
+let HIST=[];try{HIST=JSON.parse(localStorage.getItem("hist_game")||"[]");}catch(e){}
+function saveH(){HIST=HIST.slice(0,60);try{localStorage.setItem("hist_game",JSON.stringify(HIST));}catch(e){}}
+const ANIM={on:false,ok:false,p:null};
+const ANIME_CDN="https://cdn.jsdelivr.net/npm/animejs@4.3.6/dist/bundles/anime.umd.min.js";
+function animLoad(){
+ if(window.anime){ANIM.ok=true;return Promise.resolve(true);}
+ if(!ANIM.p)ANIM.p=new Promise(res=>{const sc=document.createElement("script");sc.src=ANIME_CDN;sc.onload=()=>{ANIM.ok=!!window.anime;if(!ANIM.ok)ANIM.p=null;res(ANIM.ok);};sc.onerror=()=>{ANIM.p=null;res(false);};document.head.appendChild(sc);});
+ return ANIM.p;
+}
+const A=()=>ANIM.on&&ANIM.ok&&window.anime?window.anime:null;
+async function setAnim(on,save){
+ ANIM.on=on;$("anim").checked=on;
+ if(save)try{localStorage.setItem("anim",on?"1":"0");}catch(e){}
+ const n=$("animnote");
+ if(!on){n.textContent="Desligado. O anime.js não é carregado da internet.";return;}
+ n.textContent="Carregando o anime.js...";
+ const ok=await animLoad();
+ if(!ANIM.on)return;
+ n.textContent=ok?"Ligado.":"Sem conexão com o anime.js. O app funciona normal, só sem animações.";
+}
+function animIn(card,delay){const a=A();if(!a)return;a.animate(card,{opacity:[0,1],scale:[.92,1],translateY:[14,0],duration:520,delay:delay||0,ease:"outExpo",onComplete:()=>{card.style.transform="";card.style.opacity="";}});}
+function animRemove(card){
+ const a=A();if(!a||!card.parentNode)return null;
+ const sibs=[...card.parentNode.children].filter(c=>c!==card&&c.classList.contains("card"));
+ const before=sibs.map(c=>c.getBoundingClientRect()),r=card.getBoundingClientRect();
+ const gh=card.cloneNode(true);
+ Object.assign(gh.style,{position:"fixed",left:r.left+"px",top:r.top+"px",width:r.width+"px",height:r.height+"px",margin:"0",pointerEvents:"none",zIndex:"40",aspectRatio:"auto"});
+ document.body.appendChild(gh);
+ a.animate(gh,{opacity:[1,0],scale:[1,.85],duration:260,ease:"outQuad",onComplete:()=>gh.remove()});
+ return ()=>sibs.forEach((c,i)=>{const n=c.getBoundingClientRect(),dx=before[i].left-n.left,dy=before[i].top-n.top;if(dx||dy)a.animate(c,{translateX:[dx,0],translateY:[dy,0],duration:380,ease:"outExpo",onComplete:()=>{c.style.transform="";}});});
+}
+const cfg=$("cfg"),pop=$("pop");
+function popClose(){pop.hidden=true;cfg.setAttribute("aria-expanded","false");}
+cfg.onclick=e=>{e.stopPropagation();const o=pop.hidden;pop.hidden=!o;cfg.setAttribute("aria-expanded",String(o));};
+document.addEventListener("click",e=>{if(!pop.hidden&&!pop.contains(e.target))popClose();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!pop.hidden){popClose();cfg.focus();}});
+$("anim").onchange=()=>setAnim($("anim").checked,true);
+{let sa=null;try{sa=localStorage.getItem("anim");}catch(e){}setAnim(sa===null?!matchMedia("(prefers-reduced-motion: reduce)").matches:sa==="1",false);}
+let AC=null,SND=false,DONEIMG=false,LASTFIN=0;
+function beep(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume();[[660,0],[880,.16]].forEach(([f,d])=>{const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime+d;o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.15,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.28);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+.3);});}catch(e){}}
+try{SND=localStorage.getItem("snd_on")==="1";}catch(e){}
+$("snd").checked=SND;
+$("snd").onchange=()=>{SND=$("snd").checked;try{localStorage.setItem("snd_on",SND?"1":"0");}catch(e){}if(SND)beep();};
+let SENDING=0;
+function kick(){if(!SENDING&&DONEIMG&&!$("res").querySelector(".sk")){DONEIMG=false;if(SND)beep();}}
+new MutationObserver(kick).observe($("res"),{childList:true,subtree:true});
+const durKey=sp=>"dur_"+(sp||"full");
+function durAvg(sp){try{const a=JSON.parse(localStorage.getItem(durKey(sp))||"[]");return a.length?a.reduce((x,y)=>x+y,0)/a.length:0;}catch(e){return 0;}}
+function durAdd(sp,ms){try{const a=JSON.parse(localStorage.getItem(durKey(sp))||"[]");a.push(ms);localStorage.setItem(durKey(sp),JSON.stringify(a.slice(-8)));}catch(e){}}
+const fmtT=ms=>{const s=Math.round(ms/1000);return s<90?s+" s":Math.round(s/60)+" min";};
+function queueStatus(sp){const n=$("res").querySelectorAll(".sk").length;if(!n)return false;const a=durAvg(sp);$("st").textContent="Na fila: "+n+(n>1?" imagens":" imagem")+(a?". Estimativa: "+fmtT(a*n)+".":".");return true;}
+function imgDone(card){const sn=card._snap;if(!card._t0)return;const t=Date.now();if(sn)durAdd(sn.sp||"",t-Math.max(card._t0,LASTFIN));LASTFIN=t;DONEIMG=true;queueStatus(sn&&sn.sp);}
+document.addEventListener("keydown",e=>{if(e.code!=="Space"||e.repeat||!VW.hidden)return;const t=e.target,tg=t&&t.tagName;if(["INPUT","TEXTAREA","SELECT","BUTTON","SUMMARY","A"].includes(tg)||(t&&t.isContentEditable))return;e.preventDefault();$("gen").click();});
+function mkCard(snap){
+ const card=document.createElement("div");card.className="card";card._snap=snap;card.style.aspectRatio=(DIMS[snap.o]||DIMS.p).join("/");
+ const sk=document.createElement("div");sk.className="sk";sk.setAttribute("aria-hidden","true");
+ const xb=document.createElement("button");xb.className="x";xb.innerHTML='<iconify-icon icon="lucide:x" width="16" height="16"></iconify-icon>';xb.setAttribute("aria-label","Remover imagem");
+ xb.onclick=()=>{const pid=card.dataset.pid,busy=card.querySelector(".sk");const aft=animRemove(card);card.remove();if(aft)aft();if(card._id){HIST=HIST.filter(h=>h.id!==card._id);saveH();}if(busy&&pid)cancelJob(pid);};
+ card.append(sk,xb);if(snap.exp){const bd=document.createElement("span");bd.className="bd";bd.textContent=snap.exp;card.appendChild(bd);}return card;
+}
+function showImg(card,im){
+ const u=$("url").value.replace(/\/$/,"")+"/view?"+new URLSearchParams({filename:im.filename,subfolder:im.subfolder||"",type:im.type||"output"});
+ const a=document.createElement("a");a.href=u;card._u=u;a.onclick=e=>{e.preventDefault();openV(card);};const g=document.createElement("img");g.alt="Imagem gerada";a.appendChild(g);
+ g.onload=()=>{const k=card.querySelector(".sk");if(k)k.replaceWith(a);animIn(card,card._d);imgDone(card);const sn=card._snap;
+  if(sn&&sn.text&&!card.querySelector(".cp")){const c=document.createElement("button");c.className="up cp";c.type="button";c.innerHTML='<iconify-icon icon="lucide:copy" width="13" height="13"></iconify-icon>Prompt';c.title="Copiar o prompt desta imagem";c.onclick=e=>{e.stopPropagation();copyPrompt(sn,c);};card.appendChild(c);}
+  if(sn&&sn.sp&&!card.querySelector(".up")){const b=document.createElement("button");b.className="up";b.innerHTML='<iconify-icon icon="lucide:maximize-2" width="13" height="13"></iconify-icon>Upscale';b.title="Refazer esta mesma imagem com hires fix e tile upscale";b.onclick=()=>send({...sn,sp:""});card.appendChild(b);}};
+ g.onerror=()=>card.remove();
+ g.src=u;
+}
+HIST.forEach((h,i)=>{const c=mkCard(h.snap);c._id=h.id;c._d=Math.min(i,12)*50;$("res").appendChild(c);showImg(c,h.im);});
+$("clr").onclick=()=>{if(!confirm("Remover todas as imagens da tela?"))return;$("res").innerHTML="";HIST=[];saveH();};
+async function poll(id,base,card){
+ const st=$("st"),t0=Date.now();
+ st.textContent="Gerando...";
+ while(card.isConnected&&Date.now()-t0<600000){
+  try{
+   const h=await (await fetch(base+"/history/"+id)).json();
+   const o=h[id]&&h[id].outputs;
+   if(o){const im=((o["57"]||{}).images||[])[0]||Object.values(o).flatMap(x=>x.images||[]).pop();
+    if(im){card._id=Date.now()+Math.random();HIST.unshift({id:card._id,snap:card._snap,im:{filename:im.filename,subfolder:im.subfolder||"",type:im.type||"output"}});saveH();showImg(card,im);
+     if(card.isConnected)st.textContent="Pronto. Clique na imagem para abrir em tamanho real.";return;}
+    if(h[id].status&&h[id].status.status_str==="error"){card.remove();st.textContent="O ComfyUI terminou com erro. Veja o console dele.";return;}}
+  }catch(e){}
+  await new Promise(r=>setTimeout(r,1500));
+ }
+ if(card.isConnected){card.remove();st.textContent="Tempo esgotado esperando a imagem. Ela pode ainda aparecer no ComfyUI.";}
+}
+async function cancelJob(id){
+ const base=$("url").value.replace(/\/$/,""),H={"Content-Type":"application/json"};
+ try{
+  const q=await (await fetch(base+"/queue")).json();
+  const run=(q.queue_running||[]).some(x=>x[1]===id),pend=(q.queue_pending||[]).some(x=>x[1]===id);
+  if(run)await fetch(base+"/interrupt",{method:"POST",headers:H,body:JSON.stringify({prompt_id:id})});
+  else if(pend)await fetch(base+"/queue",{method:"POST",headers:H,body:JSON.stringify({delete:[id]})});
+  else return;
+  $("st").textContent="Geração cancelada.";
+ }catch(e){}
+}
+
+const EXP=[
+{k:"neutro",l:"Neutro",t:"calm expression, closed mouth"},
+{k:"feliz",l:"Feliz",t:"smile, open mouth, blush"},
+{k:"sorriso",l:"Sorriso leve",t:"gentle smile, closed mouth"},
+{k:"raiva",l:"Raiva",t:"angry, furrowed brow, v-shaped eyebrows, clenched teeth"},
+{k:"tristeza",l:"Tristeza",t:"sad, tears, closed mouth"},
+{k:"surpresa",l:"Surpresa",t:"surprised, open mouth, wide eyes"},
+{k:"vergonha",l:"Vergonha",t:"embarrassed, blush, parted lips"},
+{k:"determinacao",l:"Determinação",t:"determined expression, v-shaped eyebrows, closed mouth"}];
+const BG={white:"simple background, white background",grey:"simple background, grey background",dark:"simple background, dark background",gradient:"simple background, gradient background",parchment:"parchment, aged paper background",frame:"ornate frame, decorative border, ornate border, intricate pattern background"};
+const DEF=[
+{id:"c1",n:"Garota do quimono",g:"girl",t:"purple hair, very long hair, multicolored hair, hair flaps, sidelocks, orange eyes, freckles, grey eyelashes, very long eyelashes",c:"kimono, obi, ornate sash, hakama, hair ornament, garrison cap, earrings"},
+{id:"c2",n:"Protagonista",g:"boy",t:"black hair, short hair, messy hair, hair between eyes, sidelocks, blue eyes, thick eyebrows, scar on cheek",c:"high collar coat, open coat, white shirt, scarf, shoulder armor, pauldron, leather strap, brooch, fingerless gloves, earrings"}];
+let CH=DEF,SEL=0,CG="girl",LOCK=false,SEEDS=null;
+try{const x=JSON.parse(localStorage.getItem("chars")||"null");if(x&&x.length)CH=x;SEL=+localStorage.getItem("char_i")||0;}catch(e){}
+if(SEL>=CH.length||SEL<0)SEL=0;
+function saveC(){try{localStorage.setItem("chars",JSON.stringify(CH));localStorage.setItem("char_i",SEL);}catch(e){}}
+function setG(){document.querySelectorAll("#cg button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.g===CG)));}
+function renderC(){
+ const box=$("chars");box.innerHTML="";
+ CH.forEach((c,i)=>{const b=document.createElement("button");b.textContent=c.n;b.setAttribute("aria-pressed",String(i===SEL));b.onclick=()=>{SEL=i;renderC();saveC();};box.appendChild(b);});
+ const c=CH[SEL];$("cn").value=c.n;$("ct").value=c.t;$("cc").value=c.c;CG=c.g;setG();
+}
+document.querySelectorAll("#cg button").forEach(b=>b.onclick=()=>{CG=b.dataset.g;setG();});
+$("csave").onclick=()=>{CH[SEL]={...CH[SEL],n:$("cn").value.trim()||"Sem nome",g:CG,t:norm($("ct").value),c:norm($("cc").value)};saveC();renderC();$("st").textContent="Personagem salvo.";};
+$("cnew").onclick=()=>{CH.push({id:"c"+Date.now(),n:"Novo personagem",g:"girl",t:"",c:""});SEL=CH.length-1;saveC();renderC();$("ed").open=true;$("cn").focus();$("cn").select();};
+$("cdel").onclick=()=>{if(CH.length<2){$("st").textContent="Mantenha pelo menos um personagem.";return;}if(!confirm("Excluir o personagem "+CH[SEL].n+"?"))return;CH.splice(SEL,1);SEL=0;saveC();renderC();};
+renderC();
+function favList(){try{const a=JSON.parse(localStorage.getItem("favs")||"[]");return Array.isArray(a)?a:[];}catch(e){return[];}}
+function renderFI(){const L=favList(),s=$("fimp");s.innerHTML="";L.forEach((f,i)=>{const o=document.createElement("option");o.value=i;o.textContent=f.name;s.appendChild(o);});$("fiw").hidden=!L.length;$("finone").hidden=!!L.length;}
+$("fiok").onclick=()=>{const f=favList()[+$("fimp").value];if(!f)return;CH.push({id:"c"+Date.now(),n:f.name,g:f.g||"girl",t:(f.who||[]).join(", "),c:(f.cl||[]).join(", ")});SEL=CH.length-1;saveC();renderC();$("st").textContent="Importada do gerador: "+f.name+".";};
+renderFI();
+const SX=new Set(["neutro"]);
+function renderX(){
+ const box=$("exps");box.innerHTML="";
+ EXP.forEach(e=>{const b=document.createElement("button");b.textContent=e.l;b.setAttribute("aria-pressed",String(SX.has(e.k)));b.onclick=()=>{SX.has(e.k)?SX.delete(e.k):SX.add(e.k);renderX();};box.appendChild(b);});
+ const all=SX.size===EXP.length,a=document.createElement("button");
+ a.innerHTML='<iconify-icon icon="lucide:check-check" width="16" height="16" style="vertical-align:-3px;margin-right:6px"></iconify-icon>'+(all?"Limpar":"Todas");a.setAttribute("aria-pressed","false");
+ a.onclick=()=>{if(all)SX.clear();else EXP.forEach(e=>SX.add(e.k));renderX();};box.appendChild(a);
+}
+renderX();
+function build(e){
+ const c=CH[SEL],g=c.g==="girl"?"1girl":"1boy";
+ const who=[g,"solo",$("cam").value,$("view").value,"looking at viewer",e.t,norm(c.t)].filter(Boolean).join(", ");
+ const dress=[norm(c.c),norm($("extra").value)].filter(Boolean).join(", ");
+ const scene=[BG[$("bg").value],"soft lighting","rim light","serene composition"].join(", ");
+ return [Q,"",who+",",...(dress?["",dress+","]:[]),"",scene].join("\n");
+}
+document.querySelectorAll(".spd button").forEach(b=>b.onclick=()=>{$("speed").value=b.dataset.v;document.querySelectorAll(".spd button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));});
+document.querySelectorAll(".fmt button").forEach(b=>b.onclick=()=>{$("fmt").value=b.dataset.v;document.querySelectorAll(".fmt button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));});
+$("lock").onclick=()=>{LOCK=!LOCK;$("lock").setAttribute("aria-pressed",String(LOCK));$("lockic").setAttribute("icon",LOCK?"lucide:lock":"lucide:lock-open");if(!LOCK)SEEDS=null;};
+$("gen").onclick=async()=>{
+ const list=EXP.filter(e=>SX.has(e.k));
+ if(!list.length){$("st").textContent="Marque pelo menos uma expressão.";return;}
+ if(!LOCK||!SEEDS)SEEDS={s3:rs(),s24:rs(),s58:rs()};
+ const sp=$("speed").value,o=$("fmt").value,prompts=list.map(e=>build(e));
+ $("ptxt").value=prompts.join("\n\n---\n\n");
+ $("gen").disabled=true;SENDING++;
+ for(let i=list.length-1;i>=0;i--){await send({neg:negGet(),dl:$("dl").checked,sbs:+$("sbs").value,dls:+$("dls").value,text:prompts[i],lora:LORAS[LI].file,sb:$("sb").checked,steps:sp?26:WF["3"].inputs.steps,...SEEDS,sp,o,exp:list[i].l});}
+ SENDING--;queueStatus(sp);kick();$("gen").disabled=false;
+};
+</script>
+</body>
+</html>
