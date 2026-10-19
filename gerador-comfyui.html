@@ -117,6 +117,12 @@ select:disabled{opacity:.5}
 .vact{position:absolute;z-index:2;bottom:16px;left:50%;transform:translateX(-50%);display:flex;flex-wrap:wrap;justify-content:center;gap:8px;width:max-content;max-width:calc(100vw - 24px)}
 .vact button{display:flex;align-items:center;gap:6px;padding:10px 16px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(10,10,14,.88);color:#fff;font:700 14px system-ui,sans-serif;cursor:pointer;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,.45)}
 .vact button:hover{background:#000;border-color:#fff}
+.vinfo{position:absolute;z-index:2;top:16px;left:16px;right:72px;display:flex;flex-wrap:wrap;gap:6px;pointer-events:none}
+.vinfo[hidden]{display:none}
+.vinfo span{display:inline-flex;align-items:baseline;gap:6px;max-width:100%;padding:5px 11px;border-radius:999px;background:rgba(10,10,14,.82);border:1px solid rgba(255,255,255,.22);color:#fff;font:600 13px system-ui,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+.vinfo span b{font-weight:800;color:#ffb36b;font-variant-numeric:tabular-nums}
+.vinfo span.old{border-style:dashed;opacity:.8}
+.vinfo span.none{color:#ddd;font-weight:500}
 .card a{cursor:zoom-in}
 @media (max-width:859px){
 .app{display:block}
@@ -495,7 +501,8 @@ const ic=(n,s)=>'<iconify-icon icon="lucide:'+n+'" width="'+s+'" height="'+s+'">
 const vb=(id,n,l)=>{const b=document.createElement("button");b.id=id;b.className="vbtn";b.type="button";b.innerHTML=ic(n,22);b.setAttribute("aria-label",l);b.title=l;return b;};
 const VX=vb("vx","x","Fechar"),VP=vb("vp","chevron-left","Imagem anterior"),VN=vb("vn","chevron-right","Próxima imagem");
 const VA=document.createElement("div");VA.className="vact";
-VW.append(VI,VX,VP,VN,VA);document.body.appendChild(VW);
+const VIN=document.createElement("div");VIN.className="vinfo";VIN.setAttribute("aria-label","LoRAs desta imagem");VIN.hidden=true;
+VW.append(VI,VX,VP,VN,VA,VIN);document.body.appendChild(VW);
 let VC=null,vk=1,vx=0,vy=0;const vpt=new Map();let vd=0,vmoved=0,vdist=0;
 function vlist(){return [...document.getElementById("res").querySelectorAll(".card")].filter(c=>c._u);}
 function vapply(){VI.style.transform="translate("+vx+"px,"+vy+"px) scale("+vk+")";}
@@ -504,6 +511,19 @@ function vzoom(k2,px,py){k2=Math.min(8,Math.max(1,k2));vx=px-(px-vx)*(k2/vk);vy=
 function vcenter(e){return [e.clientX-innerWidth/2,e.clientY-innerHeight/2];}
 async function copyPrompt(sn,btn,label){const s=sn&&sn.text||"";let ok=true;try{await navigator.clipboard.writeText(s);}catch(e){const t=document.createElement("textarea");t.value=s;t.style.position="fixed";t.style.opacity="0";document.body.appendChild(t);t.select();try{ok=document.execCommand("copy");}catch(e2){ok=false;}t.remove();}
  if(btn){const old=btn.innerHTML;btn.innerHTML=(label?ic("check",16):'<iconify-icon icon="lucide:check" width="13" height="13"></iconify-icon>')+(ok?"Copiado":"Falhou");setTimeout(()=>{btn.innerHTML=old;},1400);}}
+function vinfo(sn){
+ VIN.innerHTML="";
+ if(!sn||(!Array.isArray(sn.ul)&&!sn.lora)){VIN.hidden=true;return;}
+ VIN.hidden=false;
+ const L=[];if(sn.lora)L.push({f:sn.lora,s:1,old:true});(sn.ul||[]).forEach(u=>L.push({f:u.f,s:+u.s}));
+ if(!L.length){const e=document.createElement("span");e.className="none";e.textContent="Sem LoRAs nesta imagem";VIN.appendChild(e);return;}
+ L.forEach(u=>{const e=document.createElement("span");if(u.old)e.className="old";e.title=u.f+(u.old?" (fixo antigo)":"");e.append(ulName(u.f));const b=document.createElement("b");b.textContent=(+u.s).toFixed(2);e.appendChild(b);VIN.appendChild(e);});
+}
+function ulUse(list){
+ const L=(list||[]).map(u=>({f:u.f,on:true,s:+u.s,tags:(u.tags||[]).map(x=>({t:x.t,p:x.p||"st"})),sug:null}));
+ UL.splice(0,UL.length,...L);ulSave();ulRender();if(typeof ulChar==="function")ulChar();
+ UL.forEach(u=>{if(!u.sug)ulLoadMeta(u);});
+}
 function vbuild(){
  VA.innerHTML="";const sn=VC._snap,card=VC;if(!sn)return;
  const fb=document.createElement("button");fb.type="button";
@@ -511,13 +531,14 @@ function vbuild(){
  fb.onclick=async()=>{await toggleFav(card);if(VC===card)vbuild();};VA.appendChild(fb);
  const mk=(n,t,f)=>{const b=document.createElement("button");b.type="button";b.innerHTML=ic(n,16)+t;b.onclick=()=>{closeNow();f();};VA.appendChild(b);};
  {const cb=document.createElement("button");cb.type="button";cb.innerHTML=ic("copy",16)+"Copiar prompt";cb.onclick=()=>copyPrompt(sn,cb,1);VA.appendChild(cb);}
+ if(Array.isArray(sn.ul)&&sn.ul.length)mk("layers","Usar estes LoRAs",()=>ulUse(sn.ul));
  if(sn.sp)mk("maximize-2","Upscale",()=>send({...sn,sp:""}));
  const r=()=>Math.floor(Math.random()*9e15);
  mk("dices","Variar",()=>send({...sn,s3:r(),s24:r(),s58:r()}));
  mk("equal","Mesma seed",()=>{const ul=ulPack();send({...sn,text:ulInject(sn.text,ul),ul,neg:negGet(),lora:undefined,sb:undefined,dl:undefined,ck:CK});});
 }
 function vshow(card){
- VC=card;vreset();VI.src=card._u;vbuild();
+ VC=card;vreset();VI.src=card._u;vbuild();vinfo(card._snap);
  const l=vlist(),i=l.indexOf(card);VP.hidden=i<=0;VN.hidden=i<0||i>=l.length-1;
 }
 function vgo(d){if(!VC)return;const l=vlist(),i=l.indexOf(VC)+d;if(i>=0&&i<l.length)vshow(l[i]);}

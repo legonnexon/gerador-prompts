@@ -21,9 +21,10 @@
   - LoRA ausente na lista: só alerta amarelo, "Verificar de novo" e ×; não é enviado; volta ao normal se o arquivo reaparecer.
   - Imagens antigas (Variar/Upscale) também são verificadas; o aviso sugere Mesma seed.
 - Checkpoint: linha "Modelo" no topo da seção LoRAs com Trocar e Voltar ao padrão; seletor com busca e "Usados recentemente"; salvo e compartilhado entre as páginas; cada imagem guarda o modelo usado. Visual em teste.
+- Visualizador mostra os LoRAs e forças de cada imagem (faixa no topo); "Usar estes LoRAs" substitui a lista atual pela mistura daquela imagem.
 
 ## Ideias para depois
 - Etiqueta de tipo do LoRA (personagem, estilo, detalhe...) por palpite: descartado por enquanto.
 - Buscar as palavras-gatilho no Civitai pelo hash do arquivo.
 - Mostrar no chip do personagem (jogo) quando ele tem LoRA.
-- Misturas de LoRAs salvas com nome; comparar forças lado a lado; mostrar os LoRAs de cada imagem no visualizador (com "Usar estes LoRAs"); backup das configurações em arquivo.
+- Misturas de LoRAs salvas com nome; comparar forças lado a lado; backup das configurações em arquivo.
