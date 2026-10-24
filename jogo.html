@@ -179,6 +179,15 @@ input[type=range]{width:100%;accent-color:var(--or);margin:2px 0 10px}
 .ulo small{color:var(--mut,inherit);font-size:11px}
 .ulo:hover:not(:disabled){border-color:var(--or)}
 .ulo:disabled{opacity:.55;cursor:default}
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:110px;padding:12px;border:2px dashed var(--line);border-radius:12px;background:var(--raise);color:var(--mut);font-size:13px;text-align:center;cursor:pointer}
+.drop:hover,.drop.over{border-color:var(--or);color:var(--fg)}
+.drop.over{background:var(--tint)}
+.drop:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.drop img{max-width:100%;max-height:180px;border-radius:8px}
+#shdropt{display:flex;flex-direction:column;align-items:center;gap:6px}
+.shb{display:grid;gap:8px;margin-top:14px}
+.ulb:disabled{opacity:.5;cursor:default;background:none}
+.card.wide{grid-column:span 2}
 .lrx:focus-visible,.tgc button:focus-visible,.sgb:focus-visible,.ulb:focus-visible,.ulo:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
 .lrm{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border:0;border-radius:8px;background:none;color:var(--mut);cursor:pointer}
 .lrm:hover{background:var(--line)}
@@ -273,6 +282,15 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 </div>
 </details>
 </div></details>
+<details id="shd"><summary><iconify-icon icon="lucide:person-standing" width="18" height="18"></iconify-icon>Character sheet (3D)<iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
+<label class="drop" id="shdrop" tabindex="0"><input type="file" id="shfile" accept="image/*" hidden><img id="shimg" alt="Imagem de referência" hidden><span id="shdropt"><iconify-icon icon="lucide:image-up" width="26" height="26"></iconify-icon>Solte aqui a imagem da personagem, cole com Ctrl+V ou clique para escolher</span></label>
+<p class="hint" id="shst" role="status">Usa o Flux 2 Klein 4B: ele olha a imagem e redesenha a mesma personagem nas vistas pedidas.</p>
+<div class="fld" style="margin-top:12px"><label for="shtxt">Instrução</label><textarea id="shtxt" rows="3" spellcheck="false"></textarea></div>
+<div class="duo"><div class="fld"><label for="shpre">Modelos de instrução</label><select id="shpre"><option value="">Escolher...</option><option value="body">Corpo: frente, costas e lado</option><option value="tpose">Corpo em pose T</option><option value="face">Rosto: frente e perfil</option></select></div>
+<div class="fld"><label for="shfmt">Formato</label><select id="shfmt"><option value="img">Igual à imagem</option><option value="w">Largo (16:9)</option></select></div></div>
+<div class="shb"><button class="ulb" id="shgo" type="button" disabled><iconify-icon icon="lucide:person-standing" width="16" height="16"></iconify-icon>Gerar character sheet</button></div>
+<p class="hint">Os LoRAs, o estilo e o negativo do app não valem aqui: o Flux usa só a imagem e a instrução. A seed segue o cadeado da seção Saída.</p>
+</div></details>
 <details open><summary><iconify-icon icon="lucide:smile" width="18" height="18"></iconify-icon>Expressões<iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
 <span class="lb" id="exl">Uma imagem por expressão marcada</span>
 <div class="chips" id="exps" role="group" aria-labelledby="exl"></div>
@@ -365,7 +383,7 @@ try{const sv=localStorage.getItem("neg");n.value=sv!==null?sv:NEG0;}catch(e){n.v
 n.addEventListener("input",()=>{try{localStorage.setItem("neg",n.value);}catch(e){}});
 g("negr").onclick=()=>{n.value=NEG0;try{localStorage.removeItem("neg");}catch(e){}};})();
 const $=id=>document.getElementById(id);
-const DIMS={p:[832,1216],l:[1216,832],s:[1024,1024]};
+const DIMS={p:[832,1216],l:[1216,832],s:[1024,1024],w:[1536,768]};
 const norm=t=>(t||"").split(",").map(x=>x.trim()).filter(Boolean).join(", ");
 const rs=()=>Math.floor(Math.random()*9e15);
 try{const u=localStorage.getItem("cfy_url");if(u)$("url").value=u;}catch(e){}
@@ -409,6 +427,7 @@ function vbuild(){
  VA.innerHTML="";const sn=VC._snap,card=VC;if(!sn)return;
  const mk=(n,t,f)=>{const b=document.createElement("button");b.type="button";b.innerHTML=ic(n,16)+t;b.onclick=()=>{closeNow();f();};VA.appendChild(b);};
  {const cb=document.createElement("button");cb.type="button";cb.innerHTML=ic("copy",16)+"Copiar prompt";cb.onclick=()=>copyPrompt(sn,cb,1);VA.appendChild(cb);}
+ if(sn.flux){mk("dices","Variar",()=>shSend({...sn,seed:Math.floor(Math.random()*9e15)}));return;}
  if(sn.sp)mk("maximize-2","Upscale",()=>send({...sn,sp:""}));
  const r=()=>Math.floor(Math.random()*9e15);
  mk("dices","Variar",()=>send({...sn,s3:r(),s24:r(),s58:r()}));
@@ -788,7 +807,7 @@ ckRender();
 if(UL.length||CK!==CK_DEF)setTimeout(()=>{fxLists(true).then(ok=>{if(ok)fxApply();});},700);
 
 function mkCard(snap){
- const card=document.createElement("div");card.className="card";card._snap=snap;card.style.aspectRatio=(DIMS[snap.o]||DIMS.p).join("/");
+ const card=document.createElement("div");card.className="card"+(snap.o==="w"?" wide":"");card._snap=snap;card.style.aspectRatio=snap.ar||(DIMS[snap.o]||DIMS.p).join("/");
  const sk=document.createElement("div");sk.className="sk";sk.setAttribute("aria-hidden","true");
  const xb=document.createElement("button");xb.className="x";xb.innerHTML='<iconify-icon icon="lucide:x" width="16" height="16"></iconify-icon>';xb.setAttribute("aria-label","Remover imagem");
  xb.onclick=()=>{const pid=card.dataset.pid,busy=card.querySelector(".sk");const aft=animRemove(card);card.remove();if(aft)aft();if(card._id){HIST=HIST.filter(h=>h.id!==card._id);saveH();}if(busy&&pid)cancelJob(pid);};
@@ -896,6 +915,81 @@ $("gen").onclick=async()=>{
  for(let i=list.length-1;i>=0;i--){if(await send({ul:ULP,ck:CK,neg:negGet(),text:prompts[i],steps:sp?26:WF["3"].inputs.steps,...SEEDS,sp,o,exp:list[i].l})===false)break;}
  SENDING--;queueStatus(sp);kick();$("gen").disabled=false;
 };
+
+/* ---- Character sheet com Flux 2 Klein 4B (redesenha a partir da própria imagem) ---- */
+// Workflow "Flux 2 Klein 4B" do usuário. A imagem entra no 339, a instrução no 6 e a seed no 359:357.
+const FLUX={"6":{"inputs":{"text":"","clip":["341",0]},"class_type":"CLIPTextEncode","_meta":{"title":"CLIP Text Encode (Positive Prompt)"}},"8":{"inputs":{"samples":["359:358",0],"vae":["343",0]},"class_type":"VAEDecode","_meta":{"title":"VAE Decodificar"}},"307":{"inputs":{"conditioning":["6",0]},"class_type":"ConditioningZeroOut","_meta":{"title":"CondicionamentoZerar"}},"318":{"inputs":{"upscale_method":"lanczos","megapixels":1,"resolution_steps":1,"image":["339",0]},"class_type":"ImageScaleToTotalPixels","_meta":{"title":"Redimensionar Imagem para Total de Pixels"}},"339":{"inputs":{"image":"Illustrious_00118_.png"},"class_type":"LoadImage","_meta":{"title":"Carregar Imagem"}},"340":{"inputs":{"unet_name":"flux-2-klein-4b-fp8.safetensors","weight_dtype":"default"},"class_type":"UNETLoader","_meta":{"title":"Carregar Modelo de Difusão"}},"341":{"inputs":{"clip_name":"qwen3_4b_fp8_scaled.safetensors","type":"flux2","device":"default"},"class_type":"CLIPLoader","_meta":{"title":"Carregar CLIP"}},"343":{"inputs":{"vae_name":"flux2-vae.safetensors"},"class_type":"VAELoader","_meta":{"title":"Carregar VAE"}},"344":{"inputs":{"filename_prefix":"Simplesmente IA/flux-2-klein","images":["8",0]},"class_type":"SaveImage","_meta":{"title":"Salvar Imagem"}},"320:76":{"inputs":{"conditioning":["307",0],"latent":["320:78",0]},"class_type":"ReferenceLatent","_meta":{"title":"ReferenceLatent"}},"320:77":{"inputs":{"conditioning":["6",0],"latent":["320:78",0]},"class_type":"ReferenceLatent","_meta":{"title":"ReferenceLatent"}},"320:78":{"inputs":{"pixels":["318",0],"vae":["343",0]},"class_type":"VAEEncode","_meta":{"title":"VAE Codificar"}},"359:354":{"inputs":{"cfg":1,"model":["340",0],"positive":["320:77",0],"negative":["320:76",0]},"class_type":"CFGGuider","_meta":{"title":"CFGGuider"}},"359:357":{"inputs":{"noise_seed":98491897113369},"class_type":"RandomNoise","_meta":{"title":"Ruído Aleatório"}},"359:353":{"inputs":{"width":["359:326",0],"height":["359:326",1],"batch_size":1},"class_type":"EmptyFlux2LatentImage","_meta":{"title":"Empty Flux 2 Latent"}},"359:355":{"inputs":{"steps":8,"width":["359:326",0],"height":["359:326",1]},"class_type":"Flux2Scheduler","_meta":{"title":"Flux2Scheduler"}},"359:326":{"inputs":{"image":["318",0]},"class_type":"GetImageSize","_meta":{"title":"Obter Tamanho da Imagem"}},"359:358":{"inputs":{"noise":["359:357",0],"guider":["359:354",0],"sampler":["359:356",0],"sigmas":["359:355",0],"latent_image":["359:353",0]},"class_type":"SamplerCustomAdvanced","_meta":{"title":"SamplerCustomAdvanced"}},"359:356":{"inputs":{"sampler_name":"euler"},"class_type":"KSamplerSelect","_meta":{"title":"KSamplerSelect"}}};
+const SH_PRE={
+ body:"show character in front, back and side view. full body shot on white background",
+ tpose:"show character in front, back and side view, standing in a T-pose. full body shot on white background",
+ face:"show character face in front view and side profile view. close-up head shot on white background"};
+const SH_W=[1536,864];
+let SH_BLOB=null,SH_UP="",SH_AR=1;
+try{$("shtxt").value=localStorage.getItem("sh_txt")||SH_PRE.body;}catch(e){$("shtxt").value=SH_PRE.body;}
+try{const f=localStorage.getItem("sh_fmt");if(f)$("shfmt").value=f;}catch(e){}
+$("shtxt").oninput=()=>{try{localStorage.setItem("sh_txt",$("shtxt").value);}catch(e){}};
+$("shfmt").onchange=()=>{try{localStorage.setItem("sh_fmt",$("shfmt").value);}catch(e){}};
+$("shpre").onchange=()=>{const v=$("shpre").value;if(SH_PRE[v]){$("shtxt").value=SH_PRE[v];$("shtxt").oninput();}$("shpre").value="";};
+function shSet(blob){
+ if(!blob||!/^image\//.test(blob.type))return false;
+ SH_BLOB=blob;SH_UP="";const im=$("shimg");if(im.src.startsWith("blob:"))URL.revokeObjectURL(im.src);
+ im.onload=()=>{SH_AR=im.naturalWidth/im.naturalHeight||1;};im.src=URL.createObjectURL(blob);im.hidden=false;
+ $("shdropt").textContent="Clique para trocar a imagem";$("shgo").disabled=false;$("shd").open=true;
+ $("shst").textContent="Imagem pronta. Ajuste a instrução se quiser e gere a folha.";return true;
+}
+async function shDropped(dt){
+ const f=[...(dt.files||[])].find(x=>/^image\//.test(x.type));
+ if(f){shSet(f);return;}
+ // Imagem arrastada direto da galeria do gerador (outra aba): chega como link do ComfyUI.
+ const u=(dt.getData("text/uri-list")||dt.getData("text/plain")||"").split(/\s/)[0];
+ if(!/^https?:\/\//.test(u))return;
+ try{const r=await fetch(u);if(!r.ok)throw 0;shSet(await r.blob());}
+ catch(e){$("shst").textContent="Não consegui baixar essa imagem. Salve o arquivo e solte aqui.";}
+}
+$("shfile").onchange=()=>{shSet($("shfile").files[0]);$("shfile").value="";};
+$("shdrop").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("shfile").click();}};
+const shOk=e=>e.dataTransfer&&[...e.dataTransfer.types].some(t=>t==="Files"||t==="text/uri-list");
+addEventListener("dragover",e=>{if(!shOk(e))return;e.preventDefault();$("shdrop").classList.add("over");});
+addEventListener("dragleave",e=>{if(!e.relatedTarget)$("shdrop").classList.remove("over");});
+addEventListener("drop",e=>{if(!shOk(e))return;e.preventDefault();$("shdrop").classList.remove("over");shDropped(e.dataTransfer);});
+document.addEventListener("paste",e=>{const f=[...((e.clipboardData&&e.clipboardData.files)||[])].find(x=>/^image\//.test(x.type));if(f&&shSet(f))e.preventDefault();});
+function shErr(d){const ne=d&&d.node_errors?Object.values(d.node_errors).flatMap(n=>(n.errors||[]).map(x=>x.details||x.message)).filter(Boolean):[];return [(d&&d.error&&d.error.message)||"",...ne].filter(Boolean).join(" · ")||"erro desconhecido";}
+async function shSend(snap){
+ const w=JSON.parse(JSON.stringify(FLUX)),st=$("st"),b=ulBase();
+ w["339"].inputs.image=snap.ref;w["6"].inputs.text=snap.text;w["359:357"].inputs.noise_seed=snap.seed;
+ if(snap.wide)["359:353","359:355"].forEach(k=>{w[k].inputs.width=SH_W[0];w[k].inputs.height=SH_W[1];});
+ st.textContent="Enviando...";const card=mkCard(snap);card._t0=Date.now();$("res").prepend(card);SENDING++;
+ try{
+  const res=await fetch(b+"/prompt",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:w})});
+  const d=await res.json().catch(()=>({}));
+  if(res.ok){card.dataset.pid=d.prompt_id;if(!card.isConnected){cancelJob(d.prompt_id);return;}poll(d.prompt_id,b,card);}
+  else{card.remove();st.textContent="O ComfyUI recusou o workflow do Flux: "+shErr(d);}
+ }catch(e){card.remove();st.textContent="Não consegui falar com o ComfyUI. Confira se ele está aberto e foi iniciado com --enable-cors-header \"*\".";}
+ finally{SENDING--;}
+ queueStatus();kick();
+}
+async function shGen(){
+ const text=$("shtxt").value.trim();
+ if(!SH_BLOB){$("shst").textContent="Solte uma imagem da personagem primeiro.";return;}
+ if(!text){$("shst").textContent="Escreva a instrução para o Flux.";return;}
+ const btn=$("shgo");btn.disabled=true;
+ try{
+  // A imagem sobe uma vez só; as próximas folhas da mesma imagem reaproveitam o arquivo no ComfyUI.
+  if(!SH_UP){
+   $("shst").textContent="Enviando a imagem ao ComfyUI...";
+   const ext=(SH_BLOB.type.split("/")[1]||"png").replace("jpeg","jpg"),fd=new FormData();
+   fd.append("image",SH_BLOB,"ref_"+Date.now()+"."+ext);fd.append("subfolder","jogo-ref");fd.append("type","input");fd.append("overwrite","true");
+   const up=await fetch(ulBase()+"/upload/image",{method:"POST",body:fd});if(!up.ok)throw new Error("upload "+up.status);
+   const u=await up.json();SH_UP=(u.subfolder?u.subfolder+"/":"")+u.name;
+  }
+ }catch(e){$("shst").textContent="Não consegui enviar a imagem ao ComfyUI. Confira se ele está aberto.";btn.disabled=false;return;}
+ btn.disabled=false;$("shst").textContent="Folha na fila. Ela aparece na galeria ao lado.";
+ if(!LOCK||!SEEDS)SEEDS={s3:rs(),s24:rs(),s58:rs()};
+ const wide=$("shfmt").value==="w",ar=wide?SH_W[0]/SH_W[1]:SH_AR;
+ $("ptxt").value=text;
+ await shSend({flux:true,text,ref:SH_UP,seed:SEEDS.s3,wide,ar:wide?SH_W.join("/"):String(ar),o:ar>1.3?"w":"p",exp:"Character sheet"});
+}
+$("shgo").onclick=shGen;
 </script>
 </body>
 </html>

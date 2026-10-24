@@ -62,6 +62,12 @@ select:disabled{opacity:.5}
 #out{display:none;margin-bottom:18px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
 .ohead{display:flex;align-items:center;gap:10px}
 #theme{margin:0;flex:1;color:var(--mut);font-size:14px}
+.seedr{display:flex;gap:6px}
+#seed{flex:1;min-width:0;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--raise);color:var(--fg);font:14px ui-monospace,Consolas,monospace}
+#seed:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+#seed[aria-invalid="true"]{border-color:#dc2626}
+.fixb{padding:1px 8px;border-radius:999px;background:var(--tint);color:var(--or2);font-size:11px;font-weight:700}
+.fixb[hidden]{display:none}
 .ibtn{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:var(--raise);color:var(--fg);cursor:pointer}
 .ibtn[aria-pressed="true"]{border-color:var(--or);color:var(--or2)}
 #txt{display:block;width:100%;min-height:240px;margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);font:14px/1.6 ui-monospace,Consolas,monospace;resize:vertical}
@@ -103,7 +109,16 @@ select:disabled{opacity:.5}
 .x:focus-visible{outline:2px solid #fff;outline-offset:1px}
 @keyframes sh{from{background-position:200% 0}to{background-position:-200% 0}}
 @keyframes fi{from{opacity:0}to{opacity:1}}
-@media (prefers-reduced-motion:reduce){.sk{animation:none}#res img{animation:none}}
+.pv{position:absolute;inset:0;z-index:1;width:100%;height:100%!important;object-fit:cover;border-radius:0!important}
+.pgw{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:22px 10px 10px;background:linear-gradient(transparent,rgba(0,0,0,.7));color:#fff;font:600 12px/1.2 system-ui,sans-serif;pointer-events:none}
+.pgl{display:flex;justify-content:space-between;gap:8px;margin-bottom:6px;text-shadow:0 1px 2px rgba(0,0,0,.7)}
+.pgl span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pgl b{flex:none;font-variant-numeric:tabular-nums}
+.pgb{height:5px;border-radius:99px;background:rgba(255,255,255,.25);overflow:hidden}
+.pgb i{display:block;height:100%;width:0;border-radius:99px;background:var(--or);transition:width .25s}
+.pgb.ind i{width:30%;animation:pgi 1.2s ease-in-out infinite}
+@keyframes pgi{from{transform:translateX(-100%)}to{transform:translateX(340%)}}
+@media (prefers-reduced-motion:reduce){.sk{animation:none}#res img{animation:none}.pgb.ind i{animation:none;width:100%;opacity:.5}}
 #res img{display:block;width:100%;border-radius:10px;animation:fi .4s}
 #viewer{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.94);overflow:hidden;touch-action:none}
 #viewer[hidden]{display:none}
@@ -163,6 +178,13 @@ input[type=range]{width:100%;accent-color:var(--or);margin:2px 0 10px}
 .sgb:hover{background:var(--tint)}
 .ulb{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px 12px;border:1px dashed var(--or);border-radius:10px;background:none;color:var(--or2);font:inherit;font-weight:700;font-size:14px;cursor:pointer}
 .ulb:hover,.ulb[aria-expanded="true"]{background:var(--tint)}
+.ulb:disabled{opacity:.5;cursor:default;background:none}
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:120px;padding:12px;border:2px dashed var(--line);border-radius:12px;background:var(--raise);color:var(--mut);font-size:13px;text-align:center;cursor:pointer}
+.drop:hover,.drop.over{border-color:var(--or);color:var(--fg)}
+.drop.over{background:var(--tint)}
+.drop:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.drop img{max-width:100%;max-height:220px;border-radius:8px}
+#tdropt{display:flex;flex-direction:column;align-items:center;gap:6px}
 #ulpick{margin-top:8px;border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--raise)}
 #ulq{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--fg);font-size:14px}
 #ulres{display:flex;flex-direction:column;gap:4px;max-height:260px;overflow:auto}
@@ -257,6 +279,15 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 <div class="fld" style="margin-top:12px"><label for="frame">Enquadramento</label><select id="frame"><option value="">Sorteio</option><option value="portrait">Retrato (portrait)</option><option value="upper">Retrato (upper body)</option><option value="both">Retrato (portrait + upper body)</option><option value="cowboy">Cowboy shot</option><option value="full">Corpo inteiro</option><option value="bg">Só o fundo (sem personagem)</option></select></div>
 <label class="ck"><input type="checkbox" id="match" checked>Roupa combinando com o cenário</label>
 </div></details>
+<details id="tagd"><summary><iconify-icon icon="lucide:scan-search" width="18" height="18"></iconify-icon>Imagem → tags<iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
+<label class="drop" id="tdrop" tabindex="0"><input type="file" id="tfile" accept="image/*" hidden><img id="timg" alt="Imagem escolhida" hidden><span id="tdropt"><iconify-icon icon="lucide:image-up" width="26" height="26"></iconify-icon>Solte uma imagem aqui, cole com Ctrl+V ou clique para escolher</span></label>
+<div class="sl"><label class="lb" for="tthr">Sensibilidade</label><output id="tthro" for="tthr">0.35</output></div>
+<input type="range" id="tthr" min="0.2" max="0.8" step="0.05" value="0.35">
+<p class="hint" style="margin-top:0">Mais baixo: mais tags (algumas erradas). Mais alto: só as que o modelo tem certeza.</p>
+<div class="fld" style="margin-top:12px"><label for="tmod">Modelo do tagger</label><select id="tmod"><option value="">Padrão do node</option></select></div>
+<button id="tgo" class="ulb" type="button" style="margin-top:12px" disabled><iconify-icon icon="lucide:scan-search" width="16" height="16"></iconify-icon>Extrair tags</button>
+<p class="hint" id="tst" role="status"></p>
+</div></details>
 <details open><summary><iconify-icon icon="lucide:layers" width="18" height="18"></iconify-icon>LoRAs<iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
 <div class="ckw">
 <div class="ckr" id="ckr"></div>
@@ -298,8 +329,14 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 <button data-q="6" aria-pressed="false" title="Gerar 6 imagens, cada uma com um prompt sorteado diferente">6</button>
 <button data-q="12" aria-pressed="false" title="Gerar 12 imagens, cada uma com um prompt sorteado diferente">12</button>
 </div>
-<label class="ck"><input type="checkbox" id="keep">Manter a seed da última imagem</label>
 <label class="ck"><input type="checkbox" id="auto">Enviar ao ComfyUI ao clicar em GENERATE</label>
+</div></details>
+<details id="advd"><summary><iconify-icon icon="lucide:sliders-horizontal" width="18" height="18"></iconify-icon>Avançado<span class="fixb" id="seedb" hidden>seed fixa</span><iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
+<label class="lb" for="seed">Seed</label>
+<div class="seedr"><input type="text" id="seed" inputmode="numeric" placeholder="Aleatória" autocomplete="off" spellcheck="false" aria-describedby="seedh">
+<button class="ibtn" id="seedlast" type="button" aria-label="Usar a seed da última imagem" title="Usar a seed da última imagem"><iconify-icon icon="lucide:history" width="18" height="18"></iconify-icon></button>
+<button class="ibtn" id="seedrnd" type="button" aria-label="Voltar para seed aleatória" title="Voltar para seed aleatória"><iconify-icon icon="lucide:dices" width="18" height="18"></iconify-icon></button></div>
+<p class="hint" id="seedh"></p>
 </div></details>
 <details><summary><iconify-icon icon="lucide:ban" width="18" height="18"></iconify-icon>Negativo<iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
 <label class="lb" for="neg">Prompt negativo</label>
@@ -323,6 +360,9 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 <label class="ck"><input type="checkbox" id="anim">Animações (anime.js)</label>
 <p class="hint" id="animnote"></p>
 <label class="ck"><input type="checkbox" id="snd">Aviso sonoro ao terminar a fila</label>
+<span class="lb" id="upml" style="margin-top:14px">Upscale</span>
+<div class="seg" id="upm" role="group" aria-labelledby="upml"><button type="button" data-v="0" aria-pressed="true">Fiel</button><button type="button" data-v="1" aria-pressed="false">Com detalhes</button></div>
+<p class="hint" id="upnote"></p>
 <label class="ck"><input type="checkbox" id="bold">Modo ousado</label>
 <p class="hint">Ligado: sorteia roupas e poses mais sugestivas (sem nudez). Desligado: remove essas tags do sorteio e coloca a tag general no começo do prompt.</p>
 <p class="hint">Dica: aperte Espaço para gerar.</p>
@@ -459,24 +499,36 @@ function make(){
   return {txt:[(bold?Q:"general, "+Q),"",["no humans","scenery",...many(depth,2)].join(", ")+",","",sc2.join(", ")].join("\n"),theme:t.n};}
  return {txt:[(bold?Q:"general, "+Q),"",F2(who).join(", ")+",","",F2(clothes).join(", ")+",","",F2(scene).join(", ")].join("\n"),theme:t.n};
 }
-$("gen").onclick=()=>{const r=make();$("txt").value=ulInject(r.txt,ulPack());$("txt").hidden=true;$("edit").setAttribute("aria-pressed","false");$("theme").textContent=(mode==="fav"?"Favorita: "+(curF()?curF().name:"padrão")+" · ":"")+($("scene").value?"Cenário: ":"Cenário sorteado: ")+r.theme;$("out").style.display="block";$("send").hidden=false;if($("auto").checked)sendN();};
+$("gen").onclick=()=>{const r=make();delete $("txt").dataset.src;$("txt").value=ulInject(r.txt,ulPack());$("txt").hidden=true;$("edit").setAttribute("aria-pressed","false");$("theme").textContent=(mode==="fav"?"Favorita: "+(curF()?curF().name:"padrão")+" · ":"")+($("scene").value?"Cenário: ":"Cenário sorteado: ")+r.theme;$("out").style.display="block";$("send").hidden=false;if($("auto").checked)sendN();};
 const rs=()=>Math.floor(Math.random()*9e15);
-let LAST=null,KEEP=null;
-function seeds(){if($("keep").checked){if(!KEEP)KEEP=LAST?{...LAST}:{s3:rs(),s24:rs(),s58:rs()};return KEEP;}KEEP=null;return {s3:rs(),s24:rs(),s58:rs()};}
-$("keep").onchange=()=>{KEEP=($("keep").checked&&LAST)?{...LAST}:null;};
+let LAST=null;
+// Uma seed só identifica a imagem: o hires fix e o tile upscale usam seed+1 e seed+2.
+const seedSet=s=>({s3:s,s24:s+1,s58:s+2});
+function seedVal(){const v=$("seed").value.trim();return /^\d+$/.test(v)&&+v<=Number.MAX_SAFE_INTEGER-2?+v:null;}
+function seeds(){const v=seedVal();return seedSet(v!=null?v:rs());}
+function seedUI(){const raw=$("seed").value.trim(),v=seedVal(),bad=!!raw&&v==null;
+ $("seed").setAttribute("aria-invalid",String(bad));$("seedb").hidden=v==null;
+ $("seedh").textContent=bad?"Seed inválida: use só números (até 16 dígitos). Enquanto isso, a seed é aleatória.":v!=null?"Seed fixa: todas as próximas imagens usam essa seed.":"Vazio: cada imagem sai com uma seed nova.";
+ try{localStorage.setItem("seed",raw);}catch(e){}}
+try{$("seed").value=localStorage.getItem("seed")||"";}catch(e){}
+$("seed").oninput=()=>{const c=$("seed").value.replace(/\D/g,"");if(c!==$("seed").value)$("seed").value=c;seedUI();};
+$("seedrnd").onclick=()=>{$("seed").value="";seedUI();};
+$("seedlast").onclick=()=>{if(!LAST){$("seedh").textContent="Ainda não há imagem gerada nesta sessão.";return;}$("seed").value=String(LAST.s3);seedUI();};
+seedUI();
 function mkSnap(){const r=mkSnap0();r.ck=CK;r.ul=r._ful||ulPack();delete r._ful;r.text=ulInject(r.text,r.ul);return r;}
 function mkSnap0(){const sp=$("speed").value;const o={neg:negGet(),text:$("txt").value,steps:sp?26:WF["3"].inputs.steps,...seeds(),sp,o:$("fmt").value};
  if(mode==="fav"&&$("fseed").checked){const f=curF();if(f&&f.s){Object.assign(o,f.s);if(Array.isArray(f.ul))o._ful=f.ul;else if(f.lora)o._ful=[{f:f.lora,s:1,tags:[]}];}}
+ if(seedVal()!=null)Object.assign(o,seeds());
  return o;}
 let QTY=1;try{const q=+localStorage.getItem("qty");if([1,3,6,12].includes(q))QTY=q;}catch(e){}
 function renderQ(){document.querySelectorAll(".qty button").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.q===QTY)));}
 document.querySelectorAll(".qty button").forEach(b=>b.onclick=()=>{QTY=+b.dataset.q;renderQ();try{localStorage.setItem("qty",String(QTY));}catch(e){}});
 renderQ();
-async function sendN(){const base=mkSnap();SENDING++;try{for(let i=0;i<QTY;i++){if(!i){if(await send(base)===false)break;continue;}const keep=$("txt").value;$("txt").value=make().txt;const sn=mkSnap();$("txt").value=keep;if(await send(sn)===false)break;}}finally{SENDING--;}queueStatus(base.sp);kick();}
+async function sendN(){const base=mkSnap(),fixed=$("txt").dataset.src==="tags";SENDING++;try{for(let i=0;i<QTY;i++){if(!i){if(await send(base)===false)break;continue;}const keep=$("txt").value;$("txt").value=fixed?keep:make().txt;const sn=mkSnap();$("txt").value=keep;if(await send(sn)===false)break;}}finally{SENDING--;}queueStatus(base.sp);kick();}
 async function send(snap){
  const st=$("st"),w=JSON.parse(JSON.stringify(WF));
  if(!snap)snap=mkSnap();
- if(!(await preflight(snap)))return false;
+ if(!(snap.up&&!snap.upd)&&!(await preflight(snap)))return false;
  LAST={s3:snap.s3,s24:snap.s24,s58:snap.s58};
  w["4"].inputs.text=snap.text;if(snap.neg)w["17"].inputs.text=snap.neg;
  {const I=w["15"].inputs,L=[];Object.keys(I).filter(k=>/^lora_\d+$/.test(k)).forEach(k=>delete I[k]);
@@ -486,11 +538,12 @@ async function send(snap){
  w["3"].inputs.steps=snap.steps;w["1"].inputs.width=snap.o==="l"?1216:832;w["1"].inputs.height=snap.o==="l"?832:1216;
  if(snap.sp)w["57"].inputs.images=[snap.sp==="ultra"?"10":"25",0];
  w["3"].inputs.seed=snap.s3;w["24"].inputs.seed=snap.s24;w["58"].inputs.seed=snap.s58;
- st.textContent="Enviando...";const card=mkCard(snap);card._t0=Date.now();$("res").prepend(card);
+ if(snap.up)upWire(w,snap);
+ wsOpen();st.textContent="Enviando...";const card=mkCard(snap);card._t0=Date.now();$("res").prepend(card);pgMake(card,"Enviando...");
  try{
-  const res=await fetch($("url").value.replace(/\/$/,"")+"/prompt",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:w})});
+  const res=await fetch($("url").value.replace(/\/$/,"")+"/prompt",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:w,client_id:CID})});
   const d=await res.json().catch(()=>({}));
-  if(res.ok){card.dataset.pid=d.prompt_id;if(!card.isConnected){cancelJob(d.prompt_id);return;}poll(d.prompt_id,$("url").value.replace(/\/$/,""),card);}else{card.remove();const tx=JSON.stringify(d),ck=snap.ck||CK_DEF,bad=/not in|value_not_in_list/.test(tx)?[...fxFiles(snap),ck].filter(n=>tx.includes(JSON.stringify(n).slice(1,-1))):[];
+  if(res.ok){card.dataset.pid=d.prompt_id;if(!card.isConnected){cancelJob(d.prompt_id);return;}pgReg(card,d.prompt_id);poll(d.prompt_id,$("url").value.replace(/\/$/,""),card);}else{card.remove();const tx=JSON.stringify(d),ck=snap.ck||CK_DEF,bad=/not in|value_not_in_list/.test(tx)?[...fxFiles(snap),ck].filter(n=>tx.includes(JSON.stringify(n).slice(1,-1))):[];
    if(bad.length){CHK_T=0;if(await fxLists(true))fxApply();fxModal(bad.filter(n=>n!==ck),bad.includes(ck)?ck:null);return false;}
    st.textContent="O ComfyUI recusou o workflow: "+(d.error&&d.error.message||res.status);}
  }catch(e){card.remove();st.textContent="Não consegui falar com o ComfyUI. Confira se ele está aberto e foi iniciado com --enable-cors-header \"*\".";}
@@ -532,10 +585,10 @@ function vbuild(){
  const mk=(n,t,f)=>{const b=document.createElement("button");b.type="button";b.innerHTML=ic(n,16)+t;b.onclick=()=>{closeNow();f();};VA.appendChild(b);};
  {const cb=document.createElement("button");cb.type="button";cb.innerHTML=ic("copy",16)+"Copiar prompt";cb.onclick=()=>copyPrompt(sn,cb,1);VA.appendChild(cb);}
  if(Array.isArray(sn.ul)&&sn.ul.length)mk("layers","Usar estes LoRAs",()=>ulUse(sn.ul));
- if(sn.sp)mk("maximize-2","Upscale",()=>send({...sn,sp:""}));
+ if(sn.sp&&!sn.up)mk("maximize-2","Upscale",()=>upSend(card));
  const r=()=>Math.floor(Math.random()*9e15);
- mk("dices","Variar",()=>send({...sn,s3:r(),s24:r(),s58:r()}));
- mk("equal","Mesma seed",()=>{const ul=ulPack();send({...sn,text:ulInject(sn.text,ul),ul,neg:negGet(),lora:undefined,sb:undefined,dl:undefined,ck:CK});});
+ mk("dices","Variar",()=>send({...sn,up:undefined,upd:undefined,...seedSet(r())}));
+ if(sn.s3!=null){const sb=document.createElement("button");sb.type="button";sb.innerHTML=ic("hash",16)+"Copiar seed";sb.title="Seed: "+sn.s3;sb.onclick=()=>copyPrompt({text:String(sn.s3)},sb,1);VA.appendChild(sb);}
 }
 function vshow(card){
  VC=card;vreset();VI.src=card._u;vbuild();vinfo(card._snap);
@@ -628,7 +681,7 @@ function durAvg(sp){try{const a=JSON.parse(localStorage.getItem(durKey(sp))||"[]
 function durAdd(sp,ms){try{const a=JSON.parse(localStorage.getItem(durKey(sp))||"[]");a.push(ms);localStorage.setItem(durKey(sp),JSON.stringify(a.slice(-8)));}catch(e){}}
 const fmtT=ms=>{const s=Math.round(ms/1000);return s<90?s+" s":Math.round(s/60)+" min";};
 function queueStatus(sp){const n=$("res").querySelectorAll(".sk").length;if(!n)return false;const a=durAvg(sp);$("st").textContent="Na fila: "+n+(n>1?" imagens":" imagem")+(a?". Estimativa: "+fmtT(a*n)+".":".");return true;}
-function imgDone(card){const sn=card._snap;if(!card._t0)return;const t=Date.now();if(sn)durAdd(sn.sp||"",t-Math.max(card._t0,LASTFIN));LASTFIN=t;DONEIMG=true;queueStatus(sn&&sn.sp);}
+function imgDone(card){const sn=card._snap;if(!card._t0)return;const t=Date.now();if(sn)durAdd(sn.up?(sn.upd?"upd":"up"):sn.sp||"",t-Math.max(card._t0,LASTFIN));LASTFIN=t;DONEIMG=true;queueStatus(sn&&sn.sp);}
 document.addEventListener("keydown",e=>{if(e.code!=="Space"||e.repeat||!VW.hidden)return;const t=e.target,tg=t&&t.tagName;if(["INPUT","TEXTAREA","SELECT","BUTTON","SUMMARY","A"].includes(tg)||(t&&t.isContentEditable))return;e.preventDefault();$("gen").click();});
 /* ---- LoRAs do usuário (compartilhado entre gerador e jogo) ---- */
 const UL_KEY="uloras",UL_POS={st:"Início",who:"Personagem",cl:"Roupa",sc:"Cenário"};
@@ -861,7 +914,7 @@ function fxModal(miss,ckm){
   row(f,inList?"LoRA da sua lista":"LoRA usado por esta imagem",b);});
  if(ckm){let b=null;if(ckm!==CK_DEF){b=document.createElement("button");b.type="button";b.className="fxr";b.textContent="Voltar ao padrão";b.onclick=()=>{ckSet(CK_DEF);b.replaceWith(Object.assign(document.createElement("span"),{className:"fxdone",textContent:"Modelo padrão"}));};}
   row(ckm,ckm===CK_DEF?"Modelo padrão do workflow":"Modelo",b);}
- const nt=$("fxn");nt.hidden=!snapOnly;nt.textContent="Para refazer a imagem com os LoRAs da lista atual, use Mesma seed.";
+ const nt=$("fxn");nt.hidden=!snapOnly;nt.textContent="Para refazer a imagem sem esse LoRA, copie o prompt e a seed dela no visualizador, cole a seed em Avançado e gere de novo.";
  const all=$("fxall");all.hidden=removable<2;
  all.onclick=()=>{L.querySelectorAll(".fxr").forEach(b=>{if(b.textContent==="Remover da lista")b.click();});};
  $("fxok").onclick=fxClose;
@@ -913,39 +966,175 @@ window.addEventListener("storage",e=>{if(e.key==="ckpt"||e.key==="ckpt_miss"||e.
 ckRender();
 if(UL.length||CK!==CK_DEF)setTimeout(()=>{fxLists(true).then(ok=>{if(ok)fxApply();});},700);
 
+/* ---- Imagem → tags (WD14 Tagger do pysssss rodando no ComfyUI) ---- */
+const TG_NODE="WD14Tagger|pysssss";let TG_FILE=null,TG_URL="",TG_INFO=null;
+try{const t=localStorage.getItem("tag_thr");if(t)$("tthr").value=t;}catch(e){}
+$("tthro").textContent=(+$("tthr").value).toFixed(2);
+$("tthr").oninput=()=>{$("tthro").textContent=(+$("tthr").value).toFixed(2);try{localStorage.setItem("tag_thr",$("tthr").value);}catch(e){}};
+$("tmod").onchange=()=>{try{localStorage.setItem("tag_model",$("tmod").value);}catch(e){}};
+function tgSet(f){
+ if(!f||!/^image\//.test(f.type))return false;
+ TG_FILE=f;if(TG_URL)URL.revokeObjectURL(TG_URL);TG_URL=URL.createObjectURL(f);
+ const im=$("timg");im.src=TG_URL;im.hidden=false;$("tdropt").textContent="Clique para trocar a imagem";
+ $("tgo").disabled=false;$("tst").textContent="";if(!$("tagd").open)$("tagd").open=true;return true;
+}
+$("tfile").onchange=()=>{tgSet($("tfile").files[0]);$("tfile").value="";};
+$("tdrop").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("tfile").click();}};
+// Soltar a imagem em qualquer lugar da página também vale (e evita o navegador sair do app para abrir a imagem).
+const hasFiles=e=>e.dataTransfer&&[...e.dataTransfer.types].includes("Files");
+addEventListener("dragover",e=>{if(!hasFiles(e))return;e.preventDefault();$("tdrop").classList.add("over");});
+addEventListener("dragleave",e=>{if(!e.relatedTarget)$("tdrop").classList.remove("over");});
+addEventListener("drop",e=>{if(!hasFiles(e))return;e.preventDefault();$("tdrop").classList.remove("over");const f=[...e.dataTransfer.files].find(x=>/^image\//.test(x.type));if(f&&tgSet(f))$("tdrop").scrollIntoView({block:"nearest",behavior:"smooth"});});
+document.addEventListener("paste",e=>{const f=[...((e.clipboardData&&e.clipboardData.files)||[])].find(x=>/^image\//.test(x.type));if(f&&tgSet(f)){e.preventDefault();$("tdrop").scrollIntoView({block:"nearest",behavior:"smooth"});}});
+async function tgModels(){
+ const j=await (await fetch(ulBase()+"/object_info/"+encodeURIComponent(TG_NODE))).json(),info=j[TG_NODE]||null;
+ if(!info)return null;
+ const m=info.input.required.model,list=m[0]||[],def=(m[1]&&m[1].default)||list[0],sel=$("tmod");let saved=null;try{saved=localStorage.getItem("tag_model");}catch(e){}
+ sel.innerHTML="";list.forEach(x=>{const o=document.createElement("option");o.value=x;o.textContent=x+(x===def?" (padrão)":"");sel.appendChild(o);});
+ sel.value=list.includes(saved)?saved:def;return TG_INFO=info;
+}
+const TG_MISS="O ComfyUI não tem o WD14 Tagger. Instale pelo ComfyUI Manager (procure “WD14 Tagger”, do pysssss) e reinicie o ComfyUI.";
+$("tagd").addEventListener("toggle",()=>{if($("tagd").open&&!TG_INFO)tgModels().then(i=>{if(!i)$("tst").textContent=TG_MISS;}).catch(()=>{});});
+function tgApply(str){
+ const HEAD=/^(\d+\+?(girl|boy)s?|solo|multiple (girls|boys)|no humans)$/,seen=new Set(),head=[],B={who:[],cl:[],sc:[],st:[]};
+ String(str).split(",").map(s=>s.trim()).filter(Boolean).forEach(t=>{const tt=ulEsc(t.replace(/_/g," ")),k=ulNorm(tt);if(!k||seen.has(k))return;seen.add(k);(HEAD.test(k)?head:B[ulClass(tt)]).push(tt);});
+ const blk=a=>a.join(", ")+",";
+ const txt=[($("bold").checked?Q:"general, "+Q),"",blk([...head,...B.st,...B.who]),"",blk(B.cl),"",B.sc.join(", ")].join("\n");
+ const t=$("txt");t.value=ulInject(txt,ulPack());t.dataset.src="tags";t.hidden=false;$("edit").setAttribute("aria-pressed","true");
+ $("theme").textContent="Tags extraídas da imagem · "+seen.size+" tags. Revise e envie.";$("out").style.display="block";$("send").hidden=false;
+ $("tst").textContent="Pronto: "+seen.size+" tags. O prompt está no painel do prompt, pronto para editar ou enviar.";
+}
+async function tgRun(){
+ if(!TG_FILE)return;const b=ulBase(),st=$("tst"),btn=$("tgo");btn.disabled=true;
+ try{
+  st.textContent="Conferindo o WD14 Tagger no ComfyUI...";
+  let info;try{info=await tgModels();}catch(e){st.textContent="Não consegui falar com o ComfyUI. Confira o endereço em Conexão.";return;}
+  if(!info){st.textContent=TG_MISS;return;}
+  st.textContent="Enviando a imagem...";
+  const fd=new FormData();fd.append("image",TG_FILE,TG_FILE.name||"colada.png");fd.append("subfolder","gerador-tags");fd.append("type","input");fd.append("overwrite","true");
+  const up=await fetch(b+"/upload/image",{method:"POST",body:fd});if(!up.ok)throw new Error("upload "+up.status);const u=await up.json();
+  const R=info.input.required,O=info.input.optional||{},inp={image:["1",0],model:$("tmod").value||R.model[0][0],threshold:+$("tthr").value,character_threshold:.85,replace_underscore:true,trailing_comma:false,exclude_tags:""};
+  Object.keys(inp).forEach(k=>{if(k!=="image"&&!R[k]&&!O[k])delete inp[k];});
+  const w={"1":{class_type:"LoadImage",inputs:{image:(u.subfolder?u.subfolder+"/":"")+u.name}},"2":{class_type:TG_NODE,inputs:inp}};
+  st.textContent="Analisando a imagem... Na primeira vez o ComfyUI baixa o modelo do tagger, então pode demorar alguns minutos.";
+  const r=await fetch(b+"/prompt",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:w,client_id:CID})}),d=await r.json().catch(()=>({}));
+  if(!r.ok){st.textContent="O ComfyUI recusou: "+(d.error&&d.error.message||r.status);return;}
+  const t0=Date.now();let tags=null;
+  while(Date.now()-t0<900000){
+   await new Promise(x=>setTimeout(x,1000));
+   let h;try{h=await (await fetch(b+"/history/"+d.prompt_id)).json();}catch(e){continue;}
+   const e=h[d.prompt_id];if(!e)continue;
+   const o=e.outputs&&e.outputs["2"];if(o&&o.tags){tags=[].concat(o.tags)[0]||"";break;}
+   if(e.status&&e.status.status_str==="error"){const m=(e.status.messages||[]).find(x=>x[0]==="execution_error");st.textContent="O tagger deu erro"+(m&&m[1].exception_message?": "+m[1].exception_message:".");return;}
+   if(e.status&&e.status.completed)break;
+  }
+  if(tags==null){st.textContent="Não recebi as tags do ComfyUI.";return;}
+  tgApply(tags);
+ }catch(e){st.textContent="Não consegui enviar a imagem ao ComfyUI. Confira se ele está aberto e foi iniciado com --enable-cors-header \"*\".";}
+ finally{btn.disabled=!TG_FILE;}
+}
+$("tgo").onclick=tgRun;
+
+/* ---- Upscale da imagem pronta (não gera de novo) ---- */
+const UP_MP=8.7,UP_DEN=0.15;
+let UPD=false;try{UPD=localStorage.getItem("up_det")==="1";}catch(e){}
+function upRender(){document.querySelectorAll("#upm button").forEach(b=>b.setAttribute("aria-pressed",String((b.dataset.v==="1")===UPD)));
+ $("upnote").textContent=UPD?"Aumenta e redesenha de leve, por blocos (denoise "+UP_DEN+"). Fica mais nítido, mas pode mudar detalhes pequenos.":"Só aumenta a imagem pronta com o 4x-UltraSharp. Não redesenha nada: a anatomia fica igual.";}
+document.querySelectorAll("#upm button").forEach(b=>b.onclick=()=>{UPD=b.dataset.v==="1";try{localStorage.setItem("up_det",UPD?"1":"0");}catch(e){}upRender();});
+upRender();
+function upSend(card){const sn=card._snap,im=card._im;if(!sn||!im){$("st").textContent="Não achei o arquivo desta imagem no ComfyUI.";return;}send({...sn,up:{filename:im.filename,subfolder:im.subfolder||"",type:im.type||"output"},upd:UPD});}
+// "pasta/arquivo.png [output]" faz o LoadImage ler direto da pasta output do ComfyUI.
+const upAnn=im=>(im.subfolder?im.subfolder+"/":"")+im.filename+" ["+(im.type||"output")+"]";
+function upWire(w,snap){
+ w["90"]={inputs:{image:upAnn(snap.up)},class_type:"LoadImage",_meta:{title:"Carregar Imagem"}};
+ if(snap.upd){["1","3","10","19","21","23","24","25","65"].forEach(k=>delete w[k]);Object.assign(w["58"].inputs,{image:["90",0],upscale_by:snap.sp==="ultra"?3:1.5,denoise:UP_DEN});w["57"].inputs.images=["58",0];return;}
+ Object.keys(w).forEach(k=>{if(!["19","20","21","57","90"].includes(k))delete w[k];});
+ w["19"].inputs.image=["90",0];Object.assign(w["21"].inputs,{image:["19",0],megapixels:UP_MP});w["57"].inputs.images=["21",0];
+}
+
+/* ---- Progresso ao vivo (WebSocket do ComfyUI) ---- */
+const CID=window.crypto&&crypto.randomUUID?crypto.randomUUID():"c"+Date.now()+Math.random().toString(16).slice(2);
+const PCARD=new Map(),PST=new Map();
+let WS=null,WS_URL="",WS_OK=false,WS_T=0,WS_D=2000,RUN=null,QPOS_P=0;
+const STAGE={"90":"Carregando imagem","3":"Gerando","24":"Hires fix","58":"Tile upscale","19":"Upscale (modelo)","21":"Redimensionando","23":"Codificando","10":"Decodificando","25":"Decodificando","6":"Carregando modelo","15":"Carregando LoRAs","33":"Carregando LoRA","20":"Carregando upscaler","57":"Salvando","65":"Prévia"};
+const stName=n=>STAGE[n]||(WF[n]&&WF[n]._meta&&WF[n]._meta.title)||"Processando";
+function pgMake(card,label){if(card.querySelector(".pgw"))return;const w=document.createElement("div");w.className="pgw";w.setAttribute("aria-hidden","true");w.innerHTML='<div class="pgl"><span></span><b></b></div><div class="pgb ind"><i></i></div>';card.appendChild(w);pgSet(card,label,null);}
+function pgSet(card,label,frac){const w=card.querySelector(".pgw");if(!w)return;w.querySelector(".pgl span").textContent=label;w.querySelector(".pgl b").textContent=frac==null?"":Math.round(frac*100)+"%";const b=w.querySelector(".pgb");b.classList.toggle("ind",frac==null);b.firstChild.style.width=frac==null?"":frac*100+"%";}
+function pgUpd(pid,label,frac){if(!pid)return;PST.set(pid,[label,frac]);const c=PCARD.get(pid);if(c&&c.isConnected)pgSet(c,label,frac);}
+function pgReg(card,pid){card._pid=pid;PCARD.set(pid,card);const s=PST.get(pid);if(s)pgSet(card,s[0],s[1]);else pgSet(card,"Na fila",null);qpos();}
+function pgDrop(card){card.querySelectorAll(".pgw,.pv").forEach(x=>{if(x._u)URL.revokeObjectURL(x._u);x.remove();});const p=card._pid;if(p){PCARD.delete(p);PST.delete(p);}}
+function pvSet(pid,blob){const c=pid&&PCARD.get(pid);if(!c||!c.isConnected||!c.querySelector(".sk"))return;let im=c.querySelector(".pv");if(!im){im=document.createElement("img");im.className="pv";im.alt="";c.insertBefore(im,c.querySelector(".pgw"));}const prev=im._u,u=URL.createObjectURL(blob);im._u=u;im.onload=()=>{if(prev)URL.revokeObjectURL(prev);};im.src=u;}
+function wake(pid){const c=pid&&PCARD.get(pid);if(c&&c._wake)c._wake();}
+function qpos(){if(!QPOS_P)QPOS_P=setTimeout(qposNow,300);}
+async function qposNow(){QPOS_P=0;if(!PCARD.size)return;
+ try{const q=await (await fetch(ulBase()+"/queue")).json();const run=new Set((q.queue_running||[]).map(x=>x[1])),pend=(q.queue_pending||[]).slice().sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+  PCARD.forEach((c,pid)=>{if(run.has(pid))return;const i=pend.indexOf(pid);if(i>=0)pgUpd(pid,"Na fila: posição "+(i+1),null);});}catch(e){}}
+function wsOpen(){
+ const u=ulBase().replace(/^http/i,"ws")+"/ws?clientId="+encodeURIComponent(CID);
+ if(WS&&WS_URL===u&&WS.readyState<2)return;
+ if(WS){const o=WS;WS=null;o.onclose=null;try{o.close();}catch(e){}}
+ WS_URL=u;WS_OK=false;clearTimeout(WS_T);
+ let ws;try{ws=new WebSocket(u);}catch(e){wsRetry();return;}
+ WS=ws;ws.binaryType="arraybuffer";
+ ws.onopen=()=>{WS_OK=true;WS_D=2000;qpos();};
+ ws.onclose=()=>{if(WS!==ws)return;WS=null;WS_OK=false;wsRetry();};
+ ws.onmessage=e=>{if(typeof e.data==="string"){let m;try{m=JSON.parse(e.data);}catch(x){return;}if(m&&m.type)wsMsg(m.type,m.data||{});}else wsBin(e.data);};
+}
+// Só tenta reconectar enquanto houver imagem esperando; sem nada na fila, conecta de novo no próximo envio.
+function wsRetry(){clearTimeout(WS_T);if(!$("res").querySelector(".sk"))return;WS_T=setTimeout(wsOpen,WS_D);WS_D=Math.min(WS_D*2,15000);}
+function wsMsg(t,d){
+ const pid=d.prompt_id;
+ if(t==="status"){qpos();return;}
+ if(t==="execution_start"){RUN=pid;pgUpd(pid,"Começando",null);qpos();return;}
+ if(t==="executing"){const n=d.display_node||d.node;if(n==null){if(pid){pgUpd(pid,"Finalizando",1);wake(pid);}if(RUN===pid)RUN=null;return;}if(pid)RUN=pid;pgUpd(RUN,stName(n),null);return;}
+ if(t==="progress"){const p=pid||RUN;pgUpd(p,stName(d.node)+" · "+d.value+"/"+d.max,d.max?d.value/d.max:null);return;}
+ if(t==="execution_error"){const c=PCARD.get(pid);if(c)c._err=d.exception_message||"";wake(pid);return;}
+ if(t==="execution_success"||t==="execution_interrupted")wake(pid);
+}
+// Prévias binárias: [tipo do evento][tipo da imagem][bytes] ou, no formato com metadados (4), [4][tamanho][json][bytes].
+function wsBin(buf){
+ if(!(buf instanceof ArrayBuffer)||buf.byteLength<8)return;
+ const v=new DataView(buf),ev=v.getUint32(0);
+ if(ev===1){const it=v.getUint32(4);pvSet(RUN,new Blob([buf.slice(8)],{type:it===2?"image/png":"image/jpeg"}));}
+ else if(ev===4){const n=v.getUint32(4);let m={};try{m=JSON.parse(new TextDecoder().decode(new Uint8Array(buf,8,n)));}catch(e){}pvSet(m.prompt_id||RUN,new Blob([buf.slice(8+n)],{type:m.image_type||"image/jpeg"}));}
+}
+$("url").addEventListener("change",()=>{if(WS)wsOpen();});
+
 function mkCard(snap){
  const card=document.createElement("div");card.className="card";card._snap=snap;card.style.aspectRatio=snap.o==="l"?"1216/832":"832/1216";
  const sk=document.createElement("div");sk.className="sk";sk.setAttribute("aria-hidden","true");
  const xb=document.createElement("button");xb.className="x";xb.innerHTML='<iconify-icon icon="lucide:x" width="16" height="16"></iconify-icon>';xb.setAttribute("aria-label","Remover imagem");
- xb.onclick=()=>{const pid=card.dataset.pid,busy=card.querySelector(".sk");const aft=animRemove(card);card.remove();if(aft)aft();if(card._id){HIST=HIST.filter(h=>h.id!==card._id);saveH();}if(busy&&pid)cancelJob(pid);};
+ xb.onclick=()=>{const pid=card.dataset.pid,busy=card.querySelector(".sk");const aft=animRemove(card);card.remove();pgDrop(card);if(aft)aft();if(card._id){HIST=HIST.filter(h=>h.id!==card._id);saveH();}if(busy&&pid)cancelJob(pid);};
  card.append(sk,xb);return card;
 }
 function showImg(card,im){
- const u=$("url").value.replace(/\/$/,"")+"/view?"+new URLSearchParams({filename:im.filename,subfolder:im.subfolder||"",type:im.type||"output"});
+ card._im=im;const u=$("url").value.replace(/\/$/,"")+"/view?"+new URLSearchParams({filename:im.filename,subfolder:im.subfolder||"",type:im.type||"output"});
  const a=document.createElement("a");a.href=u;card._u=u;a.onclick=e=>{e.preventDefault();openV(card);};const g=document.createElement("img");g.alt="Imagem gerada";a.appendChild(g);
- g.onload=()=>{const k=card.querySelector(".sk");if(k)k.replaceWith(a);animIn(card,card._d);imgDone(card);const sn=card._snap;if(sn&&!card.querySelector(".fv"))mkStar(card);
+ g.onload=()=>{const k=card.querySelector(".sk");if(k)k.replaceWith(a);pgDrop(card);animIn(card,card._d);imgDone(card);const sn=card._snap;if(sn&&!card.querySelector(".fv"))mkStar(card);
   if(sn&&sn.text&&!card.querySelector(".cp")){const c=document.createElement("button");c.className="up cp";c.type="button";c.innerHTML='<iconify-icon icon="lucide:copy" width="13" height="13"></iconify-icon>Prompt';c.title="Copiar o prompt desta imagem";c.onclick=e=>{e.stopPropagation();copyPrompt(sn,c);};card.appendChild(c);}
-  if(sn&&sn.sp&&!card.querySelector(".up")){const b=document.createElement("button");b.className="up";b.innerHTML='<iconify-icon icon="lucide:maximize-2" width="13" height="13"></iconify-icon>Upscale';b.title="Refazer esta mesma imagem com hires fix e tile upscale";b.onclick=()=>send({...sn,sp:""});card.appendChild(b);}};
+  if(sn&&sn.sp&&!sn.up&&!card.querySelector(".up:not(.cp)")){const b=document.createElement("button");b.className="up";b.innerHTML='<iconify-icon icon="lucide:maximize-2" width="13" height="13"></iconify-icon>Upscale';b.title="Aumentar esta imagem pronta, sem gerar de novo";b.onclick=()=>upSend(card);card.appendChild(b);}};
  g.onerror=()=>card.remove();
  g.src=u;
 }
 HIST.forEach((h,i)=>{const c=mkCard(h.snap);c._id=h.id;c._d=Math.min(i,12)*50;$("res").appendChild(c);showImg(c,h.im);});
 $("clr").onclick=()=>{if(!confirm("Remover todas as imagens da tela?"))return;$("res").innerHTML="";HIST=[];saveH();};
 async function poll(id,base,card){
- const st=$("st"),t0=Date.now();
+ const st=$("st");let t0=Date.now();
  st.textContent="Gerando...";
- while(card.isConnected&&Date.now()-t0<600000){
+ while(card.isConnected){
   try{
    const h=await (await fetch(base+"/history/"+id)).json();
    const o=h[id]&&h[id].outputs;
    if(o){const im=((o["57"]||{}).images||[])[0]||Object.values(o).flatMap(x=>x.images||[]).pop();
     if(im){card._id=Date.now()+Math.random();HIST.unshift({id:card._id,snap:card._snap,im:{filename:im.filename,subfolder:im.subfolder||"",type:im.type||"output"}});saveH();showImg(card,im);
-     if(card.isConnected)st.textContent="Pronto. Clique na imagem para abrir em tamanho real.";return;}
-    if(h[id].status&&h[id].status.status_str==="error"){card.remove();st.textContent="O ComfyUI terminou com erro. Veja o console dele.";return;}}
+     if(card.isConnected)st.textContent="Pronto. Clique na imagem para abrir em tamanho real.";return;}}
+   if(h[id]&&h[id].status&&h[id].status.status_str==="error"){card.remove();pgDrop(card);st.textContent="O ComfyUI terminou com erro"+(card._err?": "+card._err:". Veja o console dele.");return;}
   }catch(e){}
-  await new Promise(r=>setTimeout(r,1500));
+  // O limite de 10 min só vale se o job sumiu da fila do ComfyUI; enquanto ele estiver lá (na fila ou rodando), continua esperando.
+  if(Date.now()-t0>600000){let alive=false;try{const q=await (await fetch(base+"/queue")).json();alive=[...(q.queue_running||[]),...(q.queue_pending||[])].some(x=>x[1]===id);}catch(e){}if(!alive)break;t0=Date.now();}
+  await new Promise(r=>{card._wake=r;setTimeout(r,WS_OK?4000:1500);});card._wake=null;
  }
- if(card.isConnected){card.remove();st.textContent="Tempo esgotado esperando a imagem. Ela pode ainda aparecer no ComfyUI.";}
+ if(card.isConnected){card.remove();pgDrop(card);st.textContent="Tempo esgotado esperando a imagem. Ela pode ainda aparecer no ComfyUI.";}
 }
 async function cancelJob(id){
  const base=$("url").value.replace(/\/$/,""),H={"Content-Type":"application/json"};
