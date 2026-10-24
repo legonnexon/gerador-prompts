@@ -896,13 +896,27 @@ function renderX(){
  a.onclick=()=>{if(all)SX.clear();else EXP.forEach(e=>SX.add(e.k));renderX();};box.appendChild(a);
 }
 renderX();
+// Cada enquadramento leva as tags de câmera certas e só a parte da roupa que cabe no quadro:
+// roupa de corpo inteiro (saia, botas...) faz o modelo afastar a câmera para mostrar a peça.
+const QP="highly detailed, sharp focus, intricate lineart, fine textures, absurdres, intricate details, detailed textures,";
+const CL_HEAD=/hair|\bears?\b|earring|\bhat\b|\bcap\b|hood|helmet|crown|tiara|circlet|glasses|eyewear|mask|veil|choker|collar|necklace|\bneck|scarf|headband|headwear|headpiece|ribbon|\bbow\b|piercing|horn|makeup|lipstick|eyeshadow|halo|earmuffs|headphones/;
+const CL_LOW=/skirt|pants|shorts|trousers|hakama|jeans|leggings|legwear|thighhigh|socks|stocking|pantyhose|boots|shoes|sandals|heels|footwear|garter|kneehigh|loafers|anklet/;
+const CAMS={
+ "face focus":{t:"portrait, close-up, face focus",head:1},
+ "portrait":{t:"portrait",head:1},
+ "upper body portrait":{t:"upper body, portrait"},
+ "upper body":{t:"upper body"}};
+function camOf(){return CAMS[$("cam").value]||{t:$("cam").value};}
 function build(e){
- const c=CH[SEL],g=c.g==="girl"?"1girl":"1boy";
- const who=[g,"solo",$("cam").value,$("view").value,"looking at viewer",e.t,norm(c.t)].filter(Boolean).join(", ");
- const dress=[norm(c.c),norm($("extra").value)].filter(Boolean).join(", ");
- const scene=[BG[$("bg").value],"soft lighting","rim light","serene composition"].join(", ");
- return [Q,"",who+",",...(dress?["",dress+","]:[]),"",scene].join("\n");
+ const c=CH[SEL],g=c.g==="girl"?"1girl":"1boy",cam=camOf();
+ const who=[g,"solo",cam.t,$("view").value,"looking at viewer",e.t,norm(c.t)].filter(Boolean).join(", ");
+ const cl=norm(c.c).split(", ").filter(t=>t&&(cam.head?CL_HEAD.test(t):!CL_LOW.test(t)));
+ const dress=[cl.join(", "),norm($("extra").value)].filter(Boolean).join(", ");
+ const scene=[BG[$("bg").value],"soft lighting","rim light"].join(", ");
+ return [QP,"",who+",",...(dress?["",dress+","]:[]),"",scene].join("\n");
 }
+// Um retrato só: nada de folha de vistas, montagem ou segunda pessoa, e nada de corpo abaixo do quadro.
+function camNeg(){const g=CH[SEL].g==="girl";return "multiple views, character sheet, reference sheet, collage, split screen, multiple panels, comic, "+(g?"2girls, multiple girls":"2boys, multiple boys")+", chibi, full body, cowboy shot, lower body, legs, feet"+(camOf().head?", upper body, hands":"");}
 document.querySelectorAll(".spd button").forEach(b=>b.onclick=()=>{$("speed").value=b.dataset.v;document.querySelectorAll(".spd button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));});
 document.querySelectorAll(".fmt button").forEach(b=>b.onclick=()=>{$("fmt").value=b.dataset.v;document.querySelectorAll(".fmt button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));});
 $("lock").onclick=()=>{LOCK=!LOCK;$("lock").setAttribute("aria-pressed",String(LOCK));$("lockic").setAttribute("icon",LOCK?"lucide:lock":"lucide:lock-open");if(!LOCK)SEEDS=null;};
@@ -913,7 +927,7 @@ $("gen").onclick=async()=>{
  const ULP=ulPack(),sp=$("speed").value,o=$("fmt").value,prompts=list.map(e=>ulInject(build(e),ULP));
  $("ptxt").value=prompts.join("\n\n---\n\n");
  $("gen").disabled=true;SENDING++;
- for(let i=list.length-1;i>=0;i--){if(await send({ul:ULP,ck:CK,neg:negGet(),text:prompts[i],steps:sp?26:WF["3"].inputs.steps,...SEEDS,sp,o,exp:list[i].l})===false)break;}
+ for(let i=list.length-1;i>=0;i--){if(await send({ul:ULP,ck:CK,neg:negGet()+", "+camNeg(),text:prompts[i],steps:sp?26:WF["3"].inputs.steps,...SEEDS,sp,o,exp:list[i].l})===false)break;}
  SENDING--;queueStatus(sp);kick();$("gen").disabled=false;
 };
 
