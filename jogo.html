@@ -287,7 +287,7 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 <p class="hint" id="shst" role="status">Usa o Flux 2 Klein 4B: ele olha a imagem e redesenha a mesma personagem nas vistas pedidas.</p>
 <div class="fld" style="margin-top:12px"><label for="shtxt">Instrução</label><textarea id="shtxt" rows="3" spellcheck="false"></textarea></div>
 <div class="duo"><div class="fld"><label for="shpre">Modelos de instrução</label><select id="shpre"><option value="">Escolher...</option><option value="body">Corpo: frente, costas e lado</option><option value="tpose">Corpo em pose T</option><option value="face">Rosto: frente e perfil</option></select></div>
-<div class="fld"><label for="shfmt">Formato</label><select id="shfmt"><option value="img">Igual à imagem</option><option value="w">Largo 16:9 (2048×1152)</option></select></div></div>
+<div class="fld"><label for="shfmt">Formato</label><select id="shfmt"><option value="img">Igual à imagem</option><option value="w">Largo 16:9 (1536×864)</option></select></div></div>
 <div class="shb"><button class="ulb" id="shgo" type="button" disabled><iconify-icon icon="lucide:person-standing" width="16" height="16"></iconify-icon>Gerar character sheet</button></div>
 <p class="hint">Os LoRAs, o estilo e o negativo do app não valem aqui: o Flux usa só a imagem e a instrução. A seed segue o cadeado da seção Saída.</p>
 </div></details>
@@ -927,7 +927,8 @@ const SH_PRE={
  face:"Head reference sheet of the same character from the reference image. Two close-up head shots side by side, same size: front view and side profile facing right. Neutral expression, mouth closed. "+SH_KEEP+" "+SH_BG};
 // Instruções padrão das versões antigas: quem nunca editou passa a usar as novas.
 const SH_OLD=["show character in front, back and side view. full body shot on white background","show character in front, back and side view, standing in a T-pose. full body shot on white background","show character face in front view and side profile view. close-up head shot on white background"];
-const SH_W=[2048,1152];
+// O Klein 4B perde a consistência do corpo acima de ~1,5 MP (testado em 2048x1152); mais resolução fica para o upscale.
+const SH_W=[1536,864];
 let SH_BLOB=null,SH_UP="",SH_AR=1;
 try{const t=localStorage.getItem("sh_txt");$("shtxt").value=t&&!SH_OLD.includes(t.trim())?t:SH_PRE.body;}catch(e){$("shtxt").value=SH_PRE.body;}
 try{const f=localStorage.getItem("sh_fmt");if(f)$("shfmt").value=f;}catch(e){}
