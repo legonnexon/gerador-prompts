@@ -427,7 +427,7 @@ function vbuild(){
  VA.innerHTML="";const sn=VC._snap,card=VC;if(!sn)return;
  const mk=(n,t,f)=>{const b=document.createElement("button");b.type="button";b.innerHTML=ic(n,16)+t;b.onclick=()=>{closeNow();f();};VA.appendChild(b);};
  {const cb=document.createElement("button");cb.type="button";cb.innerHTML=ic("copy",16)+"Copiar prompt";cb.onclick=()=>copyPrompt(sn,cb,1);VA.appendChild(cb);}
- if(sn.flux){mk("dices","Variar",()=>shSend({...sn,seed:Math.floor(Math.random()*9e15)}));return;}
+ if(sn.flux){if(!sn.upx)mk("maximize-2","Upscale 2x",()=>shUp(card));mk("dices","Variar",()=>shSend({...sn,upx:undefined,exp:"Character sheet",seed:Math.floor(Math.random()*9e15)}));return;}
  if(sn.sp)mk("maximize-2","Upscale",()=>send({...sn,sp:""}));
  const r=()=>Math.floor(Math.random()*9e15);
  mk("dices","Variar",()=>send({...sn,s3:r(),s24:r(),s58:r()}));
@@ -814,11 +814,12 @@ function mkCard(snap){
  card.append(sk,xb);if(snap.exp){const bd=document.createElement("span");bd.className="bd";bd.textContent=snap.exp;card.appendChild(bd);}return card;
 }
 function showImg(card,im){
- const u=$("url").value.replace(/\/$/,"")+"/view?"+new URLSearchParams({filename:im.filename,subfolder:im.subfolder||"",type:im.type||"output"});
+ card._im=im;const u=$("url").value.replace(/\/$/,"")+"/view?"+new URLSearchParams({filename:im.filename,subfolder:im.subfolder||"",type:im.type||"output"});
  const a=document.createElement("a");a.href=u;card._u=u;a.onclick=e=>{e.preventDefault();openV(card);};const g=document.createElement("img");g.alt="Imagem gerada";a.appendChild(g);
  g.onload=()=>{const k=card.querySelector(".sk");if(k)k.replaceWith(a);animIn(card,card._d);imgDone(card);const sn=card._snap;
   if(sn&&sn.text&&!card.querySelector(".cp")){const c=document.createElement("button");c.className="up cp";c.type="button";c.innerHTML='<iconify-icon icon="lucide:copy" width="13" height="13"></iconify-icon>Prompt';c.title="Copiar o prompt desta imagem";c.onclick=e=>{e.stopPropagation();copyPrompt(sn,c);};card.appendChild(c);}
-  if(sn&&sn.sp&&!card.querySelector(".up")){const b=document.createElement("button");b.className="up";b.innerHTML='<iconify-icon icon="lucide:maximize-2" width="13" height="13"></iconify-icon>Upscale';b.title="Refazer esta mesma imagem com hires fix e tile upscale";b.onclick=()=>send({...sn,sp:""});card.appendChild(b);}};
+  if(sn&&sn.sp&&!card.querySelector(".up:not(.cp)")){const b=document.createElement("button");b.className="up";b.innerHTML='<iconify-icon icon="lucide:maximize-2" width="13" height="13"></iconify-icon>Upscale';b.title="Refazer esta mesma imagem com hires fix e tile upscale";b.onclick=()=>send({...sn,sp:""});card.appendChild(b);}
+  if(sn&&sn.flux&&!sn.upx&&!card.querySelector(".up:not(.cp)")){const b=document.createElement("button");b.className="up";b.innerHTML='<iconify-icon icon="lucide:maximize-2" width="13" height="13"></iconify-icon>Upscale 2x';b.title="Aumentar esta folha 2x sem redesenhar (4x-UltraSharp)";b.onclick=e=>{e.stopPropagation();shUp(card);};card.appendChild(b);}};
  g.onerror=()=>card.remove();
  g.src=u;
 }
@@ -960,9 +961,11 @@ addEventListener("drop",e=>{if(!shOk(e))return;e.preventDefault();$("shdrop").cl
 document.addEventListener("paste",e=>{const f=[...((e.clipboardData&&e.clipboardData.files)||[])].find(x=>/^image\//.test(x.type));if(f&&shSet(f))e.preventDefault();});
 function shErr(d){const ne=d&&d.node_errors?Object.values(d.node_errors).flatMap(n=>(n.errors||[]).map(x=>x.details||x.message)).filter(Boolean):[];return [(d&&d.error&&d.error.message)||"",...ne].filter(Boolean).join(" · ")||"erro desconhecido";}
 async function shSend(snap){
- const w=JSON.parse(JSON.stringify(FLUX)),st=$("st"),b=ulBase();
- w["339"].inputs.image=snap.ref;w["6"].inputs.text=snap.text;w["359:357"].inputs.noise_seed=snap.seed;
- if(snap.wide)["359:353","359:355"].forEach(k=>{w[k].inputs.width=SH_W[0];w[k].inputs.height=SH_W[1];});
+ const st=$("st"),b=ulBase();let w;
+ if(snap.upx)w=shUpWF(snap.upx);
+ else{w=JSON.parse(JSON.stringify(FLUX));
+  w["339"].inputs.image=snap.ref;w["6"].inputs.text=snap.text;w["359:357"].inputs.noise_seed=snap.seed;
+  if(snap.wide)["359:353","359:355"].forEach(k=>{w[k].inputs.width=SH_W[0];w[k].inputs.height=SH_W[1];});}
  st.textContent="Enviando...";const card=mkCard(snap);card._t0=Date.now();$("res").prepend(card);SENDING++;
  try{
   const res=await fetch(b+"/prompt",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:w})});
@@ -972,6 +975,20 @@ async function shSend(snap){
  }catch(e){card.remove();st.textContent="Não consegui falar com o ComfyUI. Confira se ele está aberto e foi iniciado com --enable-cors-header \"*\".";}
  finally{SENDING--;}
  queueStatus();kick();
+}
+// Upscale fiel da folha pronta: só o modelo de upscale, sem sampler, então a anatomia não muda.
+// "pasta/arquivo.png [output]" faz o LoadImage ler direto da pasta output do ComfyUI.
+function shUpWF(im){
+ return {"1":{class_type:"LoadImage",inputs:{image:(im.subfolder?im.subfolder+"/":"")+im.filename+" ["+(im.type||"output")+"]"}},
+  "2":{class_type:"UpscaleModelLoader",inputs:{model_name:WF["20"].inputs.model_name}},
+  "3":{class_type:"ImageUpscaleWithModel",inputs:{upscale_model:["2",0],image:["1",0]}},
+  "4":{class_type:"ImageScaleBy",inputs:{upscale_method:"lanczos",scale_by:0.5,image:["3",0]}},
+  "5":{class_type:"SaveImage",inputs:{filename_prefix:"Simplesmente IA/flux-2-klein-upscale",images:["4",0]}}};
+}
+function shUp(card){
+ const sn=card._snap,im=card._im;
+ if(!sn||!im){$("st").textContent="Não achei o arquivo desta folha no ComfyUI.";return;}
+ shSend({...sn,upx:{filename:im.filename,subfolder:im.subfolder||"",type:im.type||"output"},exp:"Character sheet · 2x"});
 }
 async function shGen(){
  const text=$("shtxt").value.trim();
