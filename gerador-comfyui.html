@@ -382,6 +382,8 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 <span class="lb" id="upml" style="margin-top:14px">Upscale</span>
 <div class="seg" id="upm" role="group" aria-labelledby="upml"><button type="button" data-v="0" aria-pressed="true">Fiel</button><button type="button" data-v="1" aria-pressed="false">Com detalhes</button></div>
 <p class="hint" id="upnote"></p>
+<div class="pf"><label class="lb" for="hfd" style="margin-top:14px">Hires fix: denoise</label><input type="number" id="hfd" min="0.05" max="0.8" step="0.05"></div>
+<p class="hint">Quanto o botão Hires fix do visualizador redesenha. Em 0.30 ele arruma rosto, mãos e olhos sem mudar a pose; acima de 0.45 a pose pode mudar.</p>
 <label class="ck"><input type="checkbox" id="bold">Modo ousado</label>
 <p class="hint">Ligado: sorteia roupas e poses mais sugestivas (sem nudez). Desligado: remove essas tags do sorteio e coloca a tag general no começo do prompt.</p>
 <p class="hint">Dica: aperte Espaço para gerar.</p>
@@ -554,7 +556,7 @@ async function send(snap){
  w["3"].inputs.steps=snap.steps;pfApply(w,snap);
  if(snap.sp)w["57"].inputs.images=[snap.sp==="ultra"?"10":"25",0];
  w["3"].inputs.seed=snap.s3;w["24"].inputs.seed=snap.s24;w["58"].inputs.seed=snap.s58;
- if(snap.up)upWire(w,snap);
+ if(snap.up)upWire(w,snap);else if(snap.hf)hfWire(w,snap);
  wsOpen();st.textContent="Enviando...";const card=mkCard(snap);card._t0=Date.now();$("res").prepend(card);pgMake(card,"Enviando...");
  try{
   const res=await fetch($("url").value.replace(/\/$/,"")+"/prompt",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:w,client_id:CID})});
@@ -588,11 +590,6 @@ function vinfo(sn){
  if(!L.length){const e=document.createElement("span");e.className="none";e.textContent="Sem LoRAs nesta imagem";VIN.appendChild(e);return;}
  L.forEach(u=>{const e=document.createElement("span");if(u.old)e.className="old";e.title=u.f+(u.old?" (fixo antigo)":"");e.append(ulName(u.f));const b=document.createElement("b");b.textContent=(+u.s).toFixed(2);e.appendChild(b);VIN.appendChild(e);});
 }
-function ulUse(list){
- const L=(list||[]).map(u=>({f:u.f,on:true,s:+u.s,tags:(u.tags||[]).map(x=>({t:x.t,p:x.p||"st"})),sug:null}));
- UL.splice(0,UL.length,...L);ulSave();ulRender();if(typeof ulChar==="function")ulChar();
- UL.forEach(u=>{if(!u.sug)ulLoadMeta(u);});
-}
 function vbuild(){
  VA.innerHTML="";const sn=VC._snap,card=VC;if(!sn)return;
  const fb=document.createElement("button");fb.type="button";
@@ -600,10 +597,10 @@ function vbuild(){
  fb.onclick=async()=>{await toggleFav(card);if(VC===card)vbuild();};VA.appendChild(fb);
  const mk=(n,t,f)=>{const b=document.createElement("button");b.type="button";b.innerHTML=ic(n,16)+t;b.onclick=()=>{closeNow();f();};VA.appendChild(b);};
  {const cb=document.createElement("button");cb.type="button";cb.innerHTML=ic("copy",16)+"Copiar prompt";cb.onclick=()=>copyPrompt(sn,cb,1);VA.appendChild(cb);}
- if(Array.isArray(sn.ul)&&sn.ul.length)mk("layers","Usar estes LoRAs",()=>ulUse(sn.ul));
+ if(!sn.up&&!sn.hf)mk("wand-sparkles","Hires fix",()=>hfSend(card));
  if(sn.sp&&!sn.up)mk("maximize-2","Upscale",()=>upSend(card));
  const r=()=>Math.floor(Math.random()*9e15);
- mk("dices","Variar",()=>send({...sn,up:undefined,upd:undefined,...seedSet(r())}));
+ mk("dices","Variar",()=>send({...sn,up:undefined,upd:undefined,hf:undefined,hfd:undefined,...seedSet(r())}));
  if(sn.s3!=null){const sb=document.createElement("button");sb.type="button";sb.innerHTML=ic("hash",16)+"Copiar seed";sb.title="Seed: "+sn.s3;sb.onclick=()=>copyPrompt({text:String(sn.s3)},sb,1);VA.appendChild(sb);}
 }
 function vshow(card){
@@ -697,7 +694,7 @@ function durAvg(sp){try{const a=JSON.parse(localStorage.getItem(durKey(sp))||"[]
 function durAdd(sp,ms){try{const a=JSON.parse(localStorage.getItem(durKey(sp))||"[]");a.push(ms);localStorage.setItem(durKey(sp),JSON.stringify(a.slice(-8)));}catch(e){}}
 const fmtT=ms=>{const s=Math.round(ms/1000);return s<90?s+" s":Math.round(s/60)+" min";};
 function queueStatus(sp){const n=$("res").querySelectorAll(".sk").length;if(!n)return false;const a=durAvg(sp);$("st").textContent="Na fila: "+n+(n>1?" imagens":" imagem")+(a?". Estimativa: "+fmtT(a*n)+".":".");return true;}
-function imgDone(card){const sn=card._snap;if(!card._t0)return;const t=Date.now();if(sn)durAdd(sn.up?(sn.upd?"upd":"up"):sn.sp||"",t-Math.max(card._t0,LASTFIN));LASTFIN=t;DONEIMG=true;queueStatus(sn&&sn.sp);}
+function imgDone(card){const sn=card._snap;if(!card._t0)return;const t=Date.now();if(sn)durAdd(sn.hf?"hf":sn.up?(sn.upd?"upd":"up"):sn.sp||"",t-Math.max(card._t0,LASTFIN));LASTFIN=t;DONEIMG=true;queueStatus(sn&&sn.sp);}
 document.addEventListener("keydown",e=>{if(e.code!=="Space"||e.repeat||!VW.hidden)return;const t=e.target,tg=t&&t.tagName;if(["INPUT","TEXTAREA","SELECT","BUTTON","SUMMARY","A"].includes(tg)||(t&&t.isContentEditable))return;e.preventDefault();$("gen").click();});
 /* ---- LoRAs do usuário (compartilhado entre gerador e jogo) ---- */
 const UL_KEY="uloras",UL_POS={st:"Início",who:"Personagem",cl:"Roupa",sc:"Cenário"};
@@ -1135,6 +1132,21 @@ function upWire(w,snap){
  if(snap.upd){["1","3","10","19","21","23","24","25","65"].forEach(k=>delete w[k]);Object.assign(w["58"].inputs,{image:["90",0],upscale_by:snap.sp==="ultra"?3:1.5,denoise:UP_DEN});w["57"].inputs.images=["58",0];return;}
  Object.keys(w).forEach(k=>{if(!["19","20","21","57","90"].includes(k))delete w[k];});
  w["19"].inputs.image=["90",0];Object.assign(w["21"].inputs,{image:["19",0],megapixels:UP_MP});w["57"].inputs.images=["21",0];
+}
+
+/* ---- Hires fix da imagem pronta: o hires do workflow, começando da imagem salva ---- */
+let HFD=0.3;try{const v=+localStorage.getItem("hf_den");if(v>=0.05&&v<=0.8)HFD=v;}catch(e){}
+$("hfd").value=HFD;
+$("hfd").onchange=()=>{const v=+$("hfd").value;if(!(v>=0.05&&v<=0.8)){$("hfd").setAttribute("aria-invalid","true");return;}$("hfd").removeAttribute("aria-invalid");HFD=v;try{localStorage.setItem("hf_den",String(v));}catch(e){}};
+function hfSend(card){const sn=card._snap,im=card._im;if(!sn||!im){$("st").textContent="Não achei o arquivo desta imagem no ComfyUI.";return;}send({...sn,up:undefined,upd:undefined,hf:{filename:im.filename,subfolder:im.subfolder||"",type:im.type||"output"},hfd:HFD});}
+// Sai em 1,5x o tamanho base da imagem, no máximo 2,4 MP: acima disso, com o redesenho, o SDXL começa a errar a anatomia.
+const HF_MAXMP=2.4;
+function hfWire(w,snap){
+ const D=pfDims(snap);
+ w["90"]={inputs:{image:upAnn(snap.hf)},class_type:"LoadImage",_meta:{title:"Carregar Imagem"}};
+ w["19"].inputs.image=["90",0];w["21"].inputs.megapixels=Math.min(HF_MAXMP,+(D[0]*D[1]*2.25/1e6).toFixed(2));
+ w["24"].inputs.denoise=snap.hfd;w["57"].inputs.images=["25",0];
+ ["1","3","10","58","65"].forEach(k=>delete w[k]);
 }
 
 /* ---- Progresso ao vivo (WebSocket do ComfyUI) ---- */
