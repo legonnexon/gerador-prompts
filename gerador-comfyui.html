@@ -63,6 +63,13 @@ select:disabled{opacity:.5}
 .ohead{display:flex;align-items:center;gap:10px}
 #theme{margin:0;flex:1;color:var(--mut);font-size:14px}
 .seedr{display:flex;gap:6px}
+.pf input,.pf select,.pf textarea{width:100%;min-width:0;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--raise);color:var(--fg);font-size:14px}
+.pf textarea{font:13px/1.5 ui-monospace,Consolas,monospace;resize:vertical}
+.pf input:focus-visible,.pf select:focus-visible,.pf textarea:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.pf [aria-invalid="true"]{border-color:#dc2626}
+.pfh{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:18px;padding-top:14px;border-top:1px dashed var(--line)}
+.pfh strong{flex:none}
+.pfh small{min-width:0;color:var(--mut);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #seed{flex:1;min-width:0;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--raise);color:var(--fg);font:14px ui-monospace,Consolas,monospace}
 #seed:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
 #seed[aria-invalid="true"]{border-color:#dc2626}
@@ -337,6 +344,18 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 <button class="ibtn" id="seedlast" type="button" aria-label="Usar a seed da última imagem" title="Usar a seed da última imagem"><iconify-icon icon="lucide:history" width="18" height="18"></iconify-icon></button>
 <button class="ibtn" id="seedrnd" type="button" aria-label="Voltar para seed aleatória" title="Voltar para seed aleatória"><iconify-icon icon="lucide:dices" width="18" height="18"></iconify-icon></button></div>
 <p class="hint" id="seedh"></p>
+<div class="pf">
+<div class="pfh"><strong>Configurações do modelo</strong><small id="pfname"></small></div>
+<p class="hint" style="margin-top:4px">Cada checkpoint guarda as próprias configurações. Ao trocar o modelo, elas trocam juntas.</p>
+<div class="duo"><div class="fld"><label for="pfsteps">Steps</label><input type="number" id="pfsteps" min="1" max="150" step="1"></div><div class="fld"><label for="pfcfg">CFG</label><input type="number" id="pfcfg" min="0" max="30" step="0.1"></div></div>
+<div class="duo"><div class="fld"><label for="pfsamp">Sampler</label><select id="pfsamp"></select></div><div class="fld"><label for="pfsch">Scheduler</label><select id="pfsch"></select></div></div>
+<div class="duo"><div class="fld"><label for="pfclip">Clip skip</label><select id="pfclip"><option value="1">1 (desligado)</option><option value="2">2</option><option value="3">3</option></select></div><div class="fld"><label for="pfhd">Denoise do hires fix</label><input type="number" id="pfhd" min="0" max="1" step="0.05"></div></div>
+<div class="duo"><div class="fld"><label for="pfp">Retrato (L×A)</label><input type="text" id="pfp" inputmode="numeric" autocomplete="off" spellcheck="false"></div><div class="fld"><label for="pfl">Paisagem (L×A)</label><input type="text" id="pfl" inputmode="numeric" autocomplete="off" spellcheck="false"></div></div>
+<label class="lb" for="pfq">Prompt de qualidade (começo do prompt)</label>
+<textarea id="pfq" rows="4" spellcheck="false"></textarea>
+<p class="hint">O negativo de cada modelo fica na seção Negativo. No Rápido e no Ultra-rápido, os steps ficam limitados a 26.</p>
+<div class="act"><button id="pfreset" type="button"><iconify-icon icon="lucide:rotate-ccw" width="18" height="18"></iconify-icon>Restaurar o padrão deste modelo</button></div>
+</div>
 </div></details>
 <details><summary><iconify-icon icon="lucide:ban" width="18" height="18"></iconify-icon>Negativo<iconify-icon class="chev" icon="lucide:chevron-down" width="18" height="18"></iconify-icon></summary><div class="in">
 <label class="lb" for="neg">Prompt negativo</label>
@@ -381,11 +400,8 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 const Q="highly detailed, sharp focus, intricate lineart, fine textures, absurdres, intricate details, detailed textures, detailed background, complex details,";
 const WF={"1":{"inputs":{"width":832,"height":1216,"batch_size":1},"class_type":"EmptyLatentImage","_meta":{"title":"Imagem Latente Vazia"}},"3":{"inputs":{"seed":828317518510267,"steps":35,"cfg":4,"sampler_name":"dpmpp_2m","scheduler":"karras","denoise":1,"model":["15",0],"positive":["4",0],"negative":["17",0],"latent_image":["1",0]},"class_type":"KSampler","_meta":{"title":"KSampler"}},"4":{"inputs":{"text":"highly detailed, sharp focus, intricate lineart, fine textures, absurdres, intricate details, detailed textures, detailed background, complex details,\n\n1girl, solo, upper body, front view, looking away, crossed legs, smiling, white hair, wavy hair, single hair bun, wispy bangs, pink eyes, elf ears, bags under eyes, blurry background, shallow depth of field,\n\nschool uniform, sailor collar, knee socks, school bag, pleated skirt, neck ribbon, loafers,\n\nclassroom, chalkboard, falling petals, sunset through window, nostalgic atmosphere, wooden desks, dramatic lighting, steam haze, serene composition","clip":["15",1]},"class_type":"CLIPTextEncode","_meta":{"title":"Codificação de Texto CLIP (Prompt)"}},"6":{"inputs":{"ckpt_name":"waiIllustriousSDXL_v170.safetensors"},"class_type":"CheckpointLoaderSimple","_meta":{"title":"Carregar Checkpoint"}},"10":{"inputs":{"samples":["3",0],"vae":["6",2]},"class_type":"VAEDecode","_meta":{"title":"VAE Decodificar"}},"15":{"inputs":{"PowerLoraLoaderHeaderWidget":{"type":"PowerLoraLoaderHeaderWidget"},"lora_1":{"on":true,"lora":"Smooth_Booster_v5.safetensors","strength":0.5},"lora_2":{"on":true,"lora":"aiE382A4E383A9E382B9E38388E3818A.cG1u.safetensors","strength":1},"lora_3":{"on":false,"lora":"takorin_ILXL_v4 (1).safetensors","strength":1},"➕ Add Lora":"","model":["6",0],"clip":["6",1]},"class_type":"Power Lora Loader (rgthree)","_meta":{"title":"Power Lora Loader (rgthree)"}},"17":{"inputs":{"text":"3d, (worst quality, low quality, normal quality, lowres, blurry, jpeg artifacts), (bad anatomy, bad hands, missing fingers, extra fingers, fewer fingers, extra limbs, malformed limbs), (text, watermark, signature, logo), monochrome, grayscale, extra head, extra body, bad perspective, deformed face, poorly drawn eyes, poorly drawn hands, mutated","clip":["15",1]},"class_type":"CLIPTextEncode","_meta":{"title":"Codificação de Texto CLIP (Prompt)"}},"19":{"inputs":{"upscale_model":["20",0],"image":["10",0]},"class_type":"ImageUpscaleWithModel","_meta":{"title":"Aumentar Resolução da Imagem (usando Modelo)"}},"20":{"inputs":{"model_name":"4x-UltraSharp.safetensors"},"class_type":"UpscaleModelLoader","_meta":{"title":"Carregar Modelo de Upscale"}},"21":{"inputs":{"upscale_method":"lanczos","megapixels":3.86,"resolution_steps":1,"image":["19",0]},"class_type":"ImageScaleToTotalPixels","_meta":{"title":"Redimensionar Imagem para Total de Pixels"}},"23":{"inputs":{"tile_size":1536,"overlap":64,"temporal_size":64,"temporal_overlap":8,"pixels":["21",0],"vae":["6",2]},"class_type":"VAEEncodeTiled","_meta":{"title":"VAE Codificar (Em Blocos)"}},"24":{"inputs":{"seed":1,"steps":4,"cfg":1,"sampler_name":"lcm","scheduler":"ddim_uniform","denoise":0.35,"model":["33",0],"positive":["4",0],"negative":["17",0],"latent_image":["23",0]},"class_type":"KSampler","_meta":{"title":"KSampler"}},"25":{"inputs":{"tile_size":1536,"overlap":64,"temporal_size":64,"temporal_overlap":8,"samples":["24",0],"vae":["6",2]},"class_type":"VAEDecodeTiled","_meta":{"title":"VAE Decodificar (Em Blocos)"}},"33":{"inputs":{"lora_name":"dmd2_sdxl_4step_lora_fp16.safetensors","strength_model":1,"model":["15",0]},"class_type":"LoraLoaderModelOnly","_meta":{"title":"LoraLoaderModelOnly"}},"57":{"inputs":{"filename_prefix":"Simplesmente IA/Illustrious","images":["58",0]},"class_type":"SaveImage","_meta":{"title":"Salvar Imagem"}},"58":{"inputs":{"upscale_by":1.5,"seed":2,"steps":3,"cfg":1,"sampler_name":"euler_ancestral","scheduler":"karras","denoise":0.2,"mode_type":"Linear","tile_width":1024,"tile_height":1024,"mask_blur":8,"tile_padding":32,"seam_fix_mode":"None","seam_fix_denoise":1,"seam_fix_width":64,"seam_fix_mask_blur":8,"seam_fix_padding":16,"force_uniform_tiles":true,"tiled_decode":false,"batch_size":1,"image":["25",0],"model":["33",0],"positive":["4",0],"negative":["17",0],"vae":["6",2],"upscale_model":["20",0]},"class_type":"UltimateSDUpscale","_meta":{"title":"Ultimate SD Upscale"}},"65":{"inputs":{"images":["10",0]},"class_type":"PreviewImage","_meta":{"title":"Imagem de Pré-visualização"}}};
 const NEG0=WF["17"].inputs.text;
-function negGet(){const v=document.getElementById("neg").value.trim();return v||NEG0;}
-(()=>{const g=id=>document.getElementById(id),n=g("neg");
-try{const sv=localStorage.getItem("neg");n.value=sv!==null?sv:NEG0;}catch(e){n.value=NEG0;}
-n.addEventListener("input",()=>{try{localStorage.setItem("neg",n.value);}catch(e){}});
-g("negr").onclick=()=>{n.value=NEG0;try{localStorage.removeItem("neg");}catch(e){}};})();
+// O negativo é de cada checkpoint: o campo e o botão Restaurar são ligados no bloco de perfis.
+function negGet(){const v=document.getElementById("neg").value.trim();return v||pf().neg;}
 const $=id=>document.getElementById(id);
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const many=(a,n)=>[...a].sort(()=>Math.random()-.5).slice(0,n);
@@ -496,8 +512,8 @@ function make(){
  if(bold&&!(fav&&F&&$("fkeep").checked)){who.push(...many(g==="girl"?["hand on own hip","looking back","arched back","hand in own hair","leaning forward","half-closed eyes","seductive smile","parted lips","bare shoulders"]:["hand in own hair","looking back","half-closed eyes","smirk","collarbone"],2));clothes.push(...many(g==="girl"?["babydoll","chemise","nightgown","sideboob","underbust","red bra","cleavage","off shoulder","midriff","crop top","short shorts","miniskirt","halterneck","backless dress","lace trim","thighhighs","garter straps"]:["open shirt","unbuttoned shirt","rolled-up sleeves","loose tie","bare chest"].slice(0,4),2));}
  const BANS=new Set([...(t.ban||[]),...(to.ban||[])]),F2=a=>a.filter(x=>![...BANS].some(b=>x.includes(b))&&(bold||!SUG.has(x)));
  if(fr==="bg"){const sc2=free?[pick(LOC),...many(ENV,4),...many(lights,2),pick(comp)]:[...many(t.s,Math.min(7,t.s.length)),...many(lights,2),pick(comp)];
-  return {txt:[(bold?Q:"general, "+Q),"",["no humans","scenery",...many(depth,2)].join(", ")+",","",sc2.join(", ")].join("\n"),theme:t.n};}
- return {txt:[(bold?Q:"general, "+Q),"",F2(who).join(", ")+",","",F2(clothes).join(", ")+",","",F2(scene).join(", ")].join("\n"),theme:t.n};
+  return {txt:[(bold?pf().q:"general, "+pf().q),"",["no humans","scenery",...many(depth,2)].join(", ")+",","",sc2.join(", ")].join("\n"),theme:t.n};}
+ return {txt:[(bold?pf().q:"general, "+pf().q),"",F2(who).join(", ")+",","",F2(clothes).join(", ")+",","",F2(scene).join(", ")].join("\n"),theme:t.n};
 }
 $("gen").onclick=()=>{const r=make();delete $("txt").dataset.src;$("txt").value=ulInject(r.txt,ulPack());$("txt").hidden=true;$("edit").setAttribute("aria-pressed","false");$("theme").textContent=(mode==="fav"?"Favorita: "+(curF()?curF().name:"padrão")+" · ":"")+($("scene").value?"Cenário: ":"Cenário sorteado: ")+r.theme;$("out").style.display="block";$("send").hidden=false;if($("auto").checked)sendN();};
 const rs=()=>Math.floor(Math.random()*9e15);
@@ -516,7 +532,7 @@ $("seedrnd").onclick=()=>{$("seed").value="";seedUI();};
 $("seedlast").onclick=()=>{if(!LAST){$("seedh").textContent="Ainda não há imagem gerada nesta sessão.";return;}$("seed").value=String(LAST.s3);seedUI();};
 seedUI();
 function mkSnap(){const r=mkSnap0();r.ck=CK;r.ul=r._ful||ulPack();delete r._ful;r.text=ulInject(r.text,r.ul);return r;}
-function mkSnap0(){const sp=$("speed").value;const o={neg:negGet(),text:$("txt").value,steps:sp?26:WF["3"].inputs.steps,...seeds(),sp,o:$("fmt").value};
+function mkSnap0(){const sp=$("speed").value;const o={neg:negGet(),text:$("txt").value,steps:pfSteps(sp),pf:pfSnap(),...seeds(),sp,o:$("fmt").value};
  if(mode==="fav"&&$("fseed").checked){const f=curF();if(f&&f.s){Object.assign(o,f.s);if(Array.isArray(f.ul))o._ful=f.ul;else if(f.lora)o._ful=[{f:f.lora,s:1,tags:[]}];}}
  if(seedVal()!=null)Object.assign(o,seeds());
  return o;}
@@ -535,7 +551,7 @@ async function send(snap){
   if(snap.lora){if(snap.sb!==false)L.push({f:"Smooth_Booster_v5.safetensors",s:snap.sbs!=null?snap.sbs:0.5});L.push({f:snap.lora,s:1});if(snap.dl===true)L.push({f:"S1 Dramatic Lighting Illustrious_V2.safetensors",s:snap.dls!=null?snap.dls:0.8});}
   (snap.ul||[]).forEach(u=>L.push({f:u.f,s:+u.s}));L.forEach((u,i)=>{I["lora_"+(i+1)]={on:true,lora:u.f,strength:u.s};});}
  w[CK_NODE].inputs.ckpt_name=snap.ck||CK_DEF;
- w["3"].inputs.steps=snap.steps;w["1"].inputs.width=snap.o==="l"?1216:832;w["1"].inputs.height=snap.o==="l"?832:1216;
+ w["3"].inputs.steps=snap.steps;pfApply(w,snap);
  if(snap.sp)w["57"].inputs.images=[snap.sp==="ultra"?"10":"25",0];
  w["3"].inputs.seed=snap.s3;w["24"].inputs.seed=snap.s24;w["58"].inputs.seed=snap.s58;
  if(snap.up)upWire(w,snap);
@@ -964,6 +980,75 @@ $("ckq").oninput=ckPickRender;
 $("ckq").onkeydown=e=>{if(e.key==="Escape"){e.preventDefault();ckClose();const t=$("cktr");if(t)t.focus();}if(e.key==="Enter"){e.preventDefault();const b=$("ckres").querySelector(".ulo:not(:disabled)");if(b)b.click();}};
 window.addEventListener("storage",e=>{if(e.key==="ckpt"||e.key==="ckpt_miss"||e.key==="ckpt_recent"){ckLoad();ckRender();}});
 ckRender();
+/* ---- Perfil de configurações por checkpoint (compartilhado entre gerador e jogo) ---- */
+// Cada checkpoint guarda sampler, CFG, steps, clip skip, tamanhos, prompt de qualidade e negativo.
+// O preset entra na primeira vez que o checkpoint é usado; depois vale o que o usuário salvou.
+const PF_KEY="ck_profiles";
+const PF_DEF={steps:35,cfg:4,sampler:"dpmpp_2m",scheduler:"karras",clip:1,p:[832,1216],l:[1216,832],s:[1024,1024],hd:0.35,q:Q,neg:NEG0};
+// Velvette-XL V4: valores da página do modelo no Civitai; prompt de qualidade e negativo copiados exatamente como estão lá.
+const PF_PRESETS=[{re:/velvette/i,name:"Velvette-XL",p:{steps:24,cfg:3,sampler:"dpmpp_2m",scheduler:"karras",clip:2,p:[1152,1344],l:[1536,896],s:[1024,1024],hd:0.35,
+ q:"(masterpiece, high quality, best quality, amazing quality, very-aesthetic, newest, scenery, very awa):8, (detailed, ultra-detailed, addmicrodetails, intricate details):8, (8k, Ultra HD, high resolution, absurdres, incredibly absurdres, hdr):8, (ultra detailed face, detailed eyes, extremely detailed eyes, perfect eyes, detailed iris):8,",
+ neg:"(worst aesthetic, flat color):8, \n(bad quality, low detail, worst quality):8, (bad eyes, bad iris, undetailed eyes, undetaled face, bad face):8, \n(bad anatomy, bad hands, extra fingers, distorted hands):8, (malformed, deformed, distorted, mutated, blurry):8, \n(patreon username, twitter username, artist name, signature, web address, weibo watermark, watermark, url):8,"}}];
+const pfCopy=o=>JSON.parse(JSON.stringify(o));
+const pfPreset=ck=>PF_PRESETS.find(x=>x.re.test(ck||""))||null;
+function pfDefault(ck){const m=pfPreset(ck);return pfCopy(m?m.p:PF_DEF);}
+let PFS={};try{const x=JSON.parse(localStorage.getItem(PF_KEY)||"{}");if(x&&typeof x==="object")PFS=x;}catch(e){}
+function pfSave(){try{localStorage.setItem(PF_KEY,JSON.stringify(PFS));}catch(e){}}
+function pf(ck){
+ ck=ck||CK;
+ if(!PFS[ck]){
+  const P=pfDefault(ck);
+  // Sem preset: o negativo que o usuário já tinha personalizado antes dos perfis vem junto.
+  if(!pfPreset(ck))try{const sv=localStorage.getItem("neg");if(sv!==null&&sv.trim())P.neg=sv;}catch(e){}
+  PFS[ck]=P;pfSave();
+ }
+ const P=PFS[ck];for(const k in PF_DEF)if(P[k]==null)P[k]=pfCopy(PF_DEF[k]);return P;
+}
+// O que vai junto com cada imagem para Variar e Upscale refazerem igual (prompt e negativo já estão no snap).
+function pfSnap(){const P=pf();return {steps:P.steps,cfg:P.cfg,sampler:P.sampler,scheduler:P.scheduler,clip:P.clip,p:P.p,l:P.l,s:P.s,hd:P.hd};}
+const pfSteps=sp=>{const n=pf().steps;return sp?Math.min(n,26):n;};
+// Imagens antigas, de antes dos perfis, não têm pf: foram feitas com os valores padrão.
+function pfDims(snap){const P=snap.pf||PF_DEF;return P[snap.o]||(typeof DIMS!=="undefined"&&DIMS[snap.o])||P.p;}
+function pfApply(w,snap){
+ const P=snap.pf||PF_DEF,K=w["3"].inputs,D=pfDims(snap);
+ K.cfg=P.cfg;K.sampler_name=P.sampler;K.scheduler=P.scheduler;w["24"].inputs.denoise=P.hd;
+ w["1"].inputs.width=D[0];w["1"].inputs.height=D[1];
+ if(+P.clip>1){w["70"]={inputs:{stop_at_clip_layer:-(+P.clip),clip:["15",1]},class_type:"CLIPSetLastLayer",_meta:{title:"Clip skip"}};w["4"].inputs.clip=["70",0];w["17"].inputs.clip=["70",0];}
+}
+let KS_LISTS=null;try{KS_LISTS=JSON.parse(localStorage.getItem("ks_lists")||"null");}catch(e){}
+const KS_FALL={s:["euler","euler_ancestral","dpmpp_2m","dpmpp_2m_sde","dpmpp_sde","dpmpp_3m_sde","lcm","ddim","uni_pc"],c:["normal","karras","exponential","sgm_uniform","simple","ddim_uniform","beta"]};
+async function ksLists(){
+ try{const j=await (await fetch(ulBase()+"/object_info/KSampler")).json(),r=j.KSampler.input.required,s=r.sampler_name[0],c=r.scheduler[0];
+  if(Array.isArray(s)&&Array.isArray(c)){KS_LISTS={s,c};try{localStorage.setItem("ks_lists",JSON.stringify(KS_LISTS));}catch(e){}pfRender();}}catch(e){}
+}
+const dimTxt=d=>d[0]+"×"+d[1];
+function dimParse(v){const m=String(v).match(/(\d+)\s*[x×*]\s*(\d+)/i);if(!m)return null;const r=n=>Math.max(256,Math.min(4096,Math.round(+n/8)*8));return [r(m[1]),r(m[2])];}
+function pfFill(sel,list,v){sel.innerHTML="";[...new Set([...(list||[]),v])].forEach(x=>{const o=document.createElement("option");o.value=o.textContent=x;sel.appendChild(o);});sel.value=v;}
+function pfRender(){
+ const P=pf(),pr=pfPreset(CK),L=KS_LISTS||KS_FALL;
+ $("pfname").textContent=ulName(CK)+(pr?" · preset "+pr.name:"");$("pfname").title=CK;
+ $("pfsteps").value=P.steps;$("pfcfg").value=P.cfg;pfFill($("pfsamp"),L.s,P.sampler);pfFill($("pfsch"),L.c,P.scheduler);
+ $("pfclip").value=String(P.clip);$("pfhd").value=P.hd;$("pfp").value=dimTxt(P.p);$("pfl").value=dimTxt(P.l);if($("pfs"))$("pfs").value=dimTxt(P.s);
+ $("pfq").value=P.q;$("neg").value=P.neg;
+ document.querySelectorAll(".pf [aria-invalid]").forEach(x=>x.removeAttribute("aria-invalid"));
+}
+(()=>{
+ const num=(id,k,min,max)=>{$(id).onchange=()=>{const v=+$(id).value;if($(id).value===""||!isFinite(v)||v<min||v>max){$(id).setAttribute("aria-invalid","true");return;}$(id).removeAttribute("aria-invalid");pf()[k]=v;pfSave();};};
+ num("pfsteps","steps",1,150);num("pfcfg","cfg",0,30);num("pfhd","hd",0,1);
+ $("pfsamp").onchange=()=>{pf().sampler=$("pfsamp").value;pfSave();};
+ $("pfsch").onchange=()=>{pf().scheduler=$("pfsch").value;pfSave();};
+ $("pfclip").onchange=()=>{pf().clip=+$("pfclip").value;pfSave();};
+ ["p","l","s"].forEach(k=>{const el=$("pf"+k);if(!el)return;el.onchange=()=>{const d=dimParse(el.value);if(!d){el.setAttribute("aria-invalid","true");return;}el.removeAttribute("aria-invalid");el.value=dimTxt(d);pf()[k]=d;pfSave();};});
+ // O prompt é montado em blocos separados por linha em branco, então o de qualidade precisa ficar numa linha só.
+ $("pfq").oninput=()=>{pf().q=$("pfq").value.replace(/\s*\n\s*/g," ");pfSave();};
+ $("neg").oninput=()=>{pf().neg=$("neg").value;pfSave();};
+ $("negr").onclick=()=>{pf().neg=pfDefault(CK).neg;pfSave();$("neg").value=pf().neg;};
+ $("pfreset").onclick=()=>{if(!confirm("Voltar todas as configurações de "+ulName(CK)+" ao padrão, incluindo o negativo?"))return;PFS[CK]=pfDefault(CK);pfSave();pfRender();};
+ $("advd").addEventListener("toggle",()=>{if($("advd").open&&!KS_LISTS)ksLists();});
+})();
+{const ck0=ckSet;ckSet=function(f){ck0(f);pfRender();};}
+window.addEventListener("storage",e=>{if(e.key===PF_KEY){try{PFS=JSON.parse(e.newValue||"{}")||{};}catch(x){}pfRender();}else if(e.key==="ckpt")pfRender();});
+pfRender();
 if(UL.length||CK!==CK_DEF)setTimeout(()=>{fxLists(true).then(ok=>{if(ok)fxApply();});},700);
 
 /* ---- Imagem → tags (WD14 Tagger do pysssss rodando no ComfyUI) ---- */
@@ -999,7 +1084,7 @@ function tgApply(str){
  const HEAD=/^(\d+\+?(girl|boy)s?|solo|multiple (girls|boys)|no humans)$/,seen=new Set(),head=[],B={who:[],cl:[],sc:[],st:[]};
  String(str).split(",").map(s=>s.trim()).filter(Boolean).forEach(t=>{const tt=ulEsc(t.replace(/_/g," ")),k=ulNorm(tt);if(!k||seen.has(k))return;seen.add(k);(HEAD.test(k)?head:B[ulClass(tt)]).push(tt);});
  const blk=a=>a.join(", ")+",";
- const txt=[($("bold").checked?Q:"general, "+Q),"",blk([...head,...B.st,...B.who]),"",blk(B.cl),"",B.sc.join(", ")].join("\n");
+ const txt=[($("bold").checked?pf().q:"general, "+pf().q),"",blk([...head,...B.st,...B.who]),"",blk(B.cl),"",B.sc.join(", ")].join("\n");
  const t=$("txt");t.value=ulInject(txt,ulPack());t.dataset.src="tags";t.hidden=false;$("edit").setAttribute("aria-pressed","true");
  $("theme").textContent="Tags extraídas da imagem · "+seen.size+" tags. Revise e envie.";$("out").style.display="block";$("send").hidden=false;
  $("tst").textContent="Pronto: "+seen.size+" tags. O prompt está no painel do prompt, pronto para editar ou enviar.";
@@ -1101,7 +1186,7 @@ function wsBin(buf){
 $("url").addEventListener("change",()=>{if(WS)wsOpen();});
 
 function mkCard(snap){
- const card=document.createElement("div");card.className="card";card._snap=snap;card.style.aspectRatio=snap.o==="l"?"1216/832":"832/1216";
+ const card=document.createElement("div");card.className="card";card._snap=snap;card.style.aspectRatio=pfDims(snap).join("/");
  const sk=document.createElement("div");sk.className="sk";sk.setAttribute("aria-hidden","true");
  const xb=document.createElement("button");xb.className="x";xb.innerHTML='<iconify-icon icon="lucide:x" width="16" height="16"></iconify-icon>';xb.setAttribute("aria-label","Remover imagem");
  xb.onclick=()=>{const pid=card.dataset.pid,busy=card.querySelector(".sk");const aft=animRemove(card);card.remove();pgDrop(card);if(aft)aft();if(card._id){HIST=HIST.filter(h=>h.id!==card._id);saveH();}if(busy&&pid)cancelJob(pid);};
