@@ -499,6 +499,21 @@ function renderF(){
 renderF();
 try{const fv=localStorage.getItem("frame");if(fv!==null)document.getElementById("frame").value=fv;}catch(e){}
 document.getElementById("frame").addEventListener("change",e=>{try{localStorage.setItem("frame",e.target.value);}catch(x){}});
+// Enquadramento: o que fica fora do quadro não entra no prompt. Roupa ou pose de perna num retrato fazem o
+// modelo afastar a câmera para mostrar a peça. Vale também para o enquadramento sorteado.
+const FR_HEAD=["portrait","face focus","close-up","candid portrait"],FR_UPPER=["upper body","upper body portrait","medium shot"];
+function frameLevel(who){const s=new Set(who);if(s.has("full body")||s.has("wide angle shot"))return"full";if(s.has("cowboy shot"))return"cowboy";if(FR_UPPER.some(t=>s.has(t)))return"upper";if(FR_HEAD.some(t=>s.has(t)))return"head";return"full";}
+const RX_HEADWEAR=/hair|\bears?\b|earring|\bhat\b|\bcap\b|beret|beanie|hood|helmet|crown|tiara|circlet|headdress|headband|headwear|headpiece|veil|glasses|eyewear|mask|choker|collar|necklace|\bneck|scarf|ribbon|\bbow\b|bowtie|piercing|horn|makeup|lipstick|eyeshadow|eyeliner|halo|earmuffs|headphones|\bbell\b|pendant|jewelry|bare shoulders|off.shoulder|collarbone/;
+const RX_LOWWEAR=/skirt|pants|shorts|trousers|hakama|jeans|leggings|legwear|thighhigh|socks|stocking|pantyhose|tights|boots|shoes|sandals|heels|footwear|sneakers|loafers|garter|anklet|fishnet|sarong|swim trunks|bikini bottom|bare legs|thigh strap|side slit|highleg|\bthighs\b/;
+const RX_FEET=/boots|shoes|sandals|heels|footwear|sneakers|loafers|socks|anklet|kneehigh|barefoot|\bfeet\b/;
+const RX_LEGPOSE=/legs|squatting|crouching|kneeling|sitting|lying|^on (back|side|stomach)$|reclining|walking|midair|standing|contrapposto|bent over|thighs|wide hips|partially submerged|\bfeet\b|barefoot/;
+const RX_BODYPOSE=/\bhands?\b|\barms?\b|pointing|^(v|w|double v|double w)$|claw pose|holding|finger|reaching|outstretched|adjusting|stretching|arched back|leaning|breasts|cleavage|midriff|navel|curvy|muscular|toned|bare back|\btall\b|sideboob|underbust|\btail\b/;
+function frameKeep(t,lv,kind){
+ const k=String(t).toLowerCase();
+ if(lv==="full")return true;
+ if(kind==="cl")return lv==="head"?RX_HEADWEAR.test(k):lv==="upper"?!RX_LOWWEAR.test(k):!RX_FEET.test(k);
+ return lv==="head"?!(RX_LEGPOSE.test(k)||RX_BODYPOSE.test(k)):lv==="upper"?!RX_LEGPOSE.test(k):!RX_FEET.test(k);
+}
 function make(){
  const fav=mode==="fav", F=fav?curF():null, g=mode==="rand"?pick(["girl","boy"]):(fav?(F?F.g:"girl"):mode), sc=$("scene").value, free=sc==="free", t=free?{n:"Livre",o:[],s:[]}:(sc===""?pick(T):T[+sc]), to=(sc===""||free||$("match").checked)?t:pick(T);
  const tag=g==="girl"?"1girl":"1boy";
@@ -515,7 +530,8 @@ function make(){
  const BANS=new Set([...(t.ban||[]),...(to.ban||[])]),F2=a=>a.filter(x=>![...BANS].some(b=>x.includes(b))&&(bold||!SUG.has(x)));
  if(fr==="bg"){const sc2=free?[pick(LOC),...many(ENV,4),...many(lights,2),pick(comp)]:[...many(t.s,Math.min(7,t.s.length)),...many(lights,2),pick(comp)];
   return {txt:[(bold?pf().q:"general, "+pf().q),"",["no humans","scenery",...many(depth,2)].join(", ")+",","",sc2.join(", ")].join("\n"),theme:t.n};}
- return {txt:[(bold?pf().q:"general, "+pf().q),"",F2(who).join(", ")+",","",F2(clothes).join(", ")+",","",F2(scene).join(", ")].join("\n"),theme:t.n};
+ const lv=frameLevel(who),W=F2(who).filter(x=>frameKeep(x,lv,"who")),C=F2(clothes).filter(x=>frameKeep(x,lv,"cl"));
+ return {txt:[(bold?pf().q:"general, "+pf().q),"",W.join(", ")+",","",C.join(", ")+",","",F2(scene).join(", ")].join("\n"),theme:t.n};
 }
 $("gen").onclick=()=>{const r=make();delete $("txt").dataset.src;$("txt").value=ulInject(r.txt,ulPack());$("txt").hidden=true;$("edit").setAttribute("aria-pressed","false");$("theme").textContent=(mode==="fav"?"Favorita: "+(curF()?curF().name:"padrão")+" · ":"")+($("scene").value?"Cenário: ":"Cenário sorteado: ")+r.theme;$("out").style.display="block";$("send").hidden=false;if($("auto").checked)sendN();};
 const rs=()=>Math.floor(Math.random()*9e15);
