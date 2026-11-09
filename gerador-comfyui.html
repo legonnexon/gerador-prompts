@@ -386,6 +386,10 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none}
 <p class="hint">Quanto o botão Hires fix do visualizador redesenha. Em 0.30 ele arruma rosto, mãos e olhos sem mudar a pose; acima de 0.45 a pose pode mudar.</p>
 <label class="ck"><input type="checkbox" id="bold">Modo ousado</label>
 <p class="hint">Ligado: sorteia roupas e poses mais sugestivas (sem nudez). Desligado: remove essas tags do sorteio e coloca a tag general no começo do prompt.</p>
+<span class="lb" style="margin-top:14px">Backup</span>
+<div class="act" style="margin-top:0"><button id="bkexp" type="button"><iconify-icon icon="lucide:download" width="18" height="18"></iconify-icon>Exportar</button><button id="bkimp" type="button"><iconify-icon icon="lucide:upload" width="18" height="18"></iconify-icon>Importar</button></div>
+<input type="file" id="bkfile" accept="application/json,.json" hidden>
+<p class="hint" id="bkst" role="status">Salva num arquivo as favoritas, LoRAs, perfis dos modelos, personagens do jogo, negativos e históricos. As configurações ficam só neste navegador; sem backup, limpar os dados dele apaga tudo.</p>
 <p class="hint">Dica: aperte Espaço para gerar.</p>
 </div></span></div>
 <section id="out" aria-live="polite">
@@ -1164,6 +1168,30 @@ function hfWire(w,snap){
  w["24"].inputs.denoise=snap.hfd;w["57"].inputs.images=["25",0];
  ["1","3","10","58","65"].forEach(k=>delete w[k]);
 }
+
+/* ---- Backup: exporta e importa as configurações do gerador e do jogo num arquivo .json ---- */
+// Só as chaves dos dois apps (o navegador divide o mesmo armazenamento entre arquivos locais).
+// Ficam de fora os caches que se refazem sozinhos: listas de LoRAs e modelos, samplers e tempos de geração.
+const BK_KEYS=/^(anim|bold_v2|cfy_url|char_i|chars|ckpt|ckpt_recent|ck_profiles|fav_sel|favs|frame|hf_den|hist|hist_game|neg|qty|seed|sh_fmt|sh_txt|snd_on|tag_model|tag_thr|up_det|uloras|lora_f|sbs|dls|[a-z]+_on)$/;
+const BK_APP="gerador-prompts";
+$("bkexp").onclick=()=>{
+ const data={};try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(BK_KEYS.test(k))data[k]=localStorage.getItem(k);}}catch(e){$("bkst").textContent="Não consegui ler as configurações deste navegador.";return;}
+ const d=new Date(),dia=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify({app:BK_APP,v:1,data},null,1)],{type:"application/json"}));
+ a.download="gerador-prompts-backup-"+dia+".json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+ $("bkst").textContent="Backup exportado: "+Object.keys(data).length+" configurações em "+a.download+".";
+};
+$("bkimp").onclick=()=>$("bkfile").click();
+$("bkfile").onchange=async()=>{
+ const f=$("bkfile").files[0];$("bkfile").value="";if(!f)return;
+ let j=null;try{j=JSON.parse(await f.text());}catch(e){}
+ if(!j||j.app!==BK_APP||!j.data||typeof j.data!=="object"){$("bkst").textContent="Esse arquivo não é um backup do gerador.";return;}
+ const keys=Object.keys(j.data).filter(k=>BK_KEYS.test(k)&&typeof j.data[k]==="string");
+ if(!keys.length){$("bkst").textContent="O backup está vazio.";return;}
+ if(!confirm("Importar "+keys.length+" configurações de "+f.name+"? Elas substituem as atuais (favoritas, LoRAs, perfis, personagens e históricos). A página recarrega em seguida."))return;
+ try{keys.forEach(k=>localStorage.setItem(k,j.data[k]));}catch(e){$("bkst").textContent="Não consegui gravar: o armazenamento do navegador está cheio.";return;}
+ location.reload();
+};
 
 /* ---- Progresso ao vivo (WebSocket do ComfyUI) ---- */
 const CID=window.crypto&&crypto.randomUUID?crypto.randomUUID():"c"+Date.now()+Math.random().toString(16).slice(2);
