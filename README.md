@@ -113,7 +113,17 @@ Basta abrir os arquivos no navegador. O ComfyUI precisa estar rodando (padrão `
 **Sorteio do prompt**
 - Personagem: garota, garoto, sorteio ou uma favorita salva.
 - Raça (fox, angel, dragon, elf, demon, wolf, oni, fairy...), cenário (cidade à noite, café, medieval, fantasia, inverno, gótico, praia, piscina...) ou modo livre, com todas as tags misturadas.
-- Enquadramento (retrato, meio corpo, cowboy shot, corpo inteiro ou só o fundo). Roupa e pose respeitam o enquadramento: num retrato só entram acessórios da cabeça e do pescoço. Desligando "Limitado ao enquadramento", volta o sorteio livre, com roupa e pose do corpo todo, que às vezes rende imagens mais inesperadas.
+- Enquadramento: retrato, meio corpo, cowboy shot, corpo inteiro ou só o fundo (sem personagem). Também pode ser sorteado.
+- **Limitado ao enquadramento** (ligado por padrão): tira do prompt o que fica fora do quadro, para a câmera não se afastar tentando mostrar uma roupa ou pose que não cabe. Vale também quando o enquadramento é sorteado:
+
+  | Enquadramento | O que fica de fora |
+  |---|---|
+  | Retrato, rosto, close-up | Roupa do corpo, poses de perna e de mão, tipo de corpo e cauda. Só entram acessórios da cabeça e do pescoço (chapéu, brinco, óculos, gola, cachecol, colar). |
+  | Meio corpo, busto | Peças da cintura para baixo (saia, calça, botas, meias) e poses de perna. |
+  | Cowboy shot | Calçados e meias. |
+  | Corpo inteiro | Nada. |
+
+  Com a opção desligada, volta o sorteio livre: roupa e pose do corpo todo entram em qualquer enquadramento. Fica menos fiel ao quadro escolhido, mas às vezes sai uma imagem mais inesperada e interessante.
 - Roupa combinando com o cenário, ou sorteada à parte.
 - Modo ousado (opcional): roupas e poses mais sugestivas, sem nudez.
 - O prompt pode ser editado antes de enviar.
@@ -143,10 +153,19 @@ Basta abrir os arquivos no navegador. O ComfyUI precisa estar rodando (padrão `
 - Variar (mesma ideia, outra seed), Hires fix (arruma rosto e mãos da imagem pronta) e Upscale (Fiel, só aumenta; ou Com detalhes).
 - Cancelar uma imagem na fila pelo ×.
 
-**Configurações**
-- Backup: exporta e importa num arquivo `.json` as favoritas, LoRAs, perfis, personagens do jogo, negativos e históricos.
-- Negativo editável por modelo, aviso sonoro ao terminar a fila e animações opcionais.
-- Tema claro ou escuro automático; funciona também no celular.
+**Configurações (engrenagem no canto superior direito)**
+- **Animações:** liga as animações da galeria e do visualizador. Elas usam a biblioteca anime.js, baixada da internet só quando a opção está ligada.
+- **Aviso sonoro ao terminar a fila:** toca um bipe quando a última imagem da fila fica pronta, para você poder fazer outra coisa enquanto gera.
+- **Upscale:** escolhe como o botão Upscale do visualizador amplia a imagem.
+  - *Fiel:* só aumenta com o 4x-UltraSharp. Não redesenha nada: a anatomia fica igual.
+  - *Com detalhes:* aumenta e redesenha de leve, por blocos. Fica mais nítido, mas pode mudar detalhes pequenos.
+- **Hires fix: denoise:** quanto o botão Hires fix redesenha a imagem (de 0.05 a 0.8). Em 0.30 ele arruma rosto, mãos e olhos sem mudar a pose; acima de 0.45 a pose pode mudar.
+- **Modo ousado:** ligado, o sorteio inclui roupas e poses mais sugestivas (sem nudez). Desligado, essas tags saem e o prompt começa com a tag `general`, que pede uma imagem para todos os públicos.
+- **Backup:** *Exportar* baixa um arquivo `.json` com as favoritas, LoRAs, perfis dos modelos, personagens do jogo, negativos e históricos; *Importar* carrega esse arquivo de volta. As configurações ficam só no navegador, então faça um backup antes de limpar os dados dele ou de trocar de navegador.
+
+**Outras**
+- Negativo editável por modelo, na seção Negativo.
+- Tema claro ou escuro automático, seguindo o do sistema; funciona também no celular.
 
 ### Jogo
 
