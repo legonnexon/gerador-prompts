@@ -113,7 +113,7 @@ Basta abrir os arquivos no navegador. O ComfyUI precisa estar rodando (padrão `
 **Sorteio do prompt**
 - Personagem: garota, garoto, sorteio ou uma favorita salva.
 - Raça (fox, angel, dragon, elf, demon, wolf, oni, fairy...), cenário (cidade à noite, café, medieval, fantasia, inverno, gótico, praia, piscina...) ou modo livre, com todas as tags misturadas.
-- Enquadramento (retrato, meio corpo, cowboy shot, corpo inteiro ou só o fundo). Roupa e pose respeitam o enquadramento: num retrato só entram acessórios da cabeça e do pescoço. Desligando "Só o que cabe no enquadramento", volta o sorteio livre, com roupa e pose do corpo todo, que às vezes rende imagens mais inesperadas.
+- Enquadramento (retrato, meio corpo, cowboy shot, corpo inteiro ou só o fundo). Roupa e pose respeitam o enquadramento: num retrato só entram acessórios da cabeça e do pescoço. Desligando "Limitado ao enquadramento", volta o sorteio livre, com roupa e pose do corpo todo, que às vezes rende imagens mais inesperadas.
 - Roupa combinando com o cenário, ou sorteada à parte.
 - Modo ousado (opcional): roupas e poses mais sugestivas, sem nudez.
 - O prompt pode ser editado antes de enviar.
