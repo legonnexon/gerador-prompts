@@ -32,6 +32,13 @@ Basta abrir os arquivos no navegador. O ComfyUI precisa estar rodando (padrão `
 
 As configurações ficam no armazenamento do navegador. Use o backup antes de limpar os dados dele ou de trocar de navegador.
 
+## Workflows
+
+Os workflows já vêm embutidos nas páginas; a pasta [`workflows`](workflows) tem as mesmas versões em arquivo, no formato API do ComfyUI, para conferir os nodes e modelos ou abrir no ComfyUI (arraste o arquivo para a tela dele):
+
+- [`illustrious-api.json`](workflows/illustrious-api.json): geração do gerador e dos retratos do jogo (KSampler, hires fix com DMD2 e tile upscale). O app troca prompt, LoRAs, checkpoint, tamanho e seed a cada envio.
+- [`flux-2-klein-4b-api.json`](workflows/flux-2-klein-4b-api.json): character sheet do jogo. O app troca a imagem de referência, a instrução e a seed.
+
 ## Como contribuir
 
 - Achou um bug ou teve uma ideia? Abra uma [issue](../../issues) contando o que aconteceu, qual página (gerador ou jogo) e, se tiver, a mensagem que apareceu no topo da tela.

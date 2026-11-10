@@ -1,0 +1,330 @@
+{
+  "1": {
+    "inputs": {
+      "width": 832,
+      "height": 1216,
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage",
+    "_meta": {
+      "title": "Imagem Latente Vazia"
+    }
+  },
+  "3": {
+    "inputs": {
+      "seed": 828317518510267,
+      "steps": 35,
+      "cfg": 4,
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "karras",
+      "denoise": 1,
+      "model": [
+        "15",
+        0
+      ],
+      "positive": [
+        "4",
+        0
+      ],
+      "negative": [
+        "17",
+        0
+      ],
+      "latent_image": [
+        "1",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "4": {
+    "inputs": {
+      "text": "highly detailed, sharp focus, intricate lineart, fine textures, absurdres, intricate details, detailed textures, detailed background, complex details,\n\n1girl, solo, upper body, front view, looking away, crossed legs, smiling, white hair, wavy hair, single hair bun, wispy bangs, pink eyes, elf ears, bags under eyes, blurry background, shallow depth of field,\n\nschool uniform, sailor collar, knee socks, school bag, pleated skirt, neck ribbon, loafers,\n\nclassroom, chalkboard, falling petals, sunset through window, nostalgic atmosphere, wooden desks, dramatic lighting, steam haze, serene composition",
+      "clip": [
+        "15",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "Codificação de Texto CLIP (Prompt)"
+    }
+  },
+  "6": {
+    "inputs": {
+      "ckpt_name": "waiIllustriousSDXL_v170.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Carregar Checkpoint"
+    }
+  },
+  "10": {
+    "inputs": {
+      "samples": [
+        "3",
+        0
+      ],
+      "vae": [
+        "6",
+        2
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decodificar"
+    }
+  },
+  "15": {
+    "inputs": {
+      "PowerLoraLoaderHeaderWidget": {
+        "type": "PowerLoraLoaderHeaderWidget"
+      },
+      "lora_1": {
+        "on": true,
+        "lora": "Smooth_Booster_v5.safetensors",
+        "strength": 0.5
+      },
+      "lora_2": {
+        "on": true,
+        "lora": "aiE382A4E383A9E382B9E38388E3818A.cG1u.safetensors",
+        "strength": 1
+      },
+      "lora_3": {
+        "on": false,
+        "lora": "takorin_ILXL_v4 (1).safetensors",
+        "strength": 1
+      },
+      "➕ Add Lora": "",
+      "model": [
+        "6",
+        0
+      ],
+      "clip": [
+        "6",
+        1
+      ]
+    },
+    "class_type": "Power Lora Loader (rgthree)",
+    "_meta": {
+      "title": "Power Lora Loader (rgthree)"
+    }
+  },
+  "17": {
+    "inputs": {
+      "text": "3d, (worst quality, low quality, normal quality, lowres, blurry, jpeg artifacts), (bad anatomy, bad hands, missing fingers, extra fingers, fewer fingers, extra limbs, malformed limbs), (text, watermark, signature, logo), monochrome, grayscale, extra head, extra body, bad perspective, deformed face, poorly drawn eyes, poorly drawn hands, mutated",
+      "clip": [
+        "15",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "Codificação de Texto CLIP (Prompt)"
+    }
+  },
+  "19": {
+    "inputs": {
+      "upscale_model": [
+        "20",
+        0
+      ],
+      "image": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "ImageUpscaleWithModel",
+    "_meta": {
+      "title": "Aumentar Resolução da Imagem (usando Modelo)"
+    }
+  },
+  "20": {
+    "inputs": {
+      "model_name": "4x-UltraSharp.safetensors"
+    },
+    "class_type": "UpscaleModelLoader",
+    "_meta": {
+      "title": "Carregar Modelo de Upscale"
+    }
+  },
+  "21": {
+    "inputs": {
+      "upscale_method": "lanczos",
+      "megapixels": 3.86,
+      "resolution_steps": 1,
+      "image": [
+        "19",
+        0
+      ]
+    },
+    "class_type": "ImageScaleToTotalPixels",
+    "_meta": {
+      "title": "Redimensionar Imagem para Total de Pixels"
+    }
+  },
+  "23": {
+    "inputs": {
+      "tile_size": 1536,
+      "overlap": 64,
+      "temporal_size": 64,
+      "temporal_overlap": 8,
+      "pixels": [
+        "21",
+        0
+      ],
+      "vae": [
+        "6",
+        2
+      ]
+    },
+    "class_type": "VAEEncodeTiled",
+    "_meta": {
+      "title": "VAE Codificar (Em Blocos)"
+    }
+  },
+  "24": {
+    "inputs": {
+      "seed": 1,
+      "steps": 4,
+      "cfg": 1,
+      "sampler_name": "lcm",
+      "scheduler": "ddim_uniform",
+      "denoise": 0.35,
+      "model": [
+        "33",
+        0
+      ],
+      "positive": [
+        "4",
+        0
+      ],
+      "negative": [
+        "17",
+        0
+      ],
+      "latent_image": [
+        "23",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "25": {
+    "inputs": {
+      "tile_size": 1536,
+      "overlap": 64,
+      "temporal_size": 64,
+      "temporal_overlap": 8,
+      "samples": [
+        "24",
+        0
+      ],
+      "vae": [
+        "6",
+        2
+      ]
+    },
+    "class_type": "VAEDecodeTiled",
+    "_meta": {
+      "title": "VAE Decodificar (Em Blocos)"
+    }
+  },
+  "33": {
+    "inputs": {
+      "lora_name": "dmd2_sdxl_4step_lora_fp16.safetensors",
+      "strength_model": 1,
+      "model": [
+        "15",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "LoraLoaderModelOnly"
+    }
+  },
+  "57": {
+    "inputs": {
+      "filename_prefix": "Simplesmente IA/Illustrious",
+      "images": [
+        "58",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Salvar Imagem"
+    }
+  },
+  "58": {
+    "inputs": {
+      "upscale_by": 1.5,
+      "seed": 2,
+      "steps": 3,
+      "cfg": 1,
+      "sampler_name": "euler_ancestral",
+      "scheduler": "karras",
+      "denoise": 0.2,
+      "mode_type": "Linear",
+      "tile_width": 1024,
+      "tile_height": 1024,
+      "mask_blur": 8,
+      "tile_padding": 32,
+      "seam_fix_mode": "None",
+      "seam_fix_denoise": 1,
+      "seam_fix_width": 64,
+      "seam_fix_mask_blur": 8,
+      "seam_fix_padding": 16,
+      "force_uniform_tiles": true,
+      "tiled_decode": false,
+      "batch_size": 1,
+      "image": [
+        "25",
+        0
+      ],
+      "model": [
+        "33",
+        0
+      ],
+      "positive": [
+        "4",
+        0
+      ],
+      "negative": [
+        "17",
+        0
+      ],
+      "vae": [
+        "6",
+        2
+      ],
+      "upscale_model": [
+        "20",
+        0
+      ]
+    },
+    "class_type": "UltimateSDUpscale",
+    "_meta": {
+      "title": "Ultimate SD Upscale"
+    }
+  },
+  "65": {
+    "inputs": {
+      "images": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Imagem de Pré-visualização"
+    }
+  }
+}
