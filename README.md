@@ -31,3 +31,19 @@ Basta abrir os arquivos no navegador. O ComfyUI precisa estar rodando (padrão `
 - Character sheet: `flux-2-klein-4b-fp8`, `qwen3_4b_fp8_scaled` e `flux2-vae`.
 
 As configurações ficam no armazenamento do navegador. Use o backup antes de limpar os dados dele ou de trocar de navegador.
+
+## Como contribuir
+
+- Achou um bug ou teve uma ideia? Abra uma [issue](../../issues) contando o que aconteceu, qual página (gerador ou jogo) e, se tiver, a mensagem que apareceu no topo da tela.
+- Quer mudar algo? Faça um fork, altere o HTML e mande um pull request explicando o que mudou e como testou.
+- O projeto não tem build nem dependências: cada página é um arquivo HTML só. As duas páginas repetem parte do código (LoRAs, checkpoint, envio ao ComfyUI); ao mudar uma dessas partes, confira se a outra página precisa da mesma mudança.
+- As ideias que ainda não foram feitas estão no [TODO.md](TODO.md).
+
+## Créditos
+
+- Preset do Velvette-XL: prompt de qualidade, negativo e configurações recomendadas pelo autor do modelo na [página do Civitai](https://civitai.com/models/1972843).
+- Modelos e nodes usados pelos workflows pertencem aos respectivos autores: WAI-Illustrious, 4x-UltraSharp, DMD2, rgthree (Power Lora Loader), Ultimate SD Upscale, WD14 Tagger (pysssss) e Flux 2 Klein (Black Forest Labs).
+
+## Licença
+
+[MIT](LICENSE): pode usar, modificar e distribuir, desde que mantenha o aviso de copyright.
