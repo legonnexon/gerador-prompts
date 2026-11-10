@@ -618,7 +618,7 @@ function vbuild(){
  const mk=(n,t,f)=>{const b=document.createElement("button");b.type="button";b.innerHTML=ic(n,16)+t;b.onclick=()=>{closeNow();f();};VA.appendChild(b);};
  {const cb=document.createElement("button");cb.type="button";cb.innerHTML=ic("copy",16)+"Copiar prompt";cb.onclick=()=>copyPrompt(sn,cb,1);VA.appendChild(cb);}
  if(!sn.up&&!sn.hf)mk("wand-sparkles","Hires fix",()=>hfSend(card));
- if(sn.sp&&!sn.up)mk("maximize-2","Upscale",()=>upSend(card));
+ if(!sn.up)mk("maximize-2","Upscale",()=>upSend(card));
  const r=()=>Math.floor(Math.random()*9e15);
  mk("dices","Variar",()=>send({...sn,up:undefined,upd:undefined,hf:undefined,hfd:undefined,...seedSet(r())}));
  if(sn.s3!=null){const sb=document.createElement("button");sb.type="button";sb.innerHTML=ic("hash",16)+"Copiar seed";sb.title="Seed: "+sn.s3;sb.onclick=()=>copyPrompt({text:String(sn.s3)},sb,1);VA.appendChild(sb);}
@@ -1144,14 +1144,23 @@ function upRender(){document.querySelectorAll("#upm button").forEach(b=>b.setAtt
  $("upnote").textContent=UPD?"Aumenta e redesenha de leve, por blocos (denoise "+UP_DEN+"). Fica mais nítido, mas pode mudar detalhes pequenos.":"Só aumenta a imagem pronta com o 4x-UltraSharp. Não redesenha nada: a anatomia fica igual.";}
 document.querySelectorAll("#upm button").forEach(b=>b.onclick=()=>{UPD=b.dataset.v==="1";try{localStorage.setItem("up_det",UPD?"1":"0");}catch(e){}upRender();});
 upRender();
-function upSend(card){const sn=card._snap,im=card._im;if(!sn||!im){$("st").textContent="Não achei o arquivo desta imagem no ComfyUI.";return;}send({...sn,up:{filename:im.filename,subfolder:im.subfolder||"",type:im.type||"output"},upd:UPD});}
+function upSend(card){
+ const sn=card._snap,im=card._im;if(!sn||!im){$("st").textContent="Não achei o arquivo desta imagem no ComfyUI.";return;}
+ // Tamanho atual da imagem, lido da miniatura já carregada no card: o alvo do upscale parte dele.
+ const g=card.querySelector("a img"),mp=g&&g.naturalWidth?g.naturalWidth*g.naturalHeight/1e6:0;
+ send({...sn,hf:undefined,hfd:undefined,up:{filename:im.filename,subfolder:im.subfolder||"",type:im.type||"output",mp},upd:UPD});
+}
+// Imagens do Completo já saem com ~8,7 MP: crescem 1,5x por lado, até 20 MP, para não estourar a memória do ComfyUI.
+const UP_MAXMP=20;
+function upFielMP(snap){const m=snap.up&&snap.up.mp;return m?+Math.max(UP_MP,Math.min(m*2.25,UP_MAXMP)).toFixed(2):UP_MP;}
+function upDetBy(snap){const m=snap.up&&snap.up.mp;if(!m)return snap.sp==="ultra"?3:1.5;return +Math.min(3,Math.max(1.25,Math.sqrt(UP_MP/m),0)).toFixed(2);}
 // "pasta/arquivo.png [output]" faz o LoadImage ler direto da pasta output do ComfyUI.
 const upAnn=im=>(im.subfolder?im.subfolder+"/":"")+im.filename+" ["+(im.type||"output")+"]";
 function upWire(w,snap){
  w["90"]={inputs:{image:upAnn(snap.up)},class_type:"LoadImage",_meta:{title:"Carregar Imagem"}};
- if(snap.upd){["1","3","10","19","21","23","24","25","65"].forEach(k=>delete w[k]);Object.assign(w["58"].inputs,{image:["90",0],upscale_by:snap.sp==="ultra"?3:1.5,denoise:UP_DEN});w["57"].inputs.images=["58",0];return;}
+ if(snap.upd){["1","3","10","19","21","23","24","25","65"].forEach(k=>delete w[k]);Object.assign(w["58"].inputs,{image:["90",0],upscale_by:upDetBy(snap),denoise:UP_DEN});w["57"].inputs.images=["58",0];return;}
  Object.keys(w).forEach(k=>{if(!["19","20","21","57","90"].includes(k))delete w[k];});
- w["19"].inputs.image=["90",0];Object.assign(w["21"].inputs,{image:["19",0],megapixels:UP_MP});w["57"].inputs.images=["21",0];
+ w["19"].inputs.image=["90",0];Object.assign(w["21"].inputs,{image:["19",0],megapixels:upFielMP(snap)});w["57"].inputs.images=["21",0];
 }
 
 /* ---- Hires fix da imagem pronta: o hires do workflow, começando da imagem salva ---- */
@@ -1253,7 +1262,7 @@ function showImg(card,im){
  const a=document.createElement("a");a.href=u;card._u=u;a.onclick=e=>{e.preventDefault();openV(card);};const g=document.createElement("img");g.alt="Imagem gerada";a.appendChild(g);
  g.onload=()=>{const k=card.querySelector(".sk");if(k)k.replaceWith(a);pgDrop(card);animIn(card,card._d);imgDone(card);const sn=card._snap;if(sn&&!card.querySelector(".fv"))mkStar(card);
   if(sn&&sn.text&&!card.querySelector(".cp")){const c=document.createElement("button");c.className="up cp";c.type="button";c.innerHTML='<iconify-icon icon="lucide:copy" width="13" height="13"></iconify-icon>Prompt';c.title="Copiar o prompt desta imagem";c.onclick=e=>{e.stopPropagation();copyPrompt(sn,c);};card.appendChild(c);}
-  if(sn&&sn.sp&&!sn.up&&!card.querySelector(".up:not(.cp)")){const b=document.createElement("button");b.className="up";b.innerHTML='<iconify-icon icon="lucide:maximize-2" width="13" height="13"></iconify-icon>Upscale';b.title="Aumentar esta imagem pronta, sem gerar de novo";b.onclick=()=>upSend(card);card.appendChild(b);}};
+  if(sn&&!sn.up&&!card.querySelector(".up:not(.cp)")){const b=document.createElement("button");b.className="up";b.innerHTML='<iconify-icon icon="lucide:maximize-2" width="13" height="13"></iconify-icon>Upscale';b.title="Aumentar esta imagem pronta, sem gerar de novo";b.onclick=()=>upSend(card);card.appendChild(b);}};
  g.onerror=()=>card.remove();
  g.src=u;
 }
